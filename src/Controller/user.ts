@@ -18,10 +18,10 @@ const getUserById = async (req: Request, res: Response) => {
 
 const addUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, phone, address, password } = req.body;
+    const { firstName, lastName, email, phone, city, state, country, password } = req.body;
 
     // 🔹 Validate required fields
-    if (!name || !email || !phone || !address || !password) {
+    if (!firstName || !lastName || !email || !phone || !city || !state || !country || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -42,10 +42,13 @@ const addUser = async (req: Request, res: Response) => {
 
     // 🔹 Create new user (password gets hashed automatically in model)
     const user = await User.create({
-      name,
+      firstName,
+      lastName,
       email,
       phone,
-      address,
+      city,
+      state,
+      country,
       password,
     });
 
@@ -127,10 +130,13 @@ const loginUser = async (req: Request, res: Response) => {
       token,
       user: {
         id: user._id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         phone: user.phone,
-        address: user.address,
+        city: user.city,
+        state: user.state,
+        country: user.country,
       },
     });
   } catch (error) {

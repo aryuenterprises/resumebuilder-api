@@ -2,17 +2,25 @@ import { Schema, model, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   phone: string;
-  address: string;
+  city: string;
+  state: string;
+  country: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>(
   {
-    name: {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    lastName: {
       type: String,
       required: true,
       trim: true,
@@ -40,7 +48,15 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
     },
-    address: {
+    city: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      required: true,
+    },
+    country: {
       type: String,
       required: true,
     },
