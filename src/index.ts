@@ -22,7 +22,7 @@ import userRoutes from './routes/users.js';
 import candidateRoutes from './routes/candidates';
 // import templateRoutes from './routes/templates';
 // import contactRoutes from './routes/contact.js';
-import candidateRouter from './routes/candidates';
+// import candidateRouter from './routes/candidates';
 import autoEmailSendJob from './cron/email.js';
 import templateRoutes from './routes/templates.js';
 import contactResumeRouter from './routes/contactResumeRouter.js';
@@ -56,7 +56,7 @@ await connectDB()
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/candidates', candidateRouter);
+// app.use('/api/candidates', candidateRouter);
 app.use('/api/templates', templateRoutes);
 app.use('/api/contacts', contactRouter);
 app.use('/api/contact-resume', contactResumeRouter);
