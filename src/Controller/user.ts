@@ -20,10 +20,10 @@ const addUser = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, phone, city, state, country, password } = req.body;
 
-    // 🔹 Validate required fields
-    if (!firstName || !lastName || !email || !phone || !city || !state || !country || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    // // 🔹 Validate required fields
+    // if (!firstName || !lastName || !email || !phone || !city || !state || !country || !password) {
+    //   return res.status(400).json({ message: "All fields are required" });
+    // }
 
     // 🔹 Validate password strength
     const strongPasswordRegex =
