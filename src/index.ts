@@ -31,6 +31,8 @@ import educationRouter from './routes/educationRouter.js';
 import skillResumeRouter from './routes/skillResumeRouter.js';
 import desiredJobTitleRouter from './routes/desiredJobTitleRouter.js'
 import planSubscriptionRouter from './routes/planSubscriptionRouter.js'
+import summaryRouter from './routes/summaryRouter.js'
+import finalizeResumeRouter from './routes/finalizeResumeRouter.js'
 // Resolve __dirname in ES Module context
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,6 +67,8 @@ app.use('/api/education', educationRouter);
 app.use('/api/skill', skillResumeRouter);
 app.use('/api/desired-job-title', desiredJobTitleRouter);
 app.use('/api/plan-subscription', planSubscriptionRouter);
+app.use('/api/summary', summaryRouter);
+app.use('/api/finalize-resume', finalizeResumeRouter);
 }
 start();
 app.listen(PORT, () => {
