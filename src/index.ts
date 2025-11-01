@@ -33,6 +33,8 @@ import desiredJobTitleRouter from './routes/desiredJobTitleRouter.js'
 import planSubscriptionRouter from './routes/planSubscriptionRouter.js'
 import summaryRouter from './routes/summaryRouter.js'
 import finalizeResumeRouter from './routes/finalizeResumeRouter.js'
+import keyboardRouter from './routes/keyboardRouter.js';
+import toneRouter from './routes/toneRouter.js';
 // Resolve __dirname in ES Module context
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,6 +71,8 @@ app.use('/api/desired-job-title', desiredJobTitleRouter);
 app.use('/api/plan-subscription', planSubscriptionRouter);
 app.use('/api/summary', summaryRouter);
 app.use('/api/finalize-resume', finalizeResumeRouter);
+app.use('/api/keyboard-resume', keyboardRouter);
+app.use('/api/tone-resume', toneRouter);
 }
 start();
 app.listen(PORT, () => {
