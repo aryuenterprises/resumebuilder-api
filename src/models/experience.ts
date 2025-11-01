@@ -5,8 +5,8 @@ interface IExperienceDetail {
     employer: string;
     location: string;
     startDate: Date;
-    endDate?: Date;
-    description?: string;
+    endDate?: string;
+    text?: string;
 }
 
 export interface IExperience extends Document {
@@ -32,10 +32,10 @@ const ExperienceDetailSchema = new Schema<IExperienceDetail>({
         required: true,
     },
     endDate: {
-        type: Date,
+        type: String,
         required: false,
     },
-    description: {
+    text: {
         type: String,
         required: false,
     },

@@ -35,33 +35,74 @@ const createFinalizeResume = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-const updateFinalizeResume = async (req: Request, res: Response): Promise<void> => {
+// const updateFinalizeResume = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const { id } = req.params;
+
+//     const updatedResume = await FinalizeResume.findByIdAndUpdate(id, req.body, {
+//       new: true,
+//       runValidators: true,
+//     });
+
+//     if (!updatedResume) {
+//       res.status(404).json({ message: 'Finalize Resume not found' });
+//       return;
+//     }
+
+//     res.status(200).json({
+//       message: 'Finalize Resume updated successfully',
+//       data: updatedResume,
+//     });
+//   } catch (error: any) {
+//     res.status(500).json({ message: 'Error updating Finalize Resume', error: error.message });
+//   }
+// };
+
+
+const updateFinalizeResume = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id, contactId } = req.query;
+    const { globalSkillsData } = req.body;
 
-    const updatedResume = await FinalizeResume.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    let existingExperience;
 
-    if (!updatedResume) {
-      res.status(404).json({ message: 'Finalize Resume not found' });
-      return;
+    if (id) {
+      existingExperience = await FinalizeResume.findOne({ _id: id, contactId });
+    } else {
+      existingExperience = await FinalizeResume.findOne({ contactId });
     }
 
+    if (!existingExperience) {
+      const newExperience = new FinalizeResume({
+        contactId,
+        globalSkillsData,
+      });
+
+      const savedExperience = await newExperience.save();
+      return res.status(201).json({
+        message: "Finalize created successfully",
+        data: savedExperience,
+      });
+    }
+
+    existingExperience.globalSkillsData =
+      globalSkillsData || existingExperience.globalSkillsData;
+    const updatedExperience = await existingExperience.save();
+
     res.status(200).json({
-      message: 'Finalize Resume updated successfully',
-      data: updatedResume,
+      message: "Finalize updated successfully",
+      data: updatedExperience,
     });
   } catch (error: any) {
-    res.status(500).json({ message: 'Error updating Finalize Resume', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating experience", error: error.message });
   }
 };
-
 const getFinalizeResumeById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const resume = await FinalizeResume.findById({ contactId: id });
+    const resume = await FinalizeResume.find({ contactId: id });
     if (!resume) {
       res.status(404).json({ message: 'Finalize Resume not found' });
       return;

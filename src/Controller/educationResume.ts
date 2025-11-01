@@ -21,27 +21,67 @@ import { Education } from '../models/educationResume';
     }
 };
 
+// const updateEducation = async (req: Request, res: Response) => {
+//     try {
+//         const { id } = req.params; // Experience document _id
+//         const { education } = req.body;
+
+//         const updated = await Education.findByIdAndUpdate(
+//             id,
+//             { education },
+//             { new: true }
+//         );
+
+//         if (!updated) {
+//             return res.status(404).json({ message: 'Experience not found' });
+//         }
+
+//         res.status(200).json({ message: 'Experience updated successfully', data: updated });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Error updating experience', error });
+//     }
+// };
 const updateEducation = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params; // Experience document _id
-        const { education } = req.body;
+  try {
+    const { id, contactId } = req.query;
+    const { education } = req.body;
 
-        const updated = await Education.findByIdAndUpdate(
-            id,
-            { education },
-            { new: true }
-        );
+    let existingExperience;
 
-        if (!updated) {
-            return res.status(404).json({ message: 'Experience not found' });
-        }
-
-        res.status(200).json({ message: 'Experience updated successfully', data: updated });
-    } catch (error) {
-        res.status(500).json({ message: 'Error updating experience', error });
+    if (id) {
+      existingExperience = await Education.findOne({ _id: id, contactId });
+    } else {
+      existingExperience = await Education.findOne({ contactId });
     }
-};
 
+    if (!existingExperience) {
+      const newExperience = new Education({
+        contactId,
+        education,
+      });
+
+      const savedExperience = await newExperience.save();
+      return res
+        .status(201)
+        .json({
+          message: "Education created successfully",
+          data: savedExperience,
+        });
+    }
+
+    existingExperience.education = education || existingExperience.education;
+    const updatedExperience = await existingExperience.save();
+
+    res.status(200).json({
+      message: "Education updated successfully",
+      data: updatedExperience,
+    });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Error updating experience", error: error.message });
+  }
+};
 const getEducationById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;

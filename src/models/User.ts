@@ -10,6 +10,7 @@ export interface IUser extends Document {
   city: string;
   state: string;
   country: string;
+  status: string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -59,6 +60,10 @@ const userSchema = new Schema<IUser>(
     country: {
       type: String,
       required: true,
+    },
+    status: {
+      type:String,
+      default:'1'
     },
   },
   { timestamps: true }

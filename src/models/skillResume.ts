@@ -14,12 +14,12 @@ export interface ISkill extends Document {
 const SkillDetailSchema = new Schema<ISkillDetail>({
     skill: {
         type: String,
-        required: true,
+        required: false,
     },
    
     level: {
         type: String,
-        required: true,
+        required: false,
     }
 });
 

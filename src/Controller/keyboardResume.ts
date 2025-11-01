@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 
 const createKeyboard = async (req: Request, res: Response) => {
     try {
-        const { name } = req.body;
-        const keyboardResume = new Keyboard({ name });
+        const { name,status } = req.body;
+        const keyboardResume = new Keyboard({ name,status });
         await keyboardResume.save();
         res.status(201).json(keyboardResume);
     } catch (error) {

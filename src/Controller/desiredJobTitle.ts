@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 
 const createDesiredJobTitle = async (req: Request, res: Response) => {
     try {
-        const { name } = req.body;
-        const desiredJobTitle = new DesiredJobTitle({ name });
+        const { name,status } = req.body;
+        const desiredJobTitle = new DesiredJobTitle({ name, status });
         await desiredJobTitle.save();
         res.status(201).json(desiredJobTitle);
     } catch (error) {
