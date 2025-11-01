@@ -13,21 +13,25 @@ export interface IContactResume extends Document {
     city: string;
     address: string;
     postCode: string;
+    linkedIn: string;
+    portfolio: string;
 }
 
 const ContactResumeSchema = new Schema<IContactResume>({
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    firstName: { type: String, required: [true, "First Name is required"] },
-    lastName: { type: String, required: [true, "Last Name is required"] },
-    email: { type: String, required: [true, "Email is required"] },
-    jobTitle: { type: String, required: [true, "Job Title is required"] },
-    keywords: { type: [String], required: [true, "Keywords is required"] },
-    tones: { type: [String], required: [true, "Tones is required"] },
-    phone: { type: String, required: [true, "Phone is required"] },
-    country: { type: String, required: [true, "Country is required"] },
-    city: { type: String, required: [true, "City is required"] },
-    address: { type: String, required: [true, "Address is required"] },
-    postCode: { type: String, required: [true, "Post Code is required"] },
+    firstName: { type: String, required: [false, "First Name is required"] },
+    lastName: { type: String, required: [false, "Last Name is required"] },
+    email: { type: String, required: [false, "Email is required"] },
+    jobTitle: { type: String, required: [false, "Job Title is required"] },
+    keywords: { type: [String], required: [false, "Keywords is required"] },
+    tones: { type: [String], required: [false, "Tones is required"] },
+    phone: { type: String, required: [false, "Phone is required"] },
+    country: { type: String, required: [false, "Country is required"] },
+    city: { type: String, required: [false, "City is required"] },
+    address: { type: String, required: [false, "Address is required"] },
+    postCode: { type: String, required: [false, "Post Code is required"] },
+    linkedIn: { type: String, required: false },
+    portfolio: { type: String, required: false },
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
 export const ContactResume = model<IContactResume>("ContactResume", ContactResumeSchema);

@@ -19,7 +19,11 @@ interface ContactMessageBody {
     const newMessage = new ContactMessage({ name, email, message });
     const savedMessage = await newMessage.save();
 
-    res.status(201).json(savedMessage);
+    res.status(201).json({
+      success: true,
+      message: "Message created successfully",
+      data: savedMessage,
+    });
   } catch (error: any) {
      //  Handle Mongoose validation errors
         if (error instanceof mongoose

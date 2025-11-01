@@ -1,7 +1,7 @@
 import mongoose, {Document, Schema} from "mongoose";
 export interface ISummary extends Document {
     contactId: mongoose.Types.ObjectId;
-    summary: string;
+    text: string;
 }
 
 const SummarySchema = new Schema<ISummary>({
@@ -10,7 +10,7 @@ const SummarySchema = new Schema<ISummary>({
         ref: 'ContactResume',
         required: true,
     },
-    summary: {
+    text: {
         type: String,
         required: true,
     },

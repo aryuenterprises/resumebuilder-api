@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Candidate from '../models/Candidate';
+import {ContactResume} from '../models/ContactResume';
 import mongoose from 'mongoose';
 
  const createCandidate = async (req: Request, res: Response) => {
@@ -82,6 +83,9 @@ import mongoose from 'mongoose';
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
 
 export {
   createCandidate,

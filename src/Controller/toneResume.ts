@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 
 const createTone = async (req: Request, res: Response) => {
     try {
-        const { name } = req.body;
-        const toneResume = new Tone({ name });
+        const { name,status } = req.body;
+        const toneResume = new Tone({ name, status });
         await toneResume.save();
         res.status(201).json(toneResume);
     } catch (error) {

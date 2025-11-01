@@ -1,6 +1,8 @@
 import {Router} from 'express';
-import {createExperience, updateExperience} from '../Controller/experience';
+import {getAllContacts,createExperience, updateExperience, getExperienceById} from '../Controller/experience';
 const experienceRouter = Router();
 experienceRouter.post('/create', createExperience);
-experienceRouter.put('/update/:id', updateExperience);
+experienceRouter.post('/update', updateExperience);
+experienceRouter.get('/get-experience/:id', getExperienceById);
+experienceRouter.get('/get-all-contacts/:id', getAllContacts);
 export default experienceRouter;

@@ -1,14 +1,17 @@
+import { getFinalizeResume } from 'Controller/finalizeResume';
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IFinalizeResume extends Document {
   contactId: Types.ObjectId;
-  languages: { language: string; skill: string }[];
-  certificationsAndLicenses: string;
-  hobbiesAndInterests: string[];
-  awardsAndHonors: string;
-  websitesAndSocialMedia: { websiteUrl: string; socialMedia: string }[];
-  references: string;
-  customSection: { sectionName: string; description: string }[];
+  globalSkillsData: {
+    languages: { language: string; skill: string }[];
+    certificationsAndLicenses: string;
+    hobbiesAndInterests: string[];
+    awardsAndHonors: string;
+    websitesAndSocialMedia: { websiteUrl: string; socialMedia: string }[];
+    references: string;
+    customSection: { sectionName: string; description: string }[];
+  };
 }
 
 const FinalizeResumeSchema = new Schema<IFinalizeResume>({
@@ -17,42 +20,47 @@ const FinalizeResumeSchema = new Schema<IFinalizeResume>({
     ref: 'ContactResume',
     required: true,
   },
-  languages: [
-    {
-      language: { type: String, required: true },
-      skill: { type: String, required: true },
-    },
-  ],
-  certificationsAndLicenses: {
-    type: String,
-    required: true,
-  },
-  hobbiesAndInterests: [
-    {
+  globalSkillsData: {
+    languages: [
+      {
+        language: { type: String, required: false },
+        skill: { type: String, required: false },
+      },
+    ],
+    certificationsAndLicenses: {
       type: String,
-      required: true,
+      required: false,
     },
-  ],
-  awardsAndHonors: {
-    type: String,
-    required: true,
+    hobbiesAndInterests: [
+      {
+        type: String,
+        required: false,
+      },
+    ],
+    awardsAndHonors: {
+      type: String,
+      required: false,
+    },
+    websitesAndSocialMedia: [
+      {
+        websiteUrl: { type: String, required: false },
+        socialMedia: { type: String, required: false },
+      },
+    ],
+    references: {
+      type: String,
+      required: false,
+    },
+    customSection: [
+      {
+        sectionName: { type: String, required: false },
+        description: { type: String, required: false },
+      },
+    ],
   },
-  websitesAndSocialMedia: [
-    {
-      websiteUrl: { type: String, required: true },
-      socialMedia: { type: String, required: true },
-    },
-  ],
-  references: {
-    type: String,
-    required: true,
-  },
-  customSection: [
-    {
-      sectionName: { type: String, required: true },
-      description: { type: String, required: true },
-    },
-  ],
-});
+}, { timestamps: true });
 
-export const FinalizeResume = model<IFinalizeResume>('FinalizeResume', FinalizeResumeSchema);
+export const FinalizeResume = model<IFinalizeResume>(
+  'FinalizeResume',
+  FinalizeResumeSchema
+);

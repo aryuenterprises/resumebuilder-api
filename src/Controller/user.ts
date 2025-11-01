@@ -110,6 +110,11 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    if (user.status === '0') {
+      return res.status(401).json({ message: "User is inactive" });
+    }
+
+
     // 🔹 Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -119,7 +124,7 @@ const loginUser = async (req: Request, res: Response) => {
     // 🔹 Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email },
-      process.env.JWT_SECRET || "your_secret_key", // ⚠️ Use env variable in production
+      process.env.JWT_SECRET || "your_secret_key",
       { expiresIn: "1h" }
     );
 
@@ -151,11 +156,11 @@ const loginUser = async (req: Request, res: Response) => {
 
 // Update user
 const editUser = async (req: Request, res: Response) => {
-  const { name, email, phone, address } = req.body;
+  const {firstName, lastName, email, phone, city, state, country, status} = req.body;
 
   const user = await User.findByIdAndUpdate(
     req.params.id,
-    { name, email, phone, address },
+    {firstName, lastName, email, phone, city, state, country, status},
     { new: true }
   );
 
@@ -165,8 +170,16 @@ const editUser = async (req: Request, res: Response) => {
 
 // Delete user
 const deleteUser = async (req: Request, res: Response) => {
-  const user = await User.findByIdAndDelete(req.params.id);
-  if (!user) return res.status(404).json({ message: "User not found" });
-  res.json({ message: "User deleted successfully" });
+ try {
+        const { id } = req.params;
+        const desiredJobTitle = await User.findByIdAndDelete(id);
+        if (!desiredJobTitle) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ message: 'user deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 };
 export { getAllUsers, getUserById, addUser, editUser, deleteUser, loginUser };

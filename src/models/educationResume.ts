@@ -1,12 +1,12 @@
 import {Schema, model, Document, Types} from 'mongoose';
 
 interface IEducationDetail {
-    schoolName: string;
+    schoolname: string;
     location: string;
     degree: string;
-    startYear: number;
-    endYear?: number;
-    description?: string;
+    startDate: number;
+    endDate?: number;
+    text?: string;
 }
 
 export interface IEducation extends Document {
@@ -15,28 +15,28 @@ export interface IEducation extends Document {
 }
 
 const EducationDetailSchema = new Schema<IEducationDetail>({
-    schoolName: {
+    schoolname: {
         type: String,
-        required: true,
+        required: false,
     },
    
     location: {
         type: String,
-        required: true,
+        required: false,
     },
     degree: {
         type: String,
-        required: true,
+        required: false,
     },
-    startYear: {
-        type: Number,
-        required: true,
-    },
-    endYear: {
+    startDate: {
         type: Number,
         required: false,
     },
-    description: {
+    endDate: {
+        type: Number,
+        required: false,
+    },
+    text: {
         type: String,
         required: false,
     },
