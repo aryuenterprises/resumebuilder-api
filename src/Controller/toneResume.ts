@@ -4,10 +4,24 @@ import mongoose from 'mongoose';
 
 const createTone = async (req: Request, res: Response) => {
     try {
-        const { name,status } = req.body;
-        const toneResume = new Tone({ name, status });
+        const { desiredJobTitle,keywords,tones,status } = req.body;
+        const toneResume = new Tone({ desiredJobTitle,keywords,tones,status });
         await toneResume.save();
         res.status(201).json(toneResume);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const getToneById = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.query;
+        const toneResume = await Tone.find({ desiredJobTitle: id }).populate('desiredJobTitle');
+        if (!toneResume) {
+            return res.status(404).json({ error: 'Tone Resume not found' });
+        }
+        res.json(toneResume);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -27,12 +41,14 @@ const getTone = async (req: Request, res: Response) => {
 const editTone = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, status } = req.body;
+        const { desiredJobTitle,keywords,tones,status } = req.body;
         const toneResume = await Tone.findById(id);
         if (!toneResume) {
             return res.status(404).json({ error: 'Tone Resume not found' });
         }
-        toneResume.name = name;
+        toneResume.desiredJobTitle = desiredJobTitle;
+        toneResume.keywords = keywords;
+        toneResume.tones = tones;
         toneResume.status = status;
         await toneResume.save();
         res.json(toneResume);
@@ -60,5 +76,6 @@ export {
     createTone,
     getTone,
     editTone,
-    deleteTone
+    deleteTone,
+    getToneById
 }

@@ -1,28 +1,35 @@
 import { Schema, model, Document, Types } from "mongoose";
 
 export interface IContactResume extends Document {
-    userId: Types.ObjectId;
-    firstName: string;
-    lastName: string;
-    jobTitle: string;
-    keywords: string[];
-    tones: string[];
-    phone: string;
-    email: string;
-    country: string;
-    city: string;
-    address: string;
-    postCode: string;
-    linkedIn: string;
-    portfolio: string;
+  userId: Types.ObjectId;
+  firstName: string;
+  lastName: string;
+  templateId: string;
+  jobTitle: Types.ObjectId;
+  keywords: string[];
+  tones: string[];
+  phone: string;
+  email: string;
+  country: string;
+  city: string;
+  address: string;
+  postCode: string;
+  linkedIn: string;
+  portfolio: string;
 }
 
-const ContactResumeSchema = new Schema<IContactResume>({
+const ContactResumeSchema = new Schema<IContactResume>(
+  {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     firstName: { type: String, required: [false, "First Name is required"] },
     lastName: { type: String, required: [false, "Last Name is required"] },
+    templateId: { type: String, required: [false, "Template is required"] },
     email: { type: String, required: [false, "Email is required"] },
-    jobTitle: { type: String, required: [false, "Job Title is required"] },
+    jobTitle: {
+      type: Schema.Types.ObjectId,
+      ref: "DesiredJobTitle",
+      required: false,
+    },
     keywords: { type: [String], required: [false, "Keywords is required"] },
     tones: { type: [String], required: [false, "Tones is required"] },
     phone: { type: String, required: [false, "Phone is required"] },
@@ -32,6 +39,11 @@ const ContactResumeSchema = new Schema<IContactResume>({
     postCode: { type: String, required: [false, "Post Code is required"] },
     linkedIn: { type: String, required: false },
     portfolio: { type: String, required: false },
-}, { timestamps: { createdAt: true, updatedAt: false } });
+  },
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
 
-export const ContactResume = model<IContactResume>("ContactResume", ContactResumeSchema);
+export const ContactResume = model<IContactResume>(
+  "ContactResume",
+  ContactResumeSchema
+);

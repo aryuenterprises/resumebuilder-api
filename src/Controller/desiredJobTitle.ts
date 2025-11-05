@@ -1,11 +1,12 @@
 import {Request, Response} from 'express';
 import {DesiredJobTitle} from '../models/desiredJobTitle';
 import mongoose from 'mongoose';
+import { PlanSubscription } from '@models/planSubscription';
 
 const createDesiredJobTitle = async (req: Request, res: Response) => {
     try {
-        const { name,status } = req.body;
-        const desiredJobTitle = new DesiredJobTitle({ name, status });
+        const { name,keywords,tones, status } = req.body;
+        const desiredJobTitle = new DesiredJobTitle({ name, keywords ,tones, status });
         await desiredJobTitle.save();
         res.status(201).json(desiredJobTitle);
     } catch (error) {
@@ -15,24 +16,49 @@ const createDesiredJobTitle = async (req: Request, res: Response) => {
 };
 
 const getDesiredJobTitle = async (req: Request, res: Response) => {
-    try {
-        const desiredJobTitle = await DesiredJobTitle.find();
-        res.json(desiredJobTitle);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    // 1️⃣ Fetch all desired job titles
+    const desiredJobTitles = await DesiredJobTitle.find();
+
+    // 2️⃣ For each job title, fetch plan price
+    const results = await Promise.all(
+      desiredJobTitles.map(async (job) => {
+        const plan = await PlanSubscription.findOne({
+          desiredJobTitle: job._id,
+        });
+
+        return {
+          _id: job._id,
+          name: job.name,
+          keywords: job.keywords,
+          tones: job.tones,
+          status: job.status,
+          price: plan ? plan.price : null, // ✅ Add price directly into jobTitle
+        };
+      })
+    );
+
+    // 3️⃣ Send simplified response
+    res.json({ data: results });
+  } catch (error) {
+    console.error("Error fetching job titles:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
+
+
 
 const editDesiredJobTitle = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, status } = req.body;
+        const { name, keywords,tones, status } = req.body;
         const desiredJobTitle = await DesiredJobTitle.findById(id);
         if (!desiredJobTitle) {
             return res.status(404).json({ error: 'Desired job title not found' });
         }
         desiredJobTitle.name = name;
+        desiredJobTitle.keywords = keywords;
+        desiredJobTitle.tones = tones;
         desiredJobTitle.status = status;
         await desiredJobTitle.save();
         res.json(desiredJobTitle);

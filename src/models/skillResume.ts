@@ -8,6 +8,7 @@ interface ISkillDetail {
 
 export interface ISkill extends Document {
     contactId: Types.ObjectId;
+    templateId: string;
     skills: ISkillDetail[];
 }
 
@@ -29,6 +30,7 @@ const SkillSchema = new Schema<ISkill>({
         ref: 'ContactResume',
         required: true,
     },
+    templateId: { type: String, required: false },
     skills: [SkillDetailSchema]
 }, { timestamps: true });
 

@@ -11,6 +11,7 @@ interface IExperienceDetail {
 
 export interface IExperience extends Document {
     contactId: Types.ObjectId;
+    templateId: string;
     experiences: IExperienceDetail[];
 }
 
@@ -47,6 +48,7 @@ const ExperienceSchema = new Schema<IExperience>({
         ref: 'ContactResume',
         required: true,
     },
+    templateId: { type: String, required: false },
     experiences: [ExperienceDetailSchema]
 }, { timestamps: true });
 

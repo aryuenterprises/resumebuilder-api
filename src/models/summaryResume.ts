@@ -1,6 +1,7 @@
 import mongoose, {Document, Schema} from "mongoose";
 export interface ISummary extends Document {
     contactId: mongoose.Types.ObjectId;
+    templateId: string;
     text: string;
 }
 
@@ -10,6 +11,7 @@ const SummarySchema = new Schema<ISummary>({
         ref: 'ContactResume',
         required: true,
     },
+    templateId: { type: String, required: false },
     text: {
         type: String,
         required: true,

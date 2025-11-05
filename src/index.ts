@@ -23,7 +23,7 @@ import candidateRoutes from './routes/candidates';
 // import templateRoutes from './routes/templates';
 // import contactRoutes from './routes/contact.js';
 // import candidateRouter from './routes/candidates';
-import autoEmailSendJob from './cron/email.js';
+// import autoEmailSendJob from './cron/email.js';
 import templateRoutes from './routes/templates.js';
 import contactResumeRouter from './routes/contactResumeRouter.js';
 import experienceRouter  from './routes/experienceRouter.js';
@@ -35,6 +35,8 @@ import summaryRouter from './routes/summaryRouter.js'
 import finalizeResumeRouter from './routes/finalizeResumeRouter.js'
 import keyboardRouter from './routes/keyboardRouter.js';
 import toneRouter from './routes/toneRouter.js';
+import resumeTemplateRouter from './routes/resumeTemplateRouter.js';
+import paymentRouter from './routes/paymentRouter.js';
 // Resolve __dirname in ES Module context
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,7 +57,7 @@ app.use(morgan('dev'));
 async function start(){
 
 await connectDB()
- autoEmailSendJob()
+//  autoEmailSendJob()
 // Routes
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 app.use('/api/auth', authRoutes);
@@ -73,6 +75,8 @@ app.use('/api/summary', summaryRouter);
 app.use('/api/finalize-resume', finalizeResumeRouter);
 app.use('/api/keyboard-resume', keyboardRouter);
 app.use('/api/tone-resume', toneRouter);
+app.use('/api/resume-template', resumeTemplateRouter);
+app.use('/api/payment', paymentRouter);
 }
 start();
 app.listen(PORT, () => {

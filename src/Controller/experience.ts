@@ -5,7 +5,9 @@ import { Education } from "../models/educationResume";
 import { ContactResume } from "../models/ContactResume";
 import { Skill } from "../models/skillResume";
 import { Summary } from "../models/summaryResume";
+import { FinalizeResume } from "../models/finalizeResume";
 import { text } from "stream/consumers";
+import { PlanSubscription } from "@models/planSubscription";
 const createExperience = async (req: Request, res: Response) => {
   try {
     const { contactId, experiences } = req.body;
@@ -22,12 +24,10 @@ const createExperience = async (req: Request, res: Response) => {
     });
 
     const savedExperience = await newExperience.save();
-    res
-      .status(201)
-      .json({
-        message: "Experience created successfully",
-        data: savedExperience,
-      });
+    res.status(201).json({
+      message: "Experience created successfully",
+      data: savedExperience,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error creating experience", error });
   }
@@ -69,7 +69,7 @@ const getExperienceById = async (req: Request, res: Response) => {
 
 const updateExperience = async (req: Request, res: Response) => {
   try {
-    const { id, contactId } = req.query;
+    const { id, contactId, templateId } = req.query;
     const { experiences } = req.body;
 
     let existingExperience;
@@ -83,6 +83,7 @@ const updateExperience = async (req: Request, res: Response) => {
     if (!existingExperience) {
       const newExperience = new Experience({
         contactId,
+        templateId,
         experiences,
       });
 
@@ -111,12 +112,25 @@ const updateExperience = async (req: Request, res: Response) => {
 const getAllContacts = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const contacts = await ContactResume.find({ _id: id }).lean();
-
+    // const contacts = await ContactResume.find({ _id: id }).lean();
+    // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
+    const contacts = await ContactResume.find({ _id: id }).populate({
+    path: "jobTitle",
+    select: "name",
+  }).lean();
+    const planSubscriptions = await Promise.all(
+      contacts.map(async (contact) => {
+        const planSubscription = await PlanSubscription.findOne({
+          desiredJobTitle: contact.jobTitle,
+        });
+        return planSubscription;
+      })
+    );
     const experiences = await Experience.find().lean();
     const educations = await Education.find().lean();
     const skills = await Skill.find().lean();
     const summary = await Summary.find().lean();
+    const finalizeResumes = await FinalizeResume.find().lean();
 
     const result = contacts.map((contact) => {
       const contactIdStr = contact._id.toString();
@@ -141,12 +155,22 @@ const getAllContacts = async (req: Request, res: Response) => {
         .map((summary) => summary.text)
         .flat();
 
+      const finalize = finalizeResumes
+        .filter(
+          (finalizeResumes) =>
+            finalizeResumes.contactId?.toString() === contactIdStr
+        )
+        .map((finalizeResumes) => finalizeResumes.skillsData)
+        .flat();
+
       return {
         contact,
         experiences: contactExperiences,
         educations: contactEducations,
         skills: contactSkills,
         summary: contactSummary,
+        finalize: finalize,
+        planSubscriptions: planSubscriptions
       };
     });
 

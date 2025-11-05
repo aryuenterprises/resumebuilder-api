@@ -51,7 +51,7 @@ const getSummary = async (req: Request, res: Response) => {
 
 const updateSummary = async (req: Request, res: Response) => {
   try {
-    const { id, contactId } = req.query;
+    const { id, contactId,templateId } = req.query;
     const { text } = req.body;
 
     let existingExperience;
@@ -65,6 +65,7 @@ const updateSummary = async (req: Request, res: Response) => {
     if (!existingExperience) {
       const newExperience = new Summary({
         contactId,
+        templateId,
         text,
       });
 

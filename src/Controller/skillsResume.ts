@@ -45,7 +45,7 @@ import { Skill } from '../models/skillResume';
 
 const updateSkill = async (req: Request, res: Response) => {
   try {
-    const { id, contactId } = req.query;
+    const { id, contactId, templateId } = req.query;
     const { skills } = req.body;
 
     let existingExperience;
@@ -59,6 +59,7 @@ const updateSkill = async (req: Request, res: Response) => {
     if (!existingExperience) {
       const newExperience = new Skill({
         contactId,
+        templateId,
         skills,
       });
 
