@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 
 const createPlanSubscription = async (req: Request, res: Response) => {
     try {
-        const { price,status,desiredJobTitle } = req.body;
-        const planSubscriptionDetails = new PlanSubscription({ price,status,desiredJobTitle });
+        const { price,status,name,description } = req.body;
+        const planSubscriptionDetails = new PlanSubscription({ price,status,name,description });
         await planSubscriptionDetails.save();
         res.status(201).json(planSubscriptionDetails);
     } catch (error) {
@@ -27,13 +27,14 @@ const getPlanSubscription = async (req: Request, res: Response) => {
 const editPlanSubscription = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { price,status,desiredJobTitle } = req.body;
+        const { price,status,name,description } = req.body;
         const planSubscriptionDetails = await PlanSubscription.findById(id);
         if (!planSubscriptionDetails) {
             return res.status(404).json({ error: 'planSubscriptionDetails not found' });
         }
         planSubscriptionDetails.price = price;
-        planSubscriptionDetails.desiredJobTitle = desiredJobTitle;
+        planSubscriptionDetails.name = name;
+        planSubscriptionDetails.description = description;
         planSubscriptionDetails.status = status;
         await planSubscriptionDetails.save();
         res.json(planSubscriptionDetails);
