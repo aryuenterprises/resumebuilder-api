@@ -1,9 +1,9 @@
-name: 🚀 Resumebuilder - Deploy Node.js App via SFTP (Password Auth)
+name: 🚀 EMP Upload Files to Hostinger via SFTP
 
 on:
   push:
     branches:
-      - main  # or your deployment branch
+      - main  # Change if your deployment branch is different
 
 jobs:
   sftp-deploy:
@@ -11,34 +11,14 @@ jobs:
 
     steps:
       - name: 📥 Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: 🧰 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: 🛠️ Install & Build TypeScript Project
-        run: |
-          npm ci
-          npm run build
-
-      - name: 🔍 Verify Build Output
-        run: |
-          if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
-            echo "❌ 'dist/' directory is missing or empty!"
-            exit 1
-          else
-            echo "✅ 'dist/' directory found:"
-            ls -al dist
-          fi
-
-      - name: 🗂️ Upload Files to Hostinger via SFTP
+      - name: 📤 Upload Files to Hostinger
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          source: "dist/*"
-          target: ${{ secrets.REMOTE_DIR }}
+          port: 22
+          source: "./*"                     # Upload all files from repo
+          target: ${{ secrets.REMOTE_DIR }}  # Your Hostinger path
