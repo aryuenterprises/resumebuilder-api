@@ -114,10 +114,7 @@ const getAllContacts = async (req: Request, res: Response) => {
   try {
     // const contacts = await ContactResume.find({ _id: id }).lean();
     // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
-    const contacts = await ContactResume.find({ _id: id }).populate({
-    path: "jobTitle",
-    select: "name",
-  }).lean();
+    const contacts = await ContactResume.find({ _id: id }).lean();
     const planSubscriptions = await Promise.all(
       contacts.map(async (contact) => {
         const planSubscription = await PlanSubscription.findOne({
