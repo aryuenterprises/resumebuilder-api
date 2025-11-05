@@ -285,7 +285,8 @@ const fetchPaymentIntent = async (req: Request, res: Response) => {
 
 const getPaymentRecord = async (req: Request, res: Response) => {
   try{
-    const paymentRecord = await Payment.find();
+    const paymentRecord = await Payment.find().populate('planId','name price')
+    .populate('userId','name email');
     res.status(200).json(paymentRecord);
   }
   catch(error){
