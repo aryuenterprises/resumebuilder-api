@@ -2,7 +2,7 @@ import { User } from "@models/User";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-
+import { sendEmail } from "../services/emailService";
 // Get all users
 const getAllUsers = async (req: Request, res: Response) => {
   const users = await User.find();
@@ -51,7 +51,10 @@ const addUser = async (req: Request, res: Response) => {
       country,
       password,
     });
-
+    await sendEmail(email, "Welcome to Aryu Academy", "addUser.html", {
+      firstName,
+      email,
+    });
     res.status(201).json({
       success: true,
       message: "User created successfully",
@@ -92,6 +95,27 @@ const addUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+
+const forgotPassword = async (req: Request, res: Response) => {
+  const { email, newPassword } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+
+  user.password = newPassword;
+  await user.save();
+
+  res.json({ message: 'Password updated successfully' });
+}
 
 const loginUser = async (req: Request, res: Response) => {
   try {
@@ -182,4 +206,4 @@ const deleteUser = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-export { getAllUsers, getUserById, addUser, editUser, deleteUser, loginUser };
+export { getAllUsers, getUserById, addUser, editUser, deleteUser, loginUser, forgotPassword };

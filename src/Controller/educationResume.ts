@@ -43,7 +43,7 @@ import { Education } from '../models/educationResume';
 // };
 const updateEducation = async (req: Request, res: Response) => {
   try {
-    const { id, contactId } = req.query;
+    const { id, contactId, templateId } = req.query;
     const { education } = req.body;
 
     let existingExperience;
@@ -57,6 +57,7 @@ const updateEducation = async (req: Request, res: Response) => {
     if (!existingExperience) {
       const newExperience = new Education({
         contactId,
+        templateId,
         education,
       });
 

@@ -60,9 +60,101 @@ const createContactResume = async (req: Request, res: Response) => {
   }
 };
 
+// const updateResume = async (req: Request, res: Response) => {
+//   try {
+//     const { id, userId } = req.query;
+//     const {
+//       firstName,
+//       lastName,
+//       email,
+//       jobTitle,
+//       keywords,
+//       tones,
+//       phone,
+//       country,
+//       city,
+//       address,
+//       postCode,
+//       linkedIn,
+//       portfolio,
+//     } = req.body;
+
+//     // Step 1: Find existing resume
+//     let existingResume;
+
+//     if (id) {
+//       existingResume = await ContactResume.findOne({ _id: id, userId });
+//     } else {
+//       existingResume = await ContactResume.findOne({ userId });
+//     }
+
+//     // Step 2: If not found, create new one
+//     if (!existingResume) {
+//       const newResume = new ContactResume({
+//         userId,
+//         firstName,
+//         lastName,
+//         email,
+//         jobTitle,
+//         keywords,
+//         tones,
+//         phone,
+//         country,
+//         city,
+//         address,
+//         postCode,
+//         linkedIn,
+//         portfolio,
+//       });
+
+//       const saved = await newResume.save();
+//       return res.status(201).json({
+//         message: "Resume created successfully",
+//         resume: saved,
+//       });
+//     }
+
+//     const updateData: Record<string, any> = {};
+
+//     const allFields = {
+//       firstName,
+//       lastName,
+//       email,
+//       jobTitle,
+//       phone,
+//       country,
+//       city,
+//       address,
+//       postCode,
+//       linkedIn,
+//       portfolio,
+//       keywords,
+//       tones,
+//     };
+
+//     for (const key in allFields) {
+//       if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+//         // Directly assign the value — including empty strings
+//         updateData[key] = allFields[key];
+//       }
+//     }
+
+//     // Step 4: Apply updates
+//     Object.assign(existingResume, updateData);
+
+//     const updated = await existingResume.save();
+
+//     res.status(200).json({
+//       message: "Resume updated successfully",
+//       resume: updated,
+//     });
+//   } catch (error: any) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 const updateResume = async (req: Request, res: Response) => {
   try {
-    const { id, userId } = req.query;
+    const { id, userId, templateId } = req.query; // frontend sends templateId here
     const {
       firstName,
       lastName,
@@ -79,19 +171,24 @@ const updateResume = async (req: Request, res: Response) => {
       portfolio,
     } = req.body;
 
-    // Step 1: Find existing resume
+    if (!userId || !templateId) {
+      return res.status(400).json({ message: "userId and templateId are required" });
+    }
+
+    // 🟢 Step 1: Find an existing resume by userId and templateId
     let existingResume;
 
     if (id) {
-      existingResume = await ContactResume.findOne({ _id: id, userId });
+      existingResume = await ContactResume.findOne({ _id: id, userId, templateId });
     } else {
-      existingResume = await ContactResume.findOne({ userId });
+      existingResume = await ContactResume.findOne({ userId, templateId });
     }
 
-    // Step 2: If not found, create new one
+    // 🟢 Step 2: If not found, create a new one
     if (!existingResume) {
       const newResume = new ContactResume({
         userId,
+        templateId,
         firstName,
         lastName,
         email,
@@ -114,6 +211,7 @@ const updateResume = async (req: Request, res: Response) => {
       });
     }
 
+    // 🟢 Step 3: Prepare update data
     const updateData: Record<string, any> = {};
 
     const allFields = {
@@ -134,14 +232,12 @@ const updateResume = async (req: Request, res: Response) => {
 
     for (const key in allFields) {
       if (Object.prototype.hasOwnProperty.call(req.body, key)) {
-        // Directly assign the value — including empty strings
         updateData[key] = allFields[key];
       }
     }
 
-    // Step 4: Apply updates
+    // 🟢 Step 4: Apply updates and save
     Object.assign(existingResume, updateData);
-
     const updated = await existingResume.save();
 
     res.status(200).json({

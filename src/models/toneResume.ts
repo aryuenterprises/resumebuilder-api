@@ -1,19 +1,30 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface ITone extends Document {
-    name: string;
-    status: String;
+  desiredJobTitle: Types.ObjectId;
+  keywords: [];
+  tones: [];
+  status: String;
 }
 
 const ToneSchema = new Schema<ITone>(
-    {
-        name: { type: String, required: true },
-        status: { type: String, default:'1' },
+  {
+    desiredJobTitle: {
+      type: Schema.Types.ObjectId,
+      ref: "DesiredJobTitle",
+      required: true,
     },
-    { timestamps: true }
+    keywords: {
+      type: [String],
+      default: [],
+    },
+    tones: {
+      type: [String],
+      default: [],
+    },
+    status: { type: String, default: "1" },
+  },
+  { timestamps: true }
 );
 
-export const Tone = model<ITone>(
-    'Tone',
-    ToneSchema
-);
+export const Tone = model<ITone>("Tone", ToneSchema);

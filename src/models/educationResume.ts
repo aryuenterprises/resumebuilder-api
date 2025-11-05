@@ -11,6 +11,7 @@ interface IEducationDetail {
 
 export interface IEducation extends Document {
     contactId: Types.ObjectId;
+    templateId: string;
     education: IEducationDetail[];
 }
 
@@ -48,6 +49,7 @@ const EducationSchema = new Schema<IEducation>({
         ref: 'ContactResume',
         required: true,
     },
+    templateId: { type: String, required: false },
     education: [EducationDetailSchema]
 }, { timestamps: true });
 
