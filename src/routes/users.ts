@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addUser, deleteUser, editUser, getAllUsers, getUserById, loginUser, forgotPassword } from '../Controller/user';
+import {dashboard, addUser, deleteUser, editUser, getAllUsers, getUserById, loginUser, forgotPassword } from '../Controller/user';
 
 
 const userRouter = Router();
@@ -11,5 +11,5 @@ userRouter.post('/forgot-password', forgotPassword);
 userRouter.post('/login', loginUser);
 userRouter.put('/particular-user-edit/:id', editUser);
 userRouter.delete('/particular-user-delete/:id', deleteUser);
-
+userRouter.get('/dashboard',dashboard);
 export default userRouter;

@@ -67,7 +67,7 @@ const fetchPaymentIntent = async (req: Request, res: Response) => {
 
 const paymentUpdate = async (req: Request, res: Response) => {
   try {
-    const { paymentIntent } = req.body;
+    const { paymentIntent,planId } = req.body;
 
     const secretKey = process.env.Secret_key;
     if (!secretKey) {
@@ -105,6 +105,7 @@ const paymentUpdate = async (req: Request, res: Response) => {
         { paymentId: paymentIntent.id },
         {
           status: paymentIntent.status,
+          planId:planId,
           paymentDetails,
         },
         { new: true }
