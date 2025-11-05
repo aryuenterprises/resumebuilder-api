@@ -1,6 +1,8 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IPayment extends Document {
+  userId:Types.ObjectId;
+  templateName:string;
   paymentId: string;
   amount: number;
   currency: string;
@@ -23,6 +25,12 @@ export interface IPayment extends Document {
 
 const paymentSchema = new Schema<IPayment>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    templateName: { type: String, required: false },
     paymentId: { type: String, required: false, unique: true },
     amount: { type: Number, required: false },
     currency: { type: String, required: false },
@@ -52,5 +60,4 @@ const paymentSchema = new Schema<IPayment>(
   { timestamps: true }
 );
 
-const Payment = mongoose.model<IPayment>("Payment", paymentSchema);
-export default Payment;
+export const Payment = mongoose.model<IPayment>("Payment", paymentSchema);

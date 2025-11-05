@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
-import Payment from '../models/paymentModel'; // ✅ Adjust path as needed
+import {Payment} from '../models/paymentModel'; // ✅ Adjust path as needed
 
 const fetchPaymentIntent = async (req: Request, res: Response) => {
   try {
-    const { amount,metadata, ...paymentDetails } = req.body;
+    const { amount,metadata, userId,templateName, ...paymentDetails } = req.body;
 
     // Validate required fields
     if (!amount) {
@@ -40,6 +40,8 @@ const fetchPaymentIntent = async (req: Request, res: Response) => {
 
     // Create and save payment record
     const payment = new Payment({
+      userId:userId,
+      templateName:templateName,
       paymentId: paymentIntent.id,
       amount: paymentIntent.amount,
     //   currency: paymentIntent.currency,

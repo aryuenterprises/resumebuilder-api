@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../services/emailService";
+import { Payment } from "../models/paymentModel";
 // Get all users
 const getAllUsers = async (req: Request, res: Response) => {
   const users = await User.find();
@@ -139,6 +140,7 @@ const loginUser = async (req: Request, res: Response) => {
     }
 
 
+
     // 🔹 Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -151,6 +153,7 @@ const loginUser = async (req: Request, res: Response) => {
       process.env.JWT_SECRET || "your_secret_key",
       { expiresIn: "1h" }
     );
+    const payments = await Payment.findOne({ userId: user._id });
 
     // 🔹 Respond with token
     res.status(200).json({
@@ -166,6 +169,9 @@ const loginUser = async (req: Request, res: Response) => {
         city: user.city,
         state: user.state,
         country: user.country,
+        templateName: payments?.templateName || null,
+        amount:payments?.amount || 0,
+        status: payments?.status,
       },
     });
   } catch (error) {
