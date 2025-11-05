@@ -1,15 +1,19 @@
 import { Schema, model, Document, Types } from "mongoose";
 export interface IPlanSubscription extends Document {
-  desiredJobTitle: Types.ObjectId;
+  name: string;
+  description: string;
   price: number;
   status: string;
 }
 
 const PlanSubscriptionSchema = new Schema<IPlanSubscription>(
   {
-    desiredJobTitle: {
-      type: Schema.Types.ObjectId,
-      ref: "DesiredJobTitle",
+    name: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
       required: true,
     },
     price: {
