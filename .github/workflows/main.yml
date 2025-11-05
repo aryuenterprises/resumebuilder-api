@@ -1,4 +1,4 @@
-name: 🚀 EMP Upload Files to Hostinger via SFTP
+name: 🚀 Resumebuilder Node Upload Files to Hostinger via SFTP
 
 on:
   push:
