@@ -153,7 +153,7 @@ const loginUser = async (req: Request, res: Response) => {
       process.env.JWT_SECRET || "your_secret_key",
       { expiresIn: "1h" }
     );
-    const payments = await Payment.findOne({ userId: user._id });
+    const payments = await Payment.findOne({ userId: user._id }).populate('planId');
 
     // 🔹 Respond with token
     res.status(200).json({
@@ -169,7 +169,9 @@ const loginUser = async (req: Request, res: Response) => {
         city: user.city,
         state: user.state,
         country: user.country,
-        templateName: payments?.templateName || null,
+        planId: payments?.planId || null,
+        planName: (payments?.planId as any)?.name || '',
+        planPrice: (payments?.planId as any)?.price || '',
         amount:payments?.amount || 0,
         status: payments?.status,
       },

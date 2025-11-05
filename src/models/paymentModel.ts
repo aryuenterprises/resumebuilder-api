@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IPayment extends Document {
   userId:Types.ObjectId;
-  templateName:string;
+  planId:Types.ObjectId;
   paymentId: string;
   amount: number;
   currency: string;
@@ -30,7 +30,11 @@ const paymentSchema = new Schema<IPayment>(
       ref: "User",
       required: true,
     },
-    templateName: { type: String, required: false },
+    planId: {
+      type: Schema.Types.ObjectId,
+      ref: "PlanSubscription",
+      required: true,
+    },
     paymentId: { type: String, required: false, unique: true },
     amount: { type: Number, required: false },
     currency: { type: String, required: false },
