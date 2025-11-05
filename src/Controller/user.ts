@@ -19,7 +19,16 @@ const getUserById = async (req: Request, res: Response) => {
 
 const addUser = async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, email, phone, city, state, country, password } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      city,
+      state,
+      country,
+      password,
+    } = req.body;
 
     // // 🔹 Validate required fields
     // if (!firstName || !lastName || !email || !phone || !city || !state || !country || !password) {
@@ -97,31 +106,35 @@ const addUser = async (req: Request, res: Response) => {
   }
 };
 
-
-
 const forgotPassword = async (req: Request, res: Response) => {
   const { email, newPassword } = req.body;
 
   if (!email) {
-    return res.status(400).json({ message: 'Email is required' });
+    return res.status(400).json({ message: "Email is required" });
   }
 
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+    return res.status(404).json({ message: "User not found" });
   }
-
 
   user.password = newPassword;
   await user.save();
 
-  res.json({ message: 'Password updated successfully' });
-}
+  res.json({ message: "Password updated successfully" });
+};
 
 const dashboard = async (req: Request, res: Response) => {
   const { userId } = req.query;
-  const payments = await Payment.find({ userId: userId }).populate('planId');
-  res.json({ payments });
+  const payments = await Payment.find({ userId: userId })
+    .populate("planId", "name price")
+    .lean();
+  res.json({
+    payments: payments.map((payment) => ({
+      plan: payment.planId?.name,
+      amount: payment.planId?.price,
+      })),
+  });
 };
 
 const loginUser = async (req: Request, res: Response) => {
@@ -141,11 +154,9 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    if (user.status === '0') {
+    if (user.status === "0") {
       return res.status(401).json({ message: "User is inactive" });
     }
-
-
 
     // 🔹 Compare password
     const isMatch = await user.comparePassword(password);
@@ -159,7 +170,9 @@ const loginUser = async (req: Request, res: Response) => {
       process.env.JWT_SECRET || "your_secret_key",
       { expiresIn: "1h" }
     );
-    const payments = await Payment.findOne({ userId: user._id }).populate('planId');
+    const payments = await Payment.findOne({ userId: user._id }).populate(
+      "planId"
+    );
 
     // 🔹 Respond with token
     res.status(200).json({
@@ -176,9 +189,9 @@ const loginUser = async (req: Request, res: Response) => {
         state: user.state,
         country: user.country,
         planId: payments?.planId || null,
-        planName: (payments?.planId as any)?.name || '',
-        planPrice: (payments?.planId as any)?.price || '',
-        amount:payments?.amount || 0,
+        planName: (payments?.planId as any)?.name || "",
+        planPrice: (payments?.planId as any)?.price || "",
+        amount: payments?.amount || 0,
         status: payments?.status,
       },
     });
@@ -194,11 +207,12 @@ const loginUser = async (req: Request, res: Response) => {
 
 // Update user
 const editUser = async (req: Request, res: Response) => {
-  const {firstName, lastName, email, phone, city, state, country, status} = req.body;
+  const { firstName, lastName, email, phone, city, state, country, status } =
+    req.body;
 
   const user = await User.findByIdAndUpdate(
     req.params.id,
-    {firstName, lastName, email, phone, city, state, country, status},
+    { firstName, lastName, email, phone, city, state, country, status },
     { new: true }
   );
 
@@ -208,16 +222,25 @@ const editUser = async (req: Request, res: Response) => {
 
 // Delete user
 const deleteUser = async (req: Request, res: Response) => {
- try {
-        const { id } = req.params;
-        const desiredJobTitle = await User.findByIdAndDelete(id);
-        if (!desiredJobTitle) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.json({ message: 'user deleted successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+  try {
+    const { id } = req.params;
+    const desiredJobTitle = await User.findByIdAndDelete(id);
+    if (!desiredJobTitle) {
+      return res.status(404).json({ error: "User not found" });
     }
+    res.json({ message: "user deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
-export { dashboard,getAllUsers, getUserById, addUser, editUser, deleteUser, loginUser, forgotPassword };
+export {
+  dashboard,
+  getAllUsers,
+  getUserById,
+  addUser,
+  editUser,
+  deleteUser,
+  loginUser,
+  forgotPassword,
+};
