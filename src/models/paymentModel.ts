@@ -1,8 +1,8 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IPayment extends Document {
-  userId:Types.ObjectId;
-  planId:Types.ObjectId;
+  userId: Types.ObjectId;
+  planId: Types.ObjectId;
   paymentId: string;
   amount: number;
   currency: string;

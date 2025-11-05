@@ -118,6 +118,12 @@ const forgotPassword = async (req: Request, res: Response) => {
   res.json({ message: 'Password updated successfully' });
 }
 
+const dashboard = async (req: Request, res: Response) => {
+  const { userId } = req.query;
+  const payments = await Payment.find({ userId: userId }).populate('planId');
+  res.json({ payments });
+};
+
 const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -214,4 +220,4 @@ const deleteUser = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-export { getAllUsers, getUserById, addUser, editUser, deleteUser, loginUser, forgotPassword };
+export { dashboard,getAllUsers, getUserById, addUser, editUser, deleteUser, loginUser, forgotPassword };
