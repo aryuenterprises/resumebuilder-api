@@ -105,7 +105,7 @@ const addUser = async (req: Request, res: Response) => {
     );
     res.status(201).json({
       success: true,
-      message: "User created successfully",
+      message: "Verification email sent to user",
       user,
     });
   } catch (error: unknown) {
