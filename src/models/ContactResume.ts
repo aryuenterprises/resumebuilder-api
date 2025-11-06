@@ -4,6 +4,7 @@ export interface IContactResume extends Document {
   userId: Types.ObjectId;
   firstName: string;
   lastName: string;
+  photo?: string;
   templateId: string;
   jobTitle: Types.ObjectId;
   keywords: string[];
@@ -23,6 +24,7 @@ const ContactResumeSchema = new Schema<IContactResume>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     firstName: { type: String, required: [false, "First Name is required"] },
     lastName: { type: String, required: [false, "Last Name is required"] },
+    photo: { type: String, required: false },
     templateId: { type: String, required: [false, "Template is required"] },
     email: { type: String, required: [false, "Email is required"] },
     jobTitle: {

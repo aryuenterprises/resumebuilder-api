@@ -19,8 +19,12 @@ const getAllContactResume = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
-const createContactResume = async (req: Request, res: Response) => {
+
+const createContactResume = async (req: Request, res: Response): Promise<Response> => {
   try {
+    const photoFile = req.files?.find((file) => file.fieldname === "photo");
+    const photo = photoFile ? photoFile.filename : null;
+
     const {
       userId,
       firstName,
@@ -37,6 +41,7 @@ const createContactResume = async (req: Request, res: Response) => {
       linkedIn,
       portfolio,
     } = req.body;
+
     const contactResume = new ContactResume({
       userId,
       firstName,
@@ -53,10 +58,12 @@ const createContactResume = async (req: Request, res: Response) => {
       linkedIn,
       portfolio,
     });
+
     const saved = await contactResume.save();
-    res.status(201).json(saved);
+
+    return res.status(201).json(saved);
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -155,6 +162,7 @@ const createContactResume = async (req: Request, res: Response) => {
 const updateResume = async (req: Request, res: Response) => {
   try {
     const { id, userId, templateId } = req.query; // frontend sends templateId here
+    
     const {
       firstName,
       lastName,
@@ -171,8 +179,8 @@ const updateResume = async (req: Request, res: Response) => {
       portfolio,
     } = req.body;
 
-    if (!userId || !templateId) {
-      return res.status(400).json({ message: "userId and templateId are required" });
+    if (!userId) {
+      return res.status(400).json({ message: "userId are required" });
     }
 
     // 🟢 Step 1: Find an existing resume by userId and templateId
@@ -235,6 +243,11 @@ const updateResume = async (req: Request, res: Response) => {
         updateData[key] = allFields[key];
       }
     }
+    const photoFile = req.files?.find((file) => file.fieldname === "photo");
+    if (photoFile) {
+      updateData.photo = photoFile.filename;
+    }
+    console.log("Update Data:", photoFile);
 
     // 🟢 Step 4: Apply updates and save
     Object.assign(existingResume, updateData);

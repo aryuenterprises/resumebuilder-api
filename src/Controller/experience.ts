@@ -8,6 +8,8 @@ import { Summary } from "../models/summaryResume";
 import { FinalizeResume } from "../models/finalizeResume";
 import { text } from "stream/consumers";
 import { PlanSubscription } from "@models/planSubscription";
+import { Payment } from "@models/paymentModel";
+import { User } from "@models/User";
 const createExperience = async (req: Request, res: Response) => {
   try {
     const { contactId, experiences } = req.body;
@@ -114,11 +116,98 @@ const getAllContacts = async (req: Request, res: Response) => {
   try {
     // const contacts = await ContactResume.find({ _id: id }).lean();
     // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
-    const contacts = await ContactResume.find({ _id: id }).lean();
+    const contacts = await ContactResume.find({ _id: id })
+      // .populate("userId")
+      .populate("jobTitle")
+      .lean();
+    const planSubscriptions = (
+      await Promise.all(
+        contacts.map(async (contact) => {
+          const planSubscription = await Payment.findOne({
+            userId: contact.userId,
+          });
+          return planSubscription;
+        })
+      )
+    ).filter((ps): ps is NonNullable<typeof ps> => ps !== null);
+    const experiences = await Experience.find().lean();
+    const educations = await Education.find().lean();
+    const skills = await Skill.find().lean();
+    const summary = await Summary.find().lean();
+    const finalizeResumes = await FinalizeResume.find().lean();
+
+    const result = contacts.map((contact) => {
+      const contactIdStr = contact._id.toString();
+
+      const contactExperiences = experiences
+        .filter((exp) => exp.contactId?.toString() === contactIdStr)
+        .map((exp) => exp.experiences)
+        .flat();
+
+      const contactEducations = educations
+        .filter((edu) => edu.contactId?.toString() === contactIdStr)
+        .map((edu) => edu.education)
+        .flat();
+
+      const contactSkills = skills
+        .filter((skill) => skill.contactId?.toString() === contactIdStr)
+        .map((skill) => skill.skills)
+        .flat();
+
+      const contactSummary = summary
+        .filter((summary) => summary.contactId?.toString() === contactIdStr)
+        .map((summary) => summary.text)
+        .flat();
+
+      const finalize = finalizeResumes
+        .filter(
+          (finalizeResumes) =>
+            finalizeResumes.contactId?.toString() === contactIdStr
+        )
+        .map((finalizeResumes) => finalizeResumes.skillsData)
+        .flat();
+
+      return {
+        contact,
+        experiences: contactExperiences,
+        educations: contactEducations,
+        skills: contactSkills,
+        summary: contactSummary,
+        finalize: finalize,
+        planSubscriptions: planSubscriptions,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      message:
+        "All contacts with experiences and educations fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching contacts",
+      error: error.message,
+    });
+  }
+};
+const getUserContacts = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    // const contacts = await ContactResume.find({ _id: id }).lean();
+    // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
+    const user = await User.findById(id).select("firstName lastName email");
+    const contacts = await ContactResume.find({ userId: id })
+
+      // .populate("userId")
+      .populate("jobTitle")
+      .lean();
+    // console.log("Contacts:", contacts);
     const planSubscriptions = await Promise.all(
       contacts.map(async (contact) => {
-        const planSubscription = await PlanSubscription.findOne({
-          desiredJobTitle: contact.jobTitle,
+        const planSubscription = await Payment.findOne({
+          userId: contact.userId,
         });
         return planSubscription;
       })
@@ -167,7 +256,24 @@ const getAllContacts = async (req: Request, res: Response) => {
         skills: contactSkills,
         summary: contactSummary,
         finalize: finalize,
-        planSubscriptions: planSubscriptions
+        planSubscriptions: {
+          planId:
+            planSubscriptions.find(
+              (ps) => ps.userId.toString() === contact.userId.toString()
+            )?.planId || null,
+          status:
+            planSubscriptions.find(
+              (ps) => ps.userId.toString() === contact.userId.toString()
+            )?.status || "none",
+          amount:
+            planSubscriptions.find(
+              (ps) => ps.userId.toString() === contact.userId.toString()
+            )?.amount || 0,
+          paymentDetails:
+            planSubscriptions.find(
+              (ps) => ps.userId.toString() === contact.userId.toString()
+            )?.paymentDetails || null,
+        },
       };
     });
 
@@ -176,6 +282,7 @@ const getAllContacts = async (req: Request, res: Response) => {
       message:
         "All contacts with experiences and educations fetched successfully",
       data: result,
+      user: user,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -191,4 +298,5 @@ export {
   createExperience,
   updateExperience,
   getExperienceById,
+  getUserContacts,
 };

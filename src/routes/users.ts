@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {dashboard, addUser, deleteUser, editUser, getAllUsers, getUserById, loginUser, forgotPassword } from '../Controller/user';
+import {verifyEmail,dashboard,downloadResume, addUser, deleteUser, editUser, getAllUsers, getUserById, loginUser, forgotPassword } from '../Controller/user';
 
 
 const userRouter = Router();
@@ -12,4 +12,7 @@ userRouter.post('/login', loginUser);
 userRouter.put('/particular-user-edit/:id', editUser);
 userRouter.delete('/particular-user-delete/:id', deleteUser);
 userRouter.get('/dashboard',dashboard);
+userRouter.get('/download-resume',downloadResume);
+userRouter.get("/verify/:token", verifyEmail);
+
 export default userRouter;

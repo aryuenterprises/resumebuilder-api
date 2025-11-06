@@ -3,8 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface ITemplate extends Document {
   name: string;
   description?: string;
-  designFiles: string[]; // file paths or URLs
-  placeholders: string[]; // e.g. ['{{name}}', '{{email}}']
+  designFiles: string[];
+  placeholders: string[];
   createdAt: Date;
   updatedAt: Date;
 }
