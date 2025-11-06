@@ -35,7 +35,7 @@ const paymentSchema = new Schema<IPayment>(
       ref: "PlanSubscription",
       required: true,
     },
-    paymentId: { type: String, required: false, unique: true },
+    paymentId: { type: String, required: false, unique: false },
     amount: { type: Number, required: false },
     currency: { type: String, required: false },
     email: { type: String },
