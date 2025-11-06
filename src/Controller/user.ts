@@ -276,6 +276,10 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User is inactive" });
     }
 
+    if (user.isVerified === false) {
+      return res.status(401).json({ message: "User is not verified" });
+    }
+
     // 🔹 Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
