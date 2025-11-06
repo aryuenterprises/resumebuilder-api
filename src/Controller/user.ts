@@ -125,17 +125,46 @@ const forgotPassword = async (req: Request, res: Response) => {
 };
 
 const dashboard = async (req: Request, res: Response) => {
-  const { userId } = req.query;
-  const payments = await Payment.find({ userId: userId })
-    .populate("planId", "name price")
-    .lean();
-  res.json({
-    payments: payments.map((payment) => ({
-      plan: payment.planId?.name,
-      amount: payment.planId?.price,
-      })),
-  });
+  try {
+    const { userId, type, planId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    if (type === "download") {
+      const payments = await Payment.find({ userId: userId })
+        .populate("planId", "name")
+        .lean();
+
+      const paymentsToUpdate = payments.filter(
+        (payment) => payment.planId?.name !== "Lifetime Full Access Option"
+      );
+
+      const paymentIds = paymentsToUpdate.map((p) => p._id);
+      if (paymentIds.length > 0) {
+        await Payment.updateMany(
+          { _id: { $in: paymentIds } },
+          { $unset: { planId: "" } }
+        );
+      }
+    }
+    const updatedPayments = await Payment.find({ userId: userId })
+      .populate("planId", "name price")
+      .lean();
+
+    const formattedPayments = updatedPayments.map((payment) => ({
+      plan: payment.planId?.name || null,
+      amount: payment.planId?.price || null,
+    }));
+
+    return res.json({ payments: formattedPayments });
+  } catch (error) {
+    console.error("Error in dashboard:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
+
 
 const loginUser = async (req: Request, res: Response) => {
   try {

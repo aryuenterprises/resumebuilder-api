@@ -175,7 +175,6 @@ const fetchPaymentIntent = async (req: Request, res: Response) => {
         },
       });
     }
-
     // ✅ Step 3: Always update the same user document with the new plan/payment details
     payment = await Payment.findOneAndUpdate(
       { userId }, // 👈 only userId (not planId)
@@ -206,8 +205,29 @@ const fetchPaymentIntent = async (req: Request, res: Response) => {
   }
 };
 
+const freePlan = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { userId, planId } = req.query;
 
+    if (!userId || !planId) {
+      return res.status(400).json({ message: "Missing required parameters" });
+    }
 
+    const payment = await Payment.create({
+      userId,
+      planId,
+      amount: 0,
+      status: "succeeded"
+    });
+
+    return res.status(201).json({
+      message: "Free plan activated successfully",
+      payment,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
 
 // ===================== UPDATE PAYMENT STATUS =====================
  const paymentUpdate = async (req: Request, res: Response) => {
@@ -286,7 +306,7 @@ const fetchPaymentIntent = async (req: Request, res: Response) => {
 const getPaymentRecord = async (req: Request, res: Response) => {
   try{
     const paymentRecord = await Payment.find().populate('planId','name price')
-    .populate('userId','name email');
+    .populate('userId','firstName lastName email');
     res.status(200).json(paymentRecord);
   }
   catch(error){
@@ -294,4 +314,4 @@ const getPaymentRecord = async (req: Request, res: Response) => {
   }
 }
 
-export { fetchPaymentIntent, paymentUpdate, getPaymentRecord };
+export {freePlan, fetchPaymentIntent, paymentUpdate, getPaymentRecord };

@@ -161,7 +161,7 @@ const getAllContacts = async (req: Request, res: Response) => {
         .flat();
 
       return {
-        contacts,
+        contact,
         experiences: contactExperiences,
         educations: contactEducations,
         skills: contactSkills,
