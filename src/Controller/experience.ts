@@ -259,19 +259,19 @@ const getUserContacts = async (req: Request, res: Response) => {
         planSubscriptions: {
           planId:
             planSubscriptions.find(
-              (ps) => ps.userId.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString()
             )?.planId || null,
           status:
             planSubscriptions.find(
-              (ps) => ps.userId.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString()
             )?.status || "none",
           amount:
             planSubscriptions.find(
-              (ps) => ps.userId.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString()
             )?.amount || 0,
           paymentDetails:
             planSubscriptions.find(
-              (ps) => ps.userId.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString()
             )?.paymentDetails || null,
         },
       };
