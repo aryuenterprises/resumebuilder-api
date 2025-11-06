@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 
-export interface IPayment extends Document {
+export interface IPaymentLog extends Document {
   userId: Types.ObjectId;
   planId: Types.ObjectId;
   paymentId: string;
@@ -24,7 +24,7 @@ export interface IPayment extends Document {
   updatedAt?: Date;
 }
 
-const paymentSchema = new Schema<IPayment>(
+const paymentSchema = new Schema<IPaymentLog>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -66,4 +66,4 @@ const paymentSchema = new Schema<IPayment>(
   { timestamps: true }
 );
 
-export const Payment = mongoose.model<IPayment>("Payment", paymentSchema);
+export const PaymentLog = mongoose.model<IPaymentLog>("PaymentLog", paymentSchema);

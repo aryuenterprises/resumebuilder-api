@@ -1,8 +1,9 @@
 import { Router } from "express";
+import upload from "../middlewares/upload.js";
 import { createContactResume, getContactResume, updateResume, getAllContactResume } from "../Controller/contactResume";
 const contactResumeRouter = Router();
-contactResumeRouter.post("/create", createContactResume);
-contactResumeRouter.post("/update", updateResume);
+contactResumeRouter.post("/create",upload.single("photo"), createContactResume);
+contactResumeRouter.post("/update",upload.single("photo"), updateResume);
 contactResumeRouter.get("/get-contact/:id", getContactResume);
 contactResumeRouter.get("/get-all-contact", getAllContactResume);
 export default contactResumeRouter;

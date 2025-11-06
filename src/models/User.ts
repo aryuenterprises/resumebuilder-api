@@ -10,7 +10,10 @@ export interface IUser extends Document {
   city: string;
   state: string;
   country: string;
+  verifyToken?: String,
+  isVerified: Boolean,
   status: string;
+
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -61,6 +64,8 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
     },
+    verifyToken:{type: String},
+  isVerified: { type: Boolean, default: false },
     status: {
       type:String,
       default:'1'

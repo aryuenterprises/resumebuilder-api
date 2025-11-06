@@ -4,10 +4,43 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../services/emailService";
 import { Payment } from "../models/paymentModel";
-// Get all users
-const getAllUsers = async (req: Request, res: Response) => {
-  const users = await User.find();
-  res.json(users);
+import crypto from "crypto";
+
+const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const users = await User.find();
+
+    const planSubscriptions = await Promise.all(
+      users.map(async (user) => {
+        const planSubscription = await Payment.findOne({
+          userId: user._id,
+        }).populate("planId");
+        return planSubscription;
+      })
+    );
+
+    const usersWithPlanSubscriptions = users.map((user, index) => ({
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      city: user.city,
+      state: user.state,
+      country: user.country,
+      status: user.status,
+      isVerified: user.isVerified,
+      planId: planSubscriptions[index]?.planId?.name || null,
+      planStatus: planSubscriptions[index]?.status || "none",
+      amount: planSubscriptions[index]?.amount || 0,
+      paymentDetails: planSubscriptions[index]?.paymentDetails || null,
+    }));
+
+    return res.json({ users: usersWithPlanSubscriptions });
+  } catch (error) {
+    console.error("Error in dashboard:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 // Get user by ID
@@ -28,14 +61,9 @@ const addUser = async (req: Request, res: Response) => {
       state,
       country,
       password,
+      
     } = req.body;
 
-    // // 🔹 Validate required fields
-    // if (!firstName || !lastName || !email || !phone || !city || !state || !country || !password) {
-    //   return res.status(400).json({ message: "All fields are required" });
-    // }
-
-    // 🔹 Validate password strength
     const strongPasswordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!strongPasswordRegex.test(password)) {
@@ -44,13 +72,12 @@ const addUser = async (req: Request, res: Response) => {
         .json({ message: "Password must be 8+ chars and include Aa1@" });
     }
 
-    // 🔹 Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
     }
+    const verifyToken = crypto.randomBytes(32).toString("hex");
 
-    // 🔹 Create new user (password gets hashed automatically in model)
     const user = await User.create({
       firstName,
       lastName,
@@ -60,11 +87,22 @@ const addUser = async (req: Request, res: Response) => {
       state,
       country,
       password,
+      verifyToken,
+      isVerified: false,
     });
-    await sendEmail(email, "Welcome to Aryu Academy", "addUser.html", {
-      firstName,
+    // await sendEmail(email, "Welcome to Aryu Academy", "addUser.html", {
+    //   firstName,
+    //   email,
+    // });
+    const API_URL = process.env.API_URL
+    const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
+
+    await sendEmail(
       email,
-    });
+      "Verify your Aryu Academy account",
+      "addUser.html",
+      { firstName, verificationLink }
+    );
     res.status(201).json({
       success: true,
       message: "User created successfully",
@@ -73,7 +111,6 @@ const addUser = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error("Error creating user:", error);
 
-    // 🔹 Handle duplicate key error
     if (
       error instanceof mongoose.Error &&
       (error as any).code === 11000 &&
@@ -86,7 +123,6 @@ const addUser = async (req: Request, res: Response) => {
       });
     }
 
-    // 🔹 Handle validation errors
     if (error instanceof mongoose.Error.ValidationError) {
       const errors: Record<string, string> = {};
       for (const field in error.errors) {
@@ -97,12 +133,36 @@ const addUser = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    // 🔹 Default internal error
     res.status(500).json({
       message: "Internal server error",
       error:
         error instanceof Error ? error.message : "Unexpected error occurred",
     });
+  }
+};
+
+
+const verifyEmail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token } = req.params;
+    const user = await User.findOne({ verifyToken: token });
+    if (!user) {
+      res
+        .status(400)
+        .send("<h3>Invalid or expired verification link.</h3>");
+      return;
+    }
+
+    user.isVerified = true;
+    user.verifyToken = undefined;
+    await user.save();
+
+    res.redirect("https://resumebuilder.aryuacademy.com/loginig");
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res
+      .status(500)
+      .send("<h3>Internal server error. Please try again later.</h3>");
   }
 };
 
@@ -164,7 +224,36 @@ const dashboard = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const downloadResume = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.query;
 
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    const payments = await Payment.find({ userId: userId })
+      .populate("planId", "name")
+      .lean();
+
+    const paymentsToUpdate = payments.filter(
+      (payment) => payment.planId?.name !== "Lifetime Full Access Option"
+    );
+
+    const paymentIds = paymentsToUpdate.map((p) => p._id);
+    if (paymentIds.length > 0) {
+      await Payment.updateMany(
+        { _id: { $in: paymentIds } },
+        { $unset: { planId: "" } }
+      );
+    }
+
+    return res.json({ success: true, message: "Plan Removed Successfully" });
+  } catch (error) {
+    console.error("Error in dashboard:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 const loginUser = async (req: Request, res: Response) => {
   try {
@@ -264,6 +353,7 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 export {
+  downloadResume,
   dashboard,
   getAllUsers,
   getUserById,
@@ -272,4 +362,5 @@ export {
   deleteUser,
   loginUser,
   forgotPassword,
+  verifyEmail
 };
