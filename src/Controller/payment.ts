@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Stripe from "stripe";
-import { Payment } from "../models/paymentModel"; // ✅ Adjust path as needed
+import { Payment } from "../models/paymentModel";
 import { PaymentLog } from "@models/paymentLogModel";
 
 // const fetchPaymentIntent = async (req: Request, res: Response) => {
@@ -245,34 +245,34 @@ const fetchPaymentIntent = async (req: Request, res: Response): Promise<Response
     const stripe = new Stripe(secretKey);
 
     // ✅ Free Plan Handling
-    if (Number(amount) === 0) {
-      const freePayment = await Payment.findOneAndUpdate(
-        { userId },
-        {
-          amount: 0,
-          planId,
-          templateId,
-          status: "succeeded",
-          email: paymentDetails.email || "unknown",
-        },
-        { new: true, upsert: true }
-      );
+    // if (Number(amount) === 0) {
+    //   const freePayment = await Payment.findOneAndUpdate(
+    //     { userId },
+    //     {
+    //       amount: 0,
+    //       planId,
+    //       templateId,
+    //       status: "succeeded",
+    //       email: paymentDetails.email || "unknown",
+    //     },
+    //     { new: true, upsert: true }
+    //   );
 
-      await PaymentLog.create({
-        userId,
-        amount: 0,
-        planId,
-        templateId,
-        email: paymentDetails.email || "unknown",
-        status: "succeeded",
-        metadata: { userId, planId },
-      });
+    //   await PaymentLog.create({
+    //     userId,
+    //     amount: 0,
+    //     planId,
+    //     templateId,
+    //     email: paymentDetails.email || "unknown",
+    //     status: "succeeded",
+    //     metadata: { userId, planId },
+    //   });
 
-      return res.status(201).json({
-        message: "Free plan activated successfully",
-        paymentId: freePayment._id,
-      });
-    }
+    //   return res.status(201).json({
+    //     message: "Free plan activated successfully",
+    //     paymentId: freePayment._id,
+    //   });
+    // }
 
     // ✅ Convert Euro amount to cents
     const amountInCents = Math.max(Math.round(Number(amount) * 100), 50);
@@ -287,7 +287,7 @@ const fetchPaymentIntent = async (req: Request, res: Response): Promise<Response
       // Create new payment intent
       paymentIntent = await stripe.paymentIntents.create({
         amount: amountInCents,
-        currency: "eur", // 💶 Use Euro
+        currency: "eur",
         description: "Payment for Resume Builder Service",
         metadata: {
           userId,
@@ -473,7 +473,7 @@ const paymentUpdate = async (req: Request, res: Response) => {
 
 const getPaymentRecord = async (req: Request, res: Response) => {
   try {
-    const paymentRecord = await Payment.find()
+    const paymentRecord = await PaymentLog.find()
       .populate("planId", "name price")
       .populate("userId", "firstName lastName email");
     res.status(200).json(paymentRecord);

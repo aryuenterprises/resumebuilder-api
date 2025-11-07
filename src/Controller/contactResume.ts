@@ -161,7 +161,7 @@ const createContactResume = async (req: Request, res: Response): Promise<Respons
 // };
 const updateResume = async (req: Request, res: Response) => {
   try {
-    const { id, userId, templateId } = req.query; // frontend sends templateId here
+    const { id, userId, templateId } = req.query;
     
     const {
       firstName,
@@ -183,7 +183,6 @@ const updateResume = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "userId are required" });
     }
 
-    // 🟢 Step 1: Find an existing resume by userId and templateId
     let existingResume;
 
     if (id) {
@@ -192,7 +191,6 @@ const updateResume = async (req: Request, res: Response) => {
       existingResume = await ContactResume.findOne({ userId, templateId });
     }
 
-    // 🟢 Step 2: If not found, create a new one
     if (!existingResume) {
       const newResume = new ContactResume({
         userId,
@@ -219,7 +217,6 @@ const updateResume = async (req: Request, res: Response) => {
       });
     }
 
-    // 🟢 Step 3: Prepare update data
     const updateData: Record<string, any> = {};
 
     const allFields = {
@@ -249,7 +246,6 @@ const updateResume = async (req: Request, res: Response) => {
     }
     console.log("Update Data:", photoFile);
 
-    // 🟢 Step 4: Apply updates and save
     Object.assign(existingResume, updateData);
     const updated = await existingResume.save();
 

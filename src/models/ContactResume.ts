@@ -17,6 +17,8 @@ export interface IContactResume extends Document {
   postCode: string;
   linkedIn: string;
   portfolio: string;
+  resume: string;
+
 }
 
 const ContactResumeSchema = new Schema<IContactResume>(
@@ -41,6 +43,7 @@ const ContactResumeSchema = new Schema<IContactResume>(
     postCode: { type: String, required: [false, "Post Code is required"] },
     linkedIn: { type: String, required: false },
     portfolio: { type: String, required: false },
+    resume: { type: String, required: false },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

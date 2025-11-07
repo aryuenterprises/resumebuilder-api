@@ -18,19 +18,19 @@ export interface IExperience extends Document {
 const ExperienceDetailSchema = new Schema<IExperienceDetail>({
     jobTitle: {
         type: String,
-        required: true,
+        required: false,
     },
     employer: {
         type: String,
-        required: true,
+        required: false,
     },
     location: {
         type: String,
-        required: true,
+        required: false,
     },
     startDate: {
         type: Date,
-        required: true,
+        required: false,
     },
     endDate: {
         type: String,
