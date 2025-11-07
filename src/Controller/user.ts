@@ -399,7 +399,7 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
 
     // Filter only non-lifetime plans
     const paymentsToUpdate = payments.filter(
-      (payment: any) => payment.planId?.name !== "Lifetime Full Access Option"
+      (payment: any) => payment.planId?.name !== "Lifetime Full Access"
     );
 
     const paymentIds = paymentsToUpdate.map((p: any) => p._id);
