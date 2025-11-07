@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Stripe from "stripe";
 import { Payment } from "../models/paymentModel";
 import { PaymentLog } from "@models/paymentLogModel";
+import { User } from "@models/User";
 
 // const fetchPaymentIntent = async (req: Request, res: Response) => {
 //   try {
@@ -229,17 +230,25 @@ import { PaymentLog } from "@models/paymentLogModel";
 //   }
 // };
 
-const fetchPaymentIntent = async (req: Request, res: Response): Promise<Response> => {
+const fetchPaymentIntent = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
-    const { amount, metadata, userId, templateId, planId, ...paymentDetails } = req.body;
+    const { amount, metadata, userId, templateId, planId, ...paymentDetails } =
+      req.body;
 
     if (amount === undefined || !userId || !planId) {
-      return res.status(400).json({ error: "Amount, userId, and planId are required" });
+      return res
+        .status(400)
+        .json({ error: "Amount, userId, and planId are required" });
     }
 
     const secretKey = process.env.Secret_key;
     if (!secretKey) {
-      return res.status(500).json({ error: "Stripe secret key not configured" });
+      return res
+        .status(500)
+        .json({ error: "Stripe secret key not configured" });
     }
 
     const stripe = new Stripe(secretKey);
@@ -361,7 +370,7 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
   try {
     const existingPayment = await Payment.findOne({ userId, planId });
 
-    if (existingPayment) {
+    if (existingPayment && existingPayment.amount !== 0) {
       return res
         .status(400)
         .json({ message: "User already has this plan activated" });

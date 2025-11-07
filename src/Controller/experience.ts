@@ -120,6 +120,15 @@ const getAllContacts = async (req: Request, res: Response) => {
       // .populate("userId")
       .populate("jobTitle")
       .lean();
+    const contactResume = await ContactResume.findById(id)
+    let hasResume: boolean = false;
+
+    if (contactResume && contactResume.resume && contactResume.resume.trim() !== "") {
+      hasResume = true;
+    }
+
+    console.log("Resume Exists:", hasResume);
+
     const planSubscriptions = (
       await Promise.all(
         contacts.map(async (contact) => {
@@ -175,6 +184,7 @@ const getAllContacts = async (req: Request, res: Response) => {
         summary: contactSummary,
         finalize: finalize,
         planSubscriptions: planSubscriptions,
+        hasResume: hasResume,
       };
     });
 

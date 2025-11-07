@@ -6,6 +6,7 @@ import { sendEmail } from "../services/emailService";
 import { Payment } from "../models/paymentModel";
 import crypto from "crypto";
 import { ContactResume } from "@models/ContactResume";
+import { PaymentLog } from "@models/paymentLogModel";
 
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -263,7 +264,90 @@ const dashboard = async (req: Request, res: Response) => {
 //   }
 // };
 
- const downloadResume = async (req: Request, res: Response): Promise<void> => {
+//  const downloadResume = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const { userId, contactId } = req.body;
+//     const resumeFile = req.file;
+
+//     if (!userId) {
+//       res.status(400).json({ message: "userId is required" });
+//       return;
+//     }
+
+//     if (!contactId) {
+//       res.status(400).json({ message: "contactId is required" });
+//       return;
+//     }
+
+  
+//     const contact = await ContactResume.findById(contactId);
+//     if (!contact) {
+//       res.status(404).json({ message: "Contact not found", success: false });
+//       return;
+//     }
+
+//     const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
+
+//     if (hasResume) {
+//       res.status(404).json({
+//         success: false,
+//         message: "Resume already downloaded",
+//         hasResume: true,
+//       });
+//       return;
+//     }
+
+//     if (!resumeFile) {
+//       res.status(400).json({ message: "Resume file is required" });
+//       return;
+//     }
+
+//     const payments = await Payment.find({ userId })
+//       .populate("planId", "name price")
+//       .lean();
+
+//     const paymentLogs = await PaymentLog.find({ userId })
+//       .populate("planId", "name price")
+//       .lean();
+
+//     const paymentsToUpdate = payments.filter(
+//       (payment: any) => payment.planId?.name !== "Lifetime Full Access Option"
+//     );
+
+//     const paymentIds = paymentsToUpdate.map((p: any) => p._id);
+
+//     if (paymentIds.length > 0) {
+//       await Payment.updateMany({ _id: { $in: paymentIds } }, { $unset: { planId: "" } });
+//     }
+
+//     const formattedPayments = payments.map((payment) => ({
+//       plan: payment.planId?.name || null,
+//       amount: payment.planId?.price || null,
+//       status: payment.status,
+//     }));
+
+//     const updatedResume = await ContactResume.findByIdAndUpdate(
+//       contactId,
+//       { resume: resumeFile.filename },
+//       { new: true }
+//     );
+
+//     console.log("Updated Resume:", updatedResume);
+
+//     res.json({
+//       success: true,
+//       message: "Resume uploaded successfully",
+//       // payments: formattedPayments,
+//       hasResume: true,
+//       // data: updatedResume,
+//     });
+//   } catch (error) {
+//     console.error("Error in downloadResume:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
+const downloadResume = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, contactId } = req.body;
     const resumeFile = req.file;
@@ -278,26 +362,9 @@ const dashboard = async (req: Request, res: Response) => {
       return;
     }
 
-  
     const contact = await ContactResume.findById(contactId);
     if (!contact) {
       res.status(404).json({ message: "Contact not found", success: false });
-      return;
-    }
-
-    const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
-
-    if (hasResume) {
-      res.status(404).json({
-        success: false,
-        message: "Resume already downloaded",
-        hasResume: true,
-      });
-      return;
-    }
-
-    if (!resumeFile) {
-      res.status(400).json({ message: "Resume file is required" });
       return;
     }
 
@@ -305,6 +372,32 @@ const dashboard = async (req: Request, res: Response) => {
       .populate("planId", "name price")
       .lean();
 
+    const paymentLogs = await PaymentLog.find({ userId })
+      .populate("planId", "name price")
+      .lean();
+
+    const hasLifetimeAccess = payments.some(
+      (payment: any) => payment.planId?.name === "Lifetime Full Access Option"
+    );
+
+    if (!hasLifetimeAccess) {
+      const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
+      if (hasResume) {
+        res.status(404).json({
+          success: false,
+          message: "Resume already downloaded",
+          hasResume: true,
+        });
+        return;
+      }
+    }
+
+    if (!resumeFile) {
+      res.status(400).json({ message: "Resume file is required" });
+      return;
+    }
+
+    // Filter only non-lifetime plans
     const paymentsToUpdate = payments.filter(
       (payment: any) => payment.planId?.name !== "Lifetime Full Access Option"
     );
@@ -312,7 +405,10 @@ const dashboard = async (req: Request, res: Response) => {
     const paymentIds = paymentsToUpdate.map((p: any) => p._id);
 
     if (paymentIds.length > 0) {
-      await Payment.updateMany({ _id: { $in: paymentIds } }, { $unset: { planId: "" } });
+      await Payment.updateMany(
+        { _id: { $in: paymentIds } },
+        { $unset: { planId: "" } }
+      );
     }
 
     const formattedPayments = payments.map((payment) => ({
@@ -332,15 +428,14 @@ const dashboard = async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: "Resume uploaded successfully",
-      // payments: formattedPayments,
       hasResume: true,
-      // data: updatedResume,
     });
   } catch (error) {
     console.error("Error in downloadResume:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 const loginUser = async (req: Request, res: Response) => {
