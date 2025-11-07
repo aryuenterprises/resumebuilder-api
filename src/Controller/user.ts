@@ -1,10 +1,11 @@
 import { User } from "@models/User";
 import { Request, Response } from "express";
-import mongoose from "mongoose";
+import mongoose, { trusted } from "mongoose";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../services/emailService";
 import { Payment } from "../models/paymentModel";
 import crypto from "crypto";
+import { ContactResume } from "@models/ContactResume";
 
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -61,7 +62,6 @@ const addUser = async (req: Request, res: Response) => {
       state,
       country,
       password,
-      
     } = req.body;
 
     const strongPasswordRegex =
@@ -94,15 +94,13 @@ const addUser = async (req: Request, res: Response) => {
     //   firstName,
     //   email,
     // });
-    const API_URL = process.env.API_URL
+    const API_URL = process.env.API_URL;
     const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
 
-    await sendEmail(
-      email,
-      "Verify your Aryu Academy account",
-      "addUser.html",
-      { firstName, verificationLink }
-    );
+    await sendEmail(email, "Verify your Aryu Academy account", "addUser.html", {
+      firstName,
+      verificationLink,
+    });
     res.status(201).json({
       success: true,
       message: "Verification email sent to user",
@@ -141,15 +139,12 @@ const addUser = async (req: Request, res: Response) => {
   }
 };
 
-
 const verifyEmail = async (req: Request, res: Response): Promise<void> => {
   try {
     const { token } = req.params;
     const user = await User.findOne({ verifyToken: token });
     if (!user) {
-      res
-        .status(400)
-        .send("<h3>Invalid or expired verification link.</h3>");
+      res.status(400).send("<h3>Invalid or expired verification link.</h3>");
       return;
     }
 
@@ -157,7 +152,9 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     user.verifyToken = undefined;
     await user.save();
 
-    res.redirect("https://resumebuilder.aryuacademy.com/loginig");
+    res.redirect(
+      "https://resumebuilder.aryuacademy.com/loginig?verified=success"
+    );
   } catch (error) {
     console.error("Error verifying email:", error);
     res
@@ -216,6 +213,7 @@ const dashboard = async (req: Request, res: Response) => {
     const formattedPayments = updatedPayments.map((payment) => ({
       plan: payment.planId?.name || null,
       amount: payment.planId?.price || null,
+      status: payment.status,
     }));
 
     return res.json({ payments: formattedPayments });
@@ -224,36 +222,126 @@ const dashboard = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-const downloadResume = async (req: Request, res: Response) => {
+// const downloadResume = async (req: Request, res: Response) => {
+//   try {
+//     const { userId, resume, contactId } = req.query;
+
+//     if (!userId) {
+//       return res.status(400).json({ message: "userId is required" });
+//     }
+
+//     const payments = await Payment.find({ userId: userId })
+//       .populate("planId", "name")
+//       .lean();
+
+//     const paymentsToUpdate = payments.filter(
+//       (payment) => payment.planId?.name !== "Lifetime Full Access Option"
+//     );
+
+//     const paymentIds = paymentsToUpdate.map((p) => p._id);
+//     if (paymentIds.length > 0) {
+//       await Payment.updateMany(
+//         { _id: { $in: paymentIds } },
+//         { $unset: { planId: "" } }
+//       );
+//     }
+
+//     const contactResumeDetails = await ContactResume.find({ _id: contactId });
+//     const photoFile = req.files?.find((file) => file.fieldname === "photo");
+//     if (photoFile) {
+//       const photo = photoFile.filename;
+//     }
+//     //get the resume file in ContactResume model
+//     const resumes = await ContactResume.findByIdAndUpdate(contactId, {
+//       resume: photo,
+//     });
+
+//     return res.json({ success: true, message: "Plan Removed Successfully" });
+//   } catch (error) {
+//     console.error("Error in dashboard:", error);
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
+ const downloadResume = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId } = req.query;
+    const { userId, contactId } = req.body;
+    const resumeFile = req.file;
 
     if (!userId) {
-      return res.status(400).json({ message: "userId is required" });
+      res.status(400).json({ message: "userId is required" });
+      return;
     }
 
-    const payments = await Payment.find({ userId: userId })
-      .populate("planId", "name")
+    if (!contactId) {
+      res.status(400).json({ message: "contactId is required" });
+      return;
+    }
+
+  
+    const contact = await ContactResume.findById(contactId);
+    if (!contact) {
+      res.status(404).json({ message: "Contact not found", success: false });
+      return;
+    }
+
+    const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
+
+    if (hasResume) {
+      res.status(404).json({
+        success: false,
+        message: "Resume already downloaded",
+        hasResume: true,
+      });
+      return;
+    }
+
+    if (!resumeFile) {
+      res.status(400).json({ message: "Resume file is required" });
+      return;
+    }
+
+    const payments = await Payment.find({ userId })
+      .populate("planId", "name price")
       .lean();
 
     const paymentsToUpdate = payments.filter(
-      (payment) => payment.planId?.name !== "Lifetime Full Access Option"
+      (payment: any) => payment.planId?.name !== "Lifetime Full Access Option"
     );
 
-    const paymentIds = paymentsToUpdate.map((p) => p._id);
+    const paymentIds = paymentsToUpdate.map((p: any) => p._id);
+
     if (paymentIds.length > 0) {
-      await Payment.updateMany(
-        { _id: { $in: paymentIds } },
-        { $unset: { planId: "" } }
-      );
+      await Payment.updateMany({ _id: { $in: paymentIds } }, { $unset: { planId: "" } });
     }
 
-    return res.json({ success: true, message: "Plan Removed Successfully" });
+    const formattedPayments = payments.map((payment) => ({
+      plan: payment.planId?.name || null,
+      amount: payment.planId?.price || null,
+      status: payment.status,
+    }));
+
+    const updatedResume = await ContactResume.findByIdAndUpdate(
+      contactId,
+      { resume: resumeFile.filename },
+      { new: true }
+    );
+
+    console.log("Updated Resume:", updatedResume);
+
+    res.json({
+      success: true,
+      message: "Resume uploaded successfully",
+      // payments: formattedPayments,
+      hasResume: true,
+      // data: updatedResume,
+    });
   } catch (error) {
-    console.error("Error in dashboard:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Error in downloadResume:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const loginUser = async (req: Request, res: Response) => {
   try {
@@ -366,5 +454,5 @@ export {
   deleteUser,
   loginUser,
   forgotPassword,
-  verifyEmail
+  verifyEmail,
 };

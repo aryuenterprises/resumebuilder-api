@@ -14,7 +14,7 @@ const SummarySchema = new Schema<ISummary>({
     templateId: { type: String, required: false },
     text: {
         type: String,
-        required: true,
+        required: false,
     },
 }, { timestamps: true });
 

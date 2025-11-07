@@ -14,7 +14,7 @@ const ensureDirExists = (dirPath: string): void => {
   }
 };
 
-// Define allowed file types
+// Allowed file types
 const allowedTypes = /jpeg|jpg|png|gif|pdf|mp4|mkv|avi/;
 
 // Multer storage configuration
@@ -23,13 +23,15 @@ const storage = multer.diskStorage({
     let destPath: string;
 
     if (file.fieldname === "photo") {
-      destPath = path.join(__dirname, "../uploads");
+      destPath = path.join(__dirname, "../uploads/photos");
+    } else if (file.fieldname === "resume") {
+      destPath = path.join(__dirname, "../uploads/resumes");
     } else if (/^document\[\d+\]\[files\]\[\d+\]\[selectedfile\]$/.test(file.fieldname)) {
       destPath = path.join(__dirname, "../uploads/documents");
     } else {
       destPath = path.join(__dirname, "../uploads/others");
     }
-    
+
     ensureDirExists(destPath);
     cb(null, destPath);
   },
@@ -39,11 +41,11 @@ const storage = multer.diskStorage({
   },
 });
 
-// Multer configuration
+// Multer middleware
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit per file
+    fileSize: 5 * 1024 * 1024, // 5MB
   },
   fileFilter: (req, file, cb) => {
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -54,7 +56,7 @@ const upload = multer({
     } else {
       cb(new Error("Only images, videos, and PDF files are allowed"));
     }
-  }
+  },
 });
 
 export default upload;

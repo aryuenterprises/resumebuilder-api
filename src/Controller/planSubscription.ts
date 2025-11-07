@@ -16,7 +16,7 @@ const createPlanSubscription = async (req: Request, res: Response) => {
 
 const getPlanSubscription = async (req: Request, res: Response) => {
     try {
-        const planSubscriptionDetails = await PlanSubscription.find();
+        const planSubscriptionDetails = await PlanSubscription.find({status:'1'});
         res.json(planSubscriptionDetails);
     } catch (error) {
         console.error(error);

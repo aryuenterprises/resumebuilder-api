@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {verifyEmail,dashboard,downloadResume, addUser, deleteUser, editUser, getAllUsers, getUserById, loginUser, forgotPassword } from '../Controller/user';
-
+import upload from "../middlewares/upload.js";
 
 const userRouter = Router();
 
@@ -12,7 +12,7 @@ userRouter.post('/login', loginUser);
 userRouter.put('/particular-user-edit/:id', editUser);
 userRouter.delete('/particular-user-delete/:id', deleteUser);
 userRouter.get('/dashboard',dashboard);
-userRouter.get('/download-resume',downloadResume);
+userRouter.post('/download-resume', upload.single("resume"), downloadResume);
 userRouter.get("/verify/:token", verifyEmail);
 
 export default userRouter;
