@@ -377,7 +377,7 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       .lean();
 
     const hasLifetimeAccess = payments.some(
-      (payment: any) => payment.planId?.name === "Lifetime Full Access Option"
+      (payment: any) => payment.planId?.name === "Lifetime Full Access"
     );
 
     if (!hasLifetimeAccess) {
@@ -429,6 +429,7 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       success: true,
       message: "Resume uploaded successfully",
       hasResume: true,
+      formattedPayments: formattedPayments
     });
   } catch (error) {
     console.error("Error in downloadResume:", error);
