@@ -7,7 +7,7 @@ import { generateToken } from '@utils/jwt';
 
 
 
-const JWT_SECRET = process.env.JWT_SECRET || 'yoursecretkey'; // Replace with your actual secret in production
+const JWT_SECRET = process.env.JWT_SECRET || 'yoursecretkey';
 
 // Register a new user
 const register = async (req: Request, res: Response) => {
