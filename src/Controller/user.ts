@@ -14,9 +14,11 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
 
     const planSubscriptions = await Promise.all(
       users.map(async (user) => {
-        const planSubscription = await PaymentLog.findOne({
+        const planSubscription = await PaymentLog.find({
           userId: user._id,
-        }).populate("planId").sort({ createdAt: -1 });
+        }).populate("planId",'name price plan')
+        .select('paymentDetails planId userId _id paymentId status createdAt ')
+        .sort({ createdAt: -1 });
         return planSubscription;
       })
     );
@@ -32,11 +34,12 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
       country: user.country,
       status: user.status,
       isVerified: user.isVerified,
-      planId: planSubscriptions[index]?.planId?.name || null,
-      planStatus: planSubscriptions[index]?.status || "none",
-      amount: planSubscriptions[index]?.amount || 0,
-      paymentDetails: planSubscriptions[index]?.paymentDetails || null,
-      transactionId: planSubscriptions[index]?.paymentId || null,
+      // planId: planSubscriptions[index]?.planId?.name || null,
+      // planStatus: planSubscriptions[index]?.status || "none",
+      // amount: planSubscriptions[index]?.amount || 0,
+      // paymentDetails: planSubscriptions[index]?.paymentDetails || null,
+      // transactionId: planSubscriptions[index]?.paymentId || null,
+      planSubscriptions: planSubscriptions[index] || [],
     }));
 
     return res.json({ users: usersWithPlanSubscriptions });
