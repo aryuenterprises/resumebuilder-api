@@ -18,6 +18,7 @@ export interface IContactResume extends Document {
   linkedIn: string;
   portfolio: string;
   resume: string;
+  resumeStatus: string;
 
 }
 
@@ -44,6 +45,10 @@ const ContactResumeSchema = new Schema<IContactResume>(
     linkedIn: { type: String, required: false },
     portfolio: { type: String, required: false },
     resume: { type: String, required: false },
+    resumeStatus:{
+      type:String,
+      default:'pending'
+    }
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

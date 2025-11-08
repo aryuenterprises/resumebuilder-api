@@ -2,13 +2,40 @@ import { Request, Response } from "express";
 import { ContactResume } from "../models/ContactResume";
 import mongoose from "mongoose";
 
+// const getContactResume = async (req: Request, res: Response) => {
+//   const { id } = req.params;
+//   try {
+//     const resumes = await ContactResume.find({ userId: id });
+//     res.json(resumes);
+//   } catch (error: any) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
 const getContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   try {
-    const resumes = await ContactResume.find({ userId: id });
-    res.json(resumes);
+    // if (!id) {
+    //   return res.status(400).json({ message: "User ID is required" });
+    // }
+
+    const resumes = await ContactResume.find({
+      userId: id,
+      resumeStatus: "pending",
+    }).sort({ createdAt: -1 });
+
+    // if (!resumes || resumes.length === 0) {
+    //   return res.status(404).json({ message: "No pending resumes found" });
+    // }
+
+    res.status(200).json({
+      message: "Pending resumes fetched successfully",
+      resumes,
+    });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching contact resumes:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 const getAllContactResume = async (req: Request, res: Response) => {
@@ -19,6 +46,7 @@ const getAllContactResume = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const createContactResume = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -161,8 +189,8 @@ const createContactResume = async (req: Request, res: Response): Promise<Respons
 // };
 const updateResume = async (req: Request, res: Response) => {
   try {
-    const { id, userId, templateId } = req.query;
-    
+    const { id, userId } = req.query;
+
     const {
       firstName,
       lastName,
@@ -177,6 +205,7 @@ const updateResume = async (req: Request, res: Response) => {
       postCode,
       linkedIn,
       portfolio,
+      resumeStatus
     } = req.body;
 
     if (!userId) {
@@ -186,15 +215,15 @@ const updateResume = async (req: Request, res: Response) => {
     let existingResume;
 
     if (id) {
-      existingResume = await ContactResume.findOne({ _id: id, userId, templateId });
+      existingResume = await ContactResume.findOne({ _id: id, userId });
     } else {
-      existingResume = await ContactResume.findOne({ userId, templateId });
+      existingResume = await ContactResume.findOne({ userId });
     }
 
-    if (!existingResume) {
+    if (!existingResume || existingResume.resumeStatus !== "success") {
       const newResume = new ContactResume({
         userId,
-        templateId,
+        resumeStatus,
         firstName,
         lastName,
         email,
