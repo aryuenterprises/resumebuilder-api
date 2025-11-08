@@ -41,6 +41,20 @@
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.9",
-    "stripe": "^19.2.0"
-  }
+    "stripe": "^19.2.0",
+    "uuid": "^13.0.0"
+  },
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aryuenterprises/resumebuilderapi-nodejs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "types": "./dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/aryuenterprises/resumebuilderapi-nodejs/issues"
+  },
+  "homepage": "https://github.com/aryuenterprises/resumebuilderapi-nodejs#readme"
 }

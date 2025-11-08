@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { Payment } from "../models/paymentModel";
 import { PaymentLog } from "@models/paymentLogModel";
 import { User } from "@models/User";
+import { v4 as uuidv4 } from "uuid";
 
 // const fetchPaymentIntent = async (req: Request, res: Response) => {
 //   try {
@@ -376,10 +377,20 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
         .json({ message: "User already has this plan activated" });
     }
 
+    // const payment = await Payment.findOneAndUpdate(
+    //   { userId },
+    //   { planId, amount: 0, status: "succeeded" },
+    //   { new: true, upsert: true }
+    // );
     const payment = await Payment.findOneAndUpdate(
       { userId },
-      { planId, amount: 0, status: "succeeded" },
-      { new: true, upsert: true }
+      {
+        planId,
+        amount: 0,
+        status: "succeeded",
+        paymentId: uuidv4(), // ensure uniqueness
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
     );
 
     const paymentLog = await PaymentLog.create({
