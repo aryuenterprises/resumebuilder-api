@@ -504,7 +504,8 @@ const getPaymentRecord = async (req: Request, res: Response) => {
     } else {
       const paymentRecord = await PaymentLog.find()
         .populate("planId", "name price")
-        .populate("userId", "firstName lastName email");
+        .populate("userId", "firstName lastName email")
+        .sort({ createdAt: -1 });
 
       res.status(200).json(paymentRecord);
     }
