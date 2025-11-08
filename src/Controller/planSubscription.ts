@@ -16,13 +16,18 @@ const createPlanSubscription = async (req: Request, res: Response) => {
 
 const getPlanSubscription = async (req: Request, res: Response) => {
     try {
-        const planSubscriptionDetails = await PlanSubscription.find({status:'1'});
-        res.json(planSubscriptionDetails);
+        const type = req.query.type as string;
+        
+        const query = type === 'active' ? { status: '1' } : {};
+        const planSubscriptionDetails = await PlanSubscription.find(query);
+        
+        return res.json(planSubscriptionDetails);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
 
 const editPlanSubscription = async (req: Request, res: Response) => {
     try {
@@ -62,5 +67,5 @@ export {
     createPlanSubscription,
     getPlanSubscription,
     editPlanSubscription,
-    deletePlanSubscription
+    deletePlanSubscription,
 }
