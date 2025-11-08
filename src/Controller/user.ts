@@ -208,12 +208,13 @@ const dashboard = async (req: Request, res: Response) => {
       }
     }
     const updatedPayments = await Payment.find({ userId: userId })
-      .populate("planId", "name price")
+      .populate("planId", "name price plan")
       .lean();
 
     const formattedPayments = updatedPayments.map((payment) => ({
       plan: payment.planId?.name || null,
       amount: payment.planId?.price || null,
+      limit: payment.planId?.plan || null,
       status: payment.status,
     }));
 
@@ -369,28 +370,28 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
     }
 
     const payments = await Payment.find({ userId })
-      .populate("planId", "name price")
+      .populate("planId", "name price plan")
       .lean();
 
     const paymentLogs = await PaymentLog.find({ userId })
-      .populate("planId", "name price")
+      .populate("planId", "name price plan")
       .lean();
 
-    const hasLifetimeAccess = payments.some(
-      (payment: any) => payment.planId?.name === "Lifetime Full Access"
-    );
+    // const hasLifetimeAccess = payments.some(
+    //   (payment: any) => payment.planId?.plan === "unlimited"
+    // );
 
-    if (!hasLifetimeAccess) {
-      const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
-      if (hasResume) {
-        res.status(404).json({
-          success: false,
-          message: "Resume already downloaded",
-          hasResume: true,
-        });
-        return;
-      }
-    }
+    // if (!hasLifetimeAccess) {
+    //   const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
+    //   if (hasResume) {
+    //     res.status(404).json({
+    //       success: false,
+    //       message: "Resume already downloaded",
+    //       hasResume: true,
+    //     });
+    //     return;
+    //   }
+    // }
 
     if (!resumeFile) {
       res.status(400).json({ message: "Resume file is required" });
@@ -399,7 +400,7 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
 
     // Filter only non-lifetime plans
     const paymentsToUpdate = payments.filter(
-      (payment: any) => payment.planId?.name !== "Lifetime Full Access"
+      (payment: any) => payment.planId?.plan !== "unlimited"
     );
 
     const paymentIds = paymentsToUpdate.map((p: any) => p._id);
@@ -414,8 +415,10 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
     const formattedPayments = payments.map((payment) => ({
       plan: payment.planId?.name || null,
       amount: payment.planId?.price || null,
+      limit: payment.planId?.plan || null,
       status: payment.status,
     }));
+
 
     const updatedResume = await ContactResume.findByIdAndUpdate(
       contactId,
