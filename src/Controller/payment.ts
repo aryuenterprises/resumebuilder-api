@@ -4,6 +4,7 @@ import { Payment } from "../models/paymentModel";
 import { PaymentLog } from "@models/paymentLogModel";
 import { User } from "@models/User";
 import { v4 as uuidv4 } from "uuid";
+import { ContactResume } from "@models/ContactResume";
 
 // const fetchPaymentIntent = async (req: Request, res: Response) => {
 //   try {
@@ -388,7 +389,7 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
         planId,
         amount: 0,
         status: "succeeded",
-        paymentId: uuidv4(), // ensure uniqueness
+        paymentId: uuidv4(),
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
@@ -492,11 +493,21 @@ const paymentUpdate = async (req: Request, res: Response) => {
 };
 
 const getPaymentRecord = async (req: Request, res: Response) => {
+  const { type,userId } = req.query;
   try {
-    const paymentRecord = await PaymentLog.find()
-      .populate("planId", "name price")
-      .populate("userId", "firstName lastName email");
-    res.status(200).json(paymentRecord);
+    if (type === 'latest') {
+      const lastestPlan = await PaymentLog.findOne({ userId: userId })
+        .populate('planId', 'name price plan')
+        .select('planId amount status createdAt')
+        .sort({ createdAt: -1 });
+      res.status(200).json({ lastestPlan });
+    } else {
+      const paymentRecord = await PaymentLog.find()
+        .populate("planId", "name price")
+        .populate("userId", "firstName lastName email");
+
+      res.status(200).json(paymentRecord);
+    }
   } catch (error) {
     res.status(500).json({ message: "Error fetching payment records", error });
   }
