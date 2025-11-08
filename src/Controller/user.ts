@@ -7,7 +7,7 @@ import { Payment } from "../models/paymentModel";
 import crypto from "crypto";
 import { ContactResume } from "@models/ContactResume";
 import { PaymentLog } from "@models/paymentLogModel";
-
+import bcrypt from "bcryptjs";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
     const users = await User.find();
@@ -98,7 +98,7 @@ const addUser = async (req: Request, res: Response) => {
     const API_URL = process.env.API_URL;
     const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
 
-    await sendEmail(email, "Verify your Aryu Academy account", "addUser.html", {
+    await sendEmail(email, "Verify your Resumint account", "addUser.html", {
       firstName,
       verificationLink,
     });
@@ -164,22 +164,97 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// const forgotPassword = async (req: Request, res: Response) => {
+//   const { email } = req.body;
+//   const verifyToken = crypto.randomBytes(32).toString("hex");
+//   if (!email) {
+//     return res.status(400).json({ message: "Email is required" });
+//   }
+
+//   const user = await User.findOne({ email });
+//   if (!user) {
+//     return res.status(404).json({ message: "User not found" });
+//   }
+//   const firstName = user.firstName;
+
+//   const API_URL = process.env.API_URL;
+//     const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
+//     await sendEmail(email, "Verify your Aryu Academy account", "addUser.html", {
+//       firstName,
+//       verificationLink,
+//     });
+
+//   // user.password = req.query.newPassword;
+//   await user.save();
+
+//   res.json({ message: "Password updated successfully" });
+// };
+
 const forgotPassword = async (req: Request, res: Response) => {
-  const { email, newPassword } = req.body;
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
-  if (!email) {
-    return res.status(400).json({ message: "Email is required" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+    user.resetOtp = hashedOtp;
+    // user.resetOtpExpire = Date.now() + 5 * 60 * 1000;
+    await user.save();
+
+    await sendEmail(
+      email,
+      "Your Resumint Password Reset OTP",
+      "otpEmail.html",
+      {
+        firstName: user.firstName,
+        otp,
+      }
+    );
+
+    res.json({ message: "OTP sent to your email" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", error });
   }
+};
+const verifyOtpAndResetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+    if (hashedOtp !== user.resetOtp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    user.password = newPassword;
+    
+    await user.save();
+
+    res.json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", error });
   }
-
-  user.password = newPassword;
-  await user.save();
-
-  res.json({ message: "Password updated successfully" });
 };
 
 const dashboard = async (req: Request, res: Response) => {
@@ -398,7 +473,7 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Filter only non-lifetime plans
+    
     const paymentsToUpdate = payments.filter(
       (payment: any) => payment.planId?.plan !== "unlimited"
     );
@@ -446,14 +521,14 @@ const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    // 🔹 Validate input
+   
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email and password are required" });
     }
 
-    // 🔹 Find user by email
+   
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
@@ -467,13 +542,13 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User is not verified" });
     }
 
-    // 🔹 Compare password
+   
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // 🔹 Generate JWT token
+    
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET || "your_secret_key",
@@ -483,7 +558,7 @@ const loginUser = async (req: Request, res: Response) => {
       "planId"
     );
 
-    // 🔹 Respond with token
+   
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -554,4 +629,5 @@ export {
   loginUser,
   forgotPassword,
   verifyEmail,
+  verifyOtpAndResetPassword
 };
