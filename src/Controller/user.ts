@@ -10,7 +10,7 @@ import { PaymentLog } from "@models/paymentLogModel";
 import bcrypt from "bcryptjs";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const users = await User.find();
+    const users = await User.find().sort({ createdAt: -1 });
 
     const planSubscriptions = await Promise.all(
       users.map(async (user) => {
