@@ -29,10 +29,7 @@ const getContactResume = async (req: Request, res: Response) => {
     //   return res.status(404).json({ message: "No pending resumes found" });
     // }
 
-    res.status(200).json({
-      message: "Pending resumes fetched successfully",
-      resumes,
-    });
+    res.json(resumes);
   } catch (error: any) {
     console.error("Error fetching contact resumes:", error);
     res.status(500).json({ message: "Internal server error", error: error.message });
@@ -204,8 +201,7 @@ const updateResume = async (req: Request, res: Response) => {
       address,
       postCode,
       linkedIn,
-      portfolio,
-      resumeStatus
+      portfolio
     } = req.body;
 
     if (!userId) {
@@ -220,10 +216,9 @@ const updateResume = async (req: Request, res: Response) => {
       existingResume = await ContactResume.findOne({ userId });
     }
 
-    if (!existingResume || existingResume.resumeStatus !== "success") {
+    if (!existingResume || existingResume.resumeStatus === "success") {
       const newResume = new ContactResume({
         userId,
-        resumeStatus,
         firstName,
         lastName,
         email,
