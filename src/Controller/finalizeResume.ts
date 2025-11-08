@@ -278,7 +278,6 @@ const updateFinalizeResume = async (req: Request, res: Response) => {
 
     const updatedFinalize = await existingFinalize.save();
 
-    // ✅ Update templateId in related documents
     if (templateId) {
       const contactResume = await ContactResume.findById(contactId);
       if (contactResume) {

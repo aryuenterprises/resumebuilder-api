@@ -16,6 +16,7 @@ export interface IUser extends Document {
   resetOtp: string,
   resetOtpExpire: Date,
 
+
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -74,6 +75,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       default: '1'
     },
+    
   },
   { timestamps: true }
 );

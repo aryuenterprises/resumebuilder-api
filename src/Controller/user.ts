@@ -14,9 +14,9 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
 
     const planSubscriptions = await Promise.all(
       users.map(async (user) => {
-        const planSubscription = await Payment.findOne({
+        const planSubscription = await PaymentLog.findOne({
           userId: user._id,
-        }).populate("planId");
+        }).populate("planId").sort({ createdAt: -1 });
         return planSubscription;
       })
     );
@@ -36,6 +36,7 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
       planStatus: planSubscriptions[index]?.status || "none",
       amount: planSubscriptions[index]?.amount || 0,
       paymentDetails: planSubscriptions[index]?.paymentDetails || null,
+      transactionId: planSubscriptions[index]?.paymentId || null,
     }));
 
     return res.json({ users: usersWithPlanSubscriptions });
@@ -239,7 +240,7 @@ const verifyOtpAndResetPassword = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    
+
 
     const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
     if (hashedOtp !== user.resetOtp) {
@@ -247,7 +248,7 @@ const verifyOtpAndResetPassword = async (req: Request, res: Response) => {
     }
 
     user.password = newPassword;
-    
+
     await user.save();
 
     res.json({ message: "Password reset successfully" });
@@ -355,7 +356,7 @@ const dashboard = async (req: Request, res: Response) => {
 //       return;
 //     }
 
-  
+
 //     const contact = await ContactResume.findById(contactId);
 //     if (!contact) {
 //       res.status(404).json({ message: "Contact not found", success: false });
@@ -425,7 +426,7 @@ const dashboard = async (req: Request, res: Response) => {
 
 const downloadResume = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, contactId } = req.body;
+    const { userId, contactId, message } = req.body;
     const resumeFile = req.file;
 
     if (!userId) {
@@ -473,7 +474,7 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    
+
     const paymentsToUpdate = payments.filter(
       (payment: any) => payment.planId?.plan !== "unlimited"
     );
@@ -497,9 +498,13 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
 
     const updatedResume = await ContactResume.findByIdAndUpdate(
       contactId,
-      { resume: resumeFile.filename },
+      {
+        resume: resumeFile.filename,
+        resumeStatus: message,
+      },
       { new: true }
     );
+
 
     console.log("Updated Resume:", updatedResume);
 
@@ -521,14 +526,14 @@ const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-   
+
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email and password are required" });
     }
 
-   
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
@@ -542,13 +547,13 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User is not verified" });
     }
 
-   
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    
+
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET || "your_secret_key",
@@ -558,7 +563,7 @@ const loginUser = async (req: Request, res: Response) => {
       "planId"
     );
 
-   
+
     res.status(200).json({
       success: true,
       message: "Login successful",
