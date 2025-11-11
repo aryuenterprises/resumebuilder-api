@@ -20,9 +20,9 @@ const getContactResume = async (req: Request, res: Response) => {
     //   return res.status(400).json({ message: "User ID is required" });
     // }
 
-    const resumes = await ContactResume.findOne({
+    const resumes = await ContactResume.find({
       userId: id,
-      // resumeStatus: "pending",
+      resumeStatus: "pending",
     }).sort({ createdAt: -1 });
 
     // if (!resumes || resumes.length === 0) {
