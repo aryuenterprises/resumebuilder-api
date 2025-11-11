@@ -255,7 +255,7 @@ const fetchPaymentIntent = async (
 
     const stripe = new Stripe(secretKey);
 
-    // ✅ Free Plan Handling
+ 
     // if (Number(amount) === 0) {
     //   const freePayment = await Payment.findOneAndUpdate(
     //     { userId },
@@ -285,10 +285,8 @@ const fetchPaymentIntent = async (
     //   });
     // }
 
-    // ✅ Convert Euro amount to cents
     const amountInCents = Math.max(Math.round(Number(amount) * 100), 50);
 
-    // ✅ Check for existing pending payment
     let payment = await Payment.findOne({ userId });
     let paymentIntent;
 
@@ -313,7 +311,6 @@ const fetchPaymentIntent = async (
       });
     }
 
-    // ✅ Update or create payment record
     payment = await Payment.findOneAndUpdate(
       { userId },
       {
@@ -333,7 +330,6 @@ const fetchPaymentIntent = async (
       { new: true, upsert: true }
     );
 
-    // ✅ Log every payment
     await PaymentLog.create({
       userId,
       paymentId: paymentIntent.id,
@@ -428,7 +424,6 @@ const paymentUpdate = async (req: Request, res: Response) => {
 
     const stripe = new Stripe(secretKey);
 
-    // ✅ Step 1: Only update when payment succeeded
     if (paymentIntent.status === "succeeded") {
       const paymentMethod = await stripe.paymentMethods.retrieve(
         paymentIntent.payment_method
@@ -454,7 +449,6 @@ const paymentUpdate = async (req: Request, res: Response) => {
         paymentDetails = { type: "paynow" };
       }
 
-      // ✅ Step 2: Update existing payment record
       const updatedPayment = await Payment.findOneAndUpdate(
         { paymentId: paymentIntent.id },
         {

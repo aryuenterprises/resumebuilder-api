@@ -20,9 +20,9 @@ const getContactResume = async (req: Request, res: Response) => {
     //   return res.status(400).json({ message: "User ID is required" });
     // }
 
-    const resumes = await ContactResume.find({
+    const resumes = await ContactResume.findOne({
       userId: id,
-      resumeStatus: "pending",
+      // resumeStatus: "pending",
     }).sort({ createdAt: -1 });
 
     // if (!resumes || resumes.length === 0) {
@@ -211,7 +211,7 @@ const updateResume = async (req: Request, res: Response) => {
     let existingResume;
 
     if (id) {
-      existingResume = await ContactResume.findOne({ _id: id, userId });
+      existingResume = await ContactResume.findOne({ _id: id, userId});
     } else {
       existingResume = await ContactResume.findOne({ userId });
     }
