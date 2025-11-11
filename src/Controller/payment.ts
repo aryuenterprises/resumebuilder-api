@@ -255,7 +255,7 @@ const fetchPaymentIntent = async (
 
     const stripe = new Stripe(secretKey);
 
- 
+
     // if (Number(amount) === 0) {
     //   const freePayment = await Payment.findOneAndUpdate(
     //     { userId },
@@ -487,14 +487,20 @@ const paymentUpdate = async (req: Request, res: Response) => {
 };
 
 const getPaymentRecord = async (req: Request, res: Response) => {
-  const { type,userId } = req.query;
+  const { type, userId } = req.query;
   try {
     if (type === 'latest') {
-      const lastestPlan = await PaymentLog.findOne({ userId: userId })
-        .populate('planId', 'name price plan')
+      const latestPlan = await Payment.findOne({ userId })
+        .populate('planId')
         .select('planId amount status createdAt')
         .sort({ createdAt: -1 });
-      res.status(200).json({ lastestPlan });
+
+      if (!latestPlan || !latestPlan.planId) {
+        return res.status(200).json({ message: 'No Current Plan' });
+      }
+
+      return res.status(200).json({ latestPlan });
+
     } else {
       const paymentRecord = await PaymentLog.find()
         .populate("planId", "name price")
