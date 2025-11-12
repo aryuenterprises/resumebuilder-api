@@ -37,6 +37,7 @@ import keyboardRouter from './routes/keyboardRouter.js';
 import toneRouter from './routes/toneRouter.js';
 import resumeTemplateRouter from './routes/resumeTemplateRouter.js';
 import paymentRouter from './routes/paymentRouter.js';
+import settingRouter from '@routes/settingRouter.js';
 // Resolve __dirname in ES Module context
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,6 +78,7 @@ app.use('/api/keyboard-resume', keyboardRouter);
 app.use('/api/tone-resume', toneRouter);
 app.use('/api/resume-template', resumeTemplateRouter);
 app.use('/api/payment', paymentRouter);
+app.use('/api/setting', settingRouter);
 }
 start();
 app.listen(PORT, () => {
