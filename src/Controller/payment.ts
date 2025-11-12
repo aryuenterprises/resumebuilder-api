@@ -5,6 +5,7 @@ import { PaymentLog } from "@models/paymentLogModel";
 import { User } from "@models/User";
 import { v4 as uuidv4 } from "uuid";
 import { ContactResume } from "@models/ContactResume";
+import { setting } from "@models/setting";
 
 // const fetchPaymentIntent = async (req: Request, res: Response) => {
 //   try {
@@ -245,8 +246,9 @@ const fetchPaymentIntent = async (
         .status(400)
         .json({ error: "Amount, userId, and planId are required" });
     }
-
-    const secretKey = process.env.Secret_key;
+    const Settings= await setting.find();
+    // const secretKey = process.env.Secret_key;
+    const secretKey = Settings[0].SecretKey;
     if (!secretKey) {
       return res
         .status(500)
@@ -415,7 +417,9 @@ const paymentUpdate = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Invalid paymentIntent data" });
     }
 
-    const secretKey = process.env.Secret_key;
+    const Settings= await setting.find();
+    // const secretKey = process.env.Secret_key;
+    const secretKey = Settings[0].SecretKey;
     if (!secretKey) {
       return res
         .status(500)
