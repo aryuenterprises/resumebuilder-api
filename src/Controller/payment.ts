@@ -490,12 +490,49 @@ const paymentUpdate = async (req: Request, res: Response) => {
   }
 };
 
+// const getPaymentRecord = async (req: Request, res: Response) => {
+//   const { type, userId } = req.query;
+//   try {
+//     if (type === 'latest') {
+//       const latestPlan = await Payment.findOne({ userId })
+//         .populate('planId')
+//         .select('planId amount status createdAt')
+//         .sort({ createdAt: -1 });
+
+//       if (!latestPlan || !latestPlan.planId) {
+//         return res.status(200).json({ message: 'No Current Plan' });
+//       }
+
+
+//       return res.status(200).json({ latestPlan });
+
+//     }else if(type === 'all'){
+//       const paymentRecord = await PaymentLog.find({userId: userId})
+//         .populate("planId", "name price")
+//         .populate("userId", "firstName lastName email")
+//         .sort({ createdAt: -1 });
+//       res.status(200).json(paymentRecord);
+//     }
+    
+//     else {
+//       const paymentRecord = await PaymentLog.find()
+//         .populate("planId", "name price")
+//         .populate("userId", "firstName lastName email")
+//         .sort({ createdAt: -1 });
+
+//       res.status(200).json(paymentRecord);
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching payment records", error });
+//   }
+// };
+
 const getPaymentRecord = async (req: Request, res: Response) => {
   const { type, userId } = req.query;
   try {
     if (type === 'latest') {
       const latestPlan = await Payment.findOne({ userId })
-        .populate('planId')
+        .populate('planId', 'name price')
         .select('planId amount status createdAt')
         .sort({ createdAt: -1 });
 
@@ -504,15 +541,23 @@ const getPaymentRecord = async (req: Request, res: Response) => {
       }
 
       return res.status(200).json({ latestPlan });
+    }
 
-    } else {
-      const paymentRecord = await PaymentLog.find()
+    if (type === 'all') {
+      const paymentRecord = await PaymentLog.find({ userId })
         .populate("planId", "name price")
         .populate("userId", "firstName lastName email")
         .sort({ createdAt: -1 });
 
-      res.status(200).json(paymentRecord);
+      return res.status(200).json(paymentRecord);
     }
+
+    const paymentRecord = await PaymentLog.find()
+      .populate("planId", "name price")
+      .populate("userId", "firstName lastName email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json(paymentRecord);
   } catch (error) {
     res.status(500).json({ message: "Error fetching payment records", error });
   }
