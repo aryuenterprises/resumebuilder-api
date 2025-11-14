@@ -224,7 +224,8 @@ const updateResume = async (req: Request, res: Response) => {
       address,
       postCode,
       linkedIn,
-      portfolio
+      portfolio,
+      templateId
     } = req.body;
 
     if (!userId) {
@@ -255,6 +256,7 @@ const updateResume = async (req: Request, res: Response) => {
         postCode,
         linkedIn,
         portfolio,
+        templateId
       });
 
       const saved = await newResume.save();
