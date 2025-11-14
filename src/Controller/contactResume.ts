@@ -35,6 +35,29 @@ const getContactResume = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+const allContactResume = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    // if (!id) {
+    //   return res.status(400).json({ message: "User ID is required" });
+    // }
+
+    const resumes = await ContactResume.find({
+      userId: id,
+      // resumeStatus: "pending",
+    }).sort({ createdAt: -1 });
+
+    // if (!resumes || resumes.length === 0) {
+    //   return res.status(404).json({ message: "No pending resumes found" });
+    // }
+
+    res.json(resumes);
+  } catch (error: any) {
+    console.error("Error fetching contact resumes:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
 const getAllContactResume = async (req: Request, res: Response) => {
   try {
     const resumes = await ContactResume.find();
@@ -324,4 +347,5 @@ export {
   updateResume,
   getContactResume,
   getAllContactResume,
+  allContactResume
 };
