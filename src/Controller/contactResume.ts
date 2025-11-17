@@ -49,9 +49,9 @@ const getContactResume = async (req: Request, res: Response) => {
     if (resumeId) {
       const resume = await ContactResume.findById(resumeId);
 
-      if (!resume) {
-        return res.status(404).json({ message: "Resume not found" });
-      }
+      // if (!resume) {
+      //   return res.status(404).json({ message: "Resume not found" });
+      // }
 
       return res.json(resume);
     }
