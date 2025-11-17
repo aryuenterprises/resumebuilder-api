@@ -16,9 +16,12 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
       users.map(async (user) => {
         const planSubscription = await PaymentLog.find({
           userId: user._id,
-        }).populate("planId",'name price plan')
-        .select('paymentDetails planId userId _id paymentId status createdAt ')
-        .sort({ createdAt: -1 });
+        })
+          .populate("planId", "name price plan")
+          .select(
+            "paymentDetails planId userId _id paymentId status createdAt "
+          )
+          .sort({ createdAt: -1 });
         return planSubscription;
       })
     );
@@ -243,8 +246,6 @@ const verifyOtpAndResetPassword = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-
-
     const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
     if (hashedOtp !== user.resetOtp) {
       return res.status(400).json({ message: "Invalid OTP" });
@@ -359,7 +360,6 @@ const dashboard = async (req: Request, res: Response) => {
 //       return;
 //     }
 
-
 //     const contact = await ContactResume.findById(contactId);
 //     if (!contact) {
 //       res.status(404).json({ message: "Contact not found", success: false });
@@ -427,6 +427,119 @@ const dashboard = async (req: Request, res: Response) => {
 //   }
 // };
 
+// const downloadResume = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const { userId, contactId, message } = req.body;
+//     const resumeFile = req.file;
+//     const sevenDaysAgo = new Date();
+//     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+//     if (!userId) {
+//       res.status(400).json({ message: "userId is required" });
+//       return;
+//     }
+
+//     if (!contactId) {
+//       res.status(400).json({ message: "contactId is required" });
+//       return;
+//     }
+
+//     const contact = await ContactResume.findById(contactId);
+//     if (!contact) {
+//       res.status(404).json({ message: "Contact not found", success: false });
+//       return;
+//     }
+
+//     const payments = await Payment.find({ userId })
+//       .populate("planId", "name price plan")
+//       .lean();
+
+//     const paymentLogs = await PaymentLog.find({ userId })
+//       .populate("planId", "name price plan")
+//       .lean();
+
+//     // const hasLifetimeAccess = payments.some(
+//     //   (payment: any) => payment.planId?.plan === "unlimited"
+//     // );
+
+//     // if (!hasLifetimeAccess) {
+//     //   const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
+//     //   if (hasResume) {
+//     //     res.status(404).json({
+//     //       success: false,
+//     //       message: "Resume already downloaded",
+//     //       hasResume: true,
+//     //     });
+//     //     return;
+//     //   }
+//     // }
+
+//     if (!resumeFile) {
+//       res.status(400).json({ message: "Resume file is required" });
+//       return;
+//     }
+
+//     // const paymentsToUpdate = payments.filter(
+//     //   (payment: any) => payment.planId?.plan !== "unlimited"
+//     // );
+
+//     const paymentsToUpdate = payments.filter((payment: any) => {
+//       const plan = payment?.planId?.plan;
+
+//       // Always skip unlimited
+//       if (plan === "unlimited") return false;
+
+//       // Handle 7-day access plan
+//       if (plan === "7-days access") {
+//         return new Date(payment.createdAt) < sevenDaysAgo;
+//         // TRUE = expired → needs update
+//         // FALSE = still valid → skip
+//       }
+
+//       // Otherwise include normal plans
+//       return true;
+//     });
+
+//     const paymentIds = paymentsToUpdate.map((p: any) => p._id);
+
+//     if (paymentIds.length > 0) {
+//       await Payment.updateMany(
+//         { _id: { $in: paymentIds } },
+//         { $unset: { planId: "" } }
+//       );
+//     }
+
+//     const formattedPayments = payments.map((payment) => ({
+//       plan: payment.planId?.name || null,
+//       amount: payment.planId?.price || null,
+//       limit: payment.planId?.plan || null,
+//       status: payment.status,
+//     }));
+
+//     const updatedResume = await ContactResume.findByIdAndUpdate(
+//       contactId,
+//       {
+//         resume: resumeFile.filename,
+//         resumeStatus: message,
+//       },
+//       { new: true }
+//     );
+
+//     console.log("Updated Resume:", updatedResume);
+
+//     res.json({
+//       success: true,
+//       message: "Resume uploaded successfully",
+//       hasResume: true,
+//       formattedPayments: formattedPayments,
+//     });
+//   } catch (error) {
+//     console.error("Error in downloadResume:", error);
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// };
+
+
 const downloadResume = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, contactId, message } = req.body;
@@ -439,6 +552,11 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
 
     if (!contactId) {
       res.status(400).json({ message: "contactId is required" });
+      return;
+    }
+
+    if (!resumeFile) {
+      res.status(400).json({ message: "Resume file is required" });
       return;
     }
 
@@ -456,31 +574,32 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       .populate("planId", "name price plan")
       .lean();
 
-    // const hasLifetimeAccess = payments.some(
-    //   (payment: any) => payment.planId?.plan === "unlimited"
-    // );
+    /* -------------------------
+       7 Days Ago Calculation
+    -------------------------- */
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // if (!hasLifetimeAccess) {
-    //   const hasResume: boolean = !!(contact.resume && contact.resume.trim() !== "");
-    //   if (hasResume) {
-    //     res.status(404).json({
-    //       success: false,
-    //       message: "Resume already downloaded",
-    //       hasResume: true,
-    //     });
-    //     return;
-    //   }
-    // }
+    /* --------------------------------------------
+       Filter Payments That Require Plan Resetting
+    --------------------------------------------- */
+    const paymentsToUpdate = payments.filter((payment: any) => {
+      const plan = payment?.planId?.plan;
 
-    if (!resumeFile) {
-      res.status(400).json({ message: "Resume file is required" });
-      return;
-    }
+      if (!plan) return false;
 
+      // Skip unlimited plans
+      if (plan === "unlimited") return false;
 
-    const paymentsToUpdate = payments.filter(
-      (payment: any) => payment.planId?.plan !== "unlimited"
-    );
+      // Handle 7-day access plan expiration
+      if (plan === "7-days access") {
+        const createdAt = new Date(payment.createdAt);
+        return createdAt < sevenDaysAgo; // expired → remove plan
+      }
+
+      // All other plans should be reset
+      return true;
+    });
 
     const paymentIds = paymentsToUpdate.map((p: any) => p._id);
 
@@ -491,6 +610,9 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       );
     }
 
+    /* --------------------------------------------
+          Prepare output for client (optional)
+    --------------------------------------------- */
     const formattedPayments = payments.map((payment) => ({
       plan: payment.planId?.name || null,
       amount: payment.planId?.price || null,
@@ -498,7 +620,9 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       status: payment.status,
     }));
 
-
+    /* --------------------------------------------
+                 Update Resume
+    --------------------------------------------- */
     const updatedResume = await ContactResume.findByIdAndUpdate(
       contactId,
       {
@@ -508,14 +632,13 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
       { new: true }
     );
 
-
     console.log("Updated Resume:", updatedResume);
 
     res.json({
       success: true,
       message: "Resume uploaded successfully",
       hasResume: true,
-      formattedPayments: formattedPayments
+      formattedPayments,
     });
   } catch (error) {
     console.error("Error in downloadResume:", error);
@@ -523,19 +646,15 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-
-
 const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
 
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email and password are required" });
     }
-
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -547,15 +666,18 @@ const loginUser = async (req: Request, res: Response) => {
     }
 
     if (user.isVerified === false) {
-      return res.status(401).json({ message: "User not verified. Please check your registered email to complete verification" });
+      return res
+        .status(401)
+        .json({
+          message:
+            "User not verified. Please check your registered email to complete verification",
+        });
     }
-
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-
 
     const token = jwt.sign(
       { id: user._id, email: user.email },
@@ -565,7 +687,6 @@ const loginUser = async (req: Request, res: Response) => {
     const payments = await Payment.findOne({ userId: user._id }).populate(
       "planId"
     );
-
 
     res.status(200).json({
       success: true,
@@ -637,5 +758,5 @@ export {
   loginUser,
   forgotPassword,
   verifyEmail,
-  verifyOtpAndResetPassword
+  verifyOtpAndResetPassword,
 };
