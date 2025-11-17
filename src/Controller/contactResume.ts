@@ -240,7 +240,8 @@ const updateResume = async (req: Request, res: Response) => {
       existingResume = await ContactResume.findOne({ userId });
     }
 
-    if (!existingResume || existingResume.resumeStatus === "success") {
+    // if (!existingResume || existingResume.resumeStatus === "success") {
+    if (!id && !existingResume) {
       const newResume = new ContactResume({
         userId,
         firstName,
