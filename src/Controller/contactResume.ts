@@ -12,29 +12,64 @@ import mongoose from "mongoose";
 //   }
 // };
 
+// const getContactResume = async (req: Request, res: Response) => {
+//   const { id, resumeId } = req.params;
+
+//   try {
+//     // if (!id) {
+//     //   return res.status(400).json({ message: "User ID is required" });
+//     // }
+//     if(resumeId.length > 0){
+//       const resume = await ContactResume.findById(resumeId);
+//       if (!resume) {
+//         return res.status(404).json({ message: "Resume not found" });
+//       }
+//     }else{
+//     const resumes = await ContactResume.find({
+//       userId: id,
+//       resumeStatus: "pending",
+//     }).sort({ createdAt: -1 });
+//     }
+//     // if (!resumes || resumes.length === 0) {
+//     //   return res.status(404).json({ message: "No pending resumes found" });
+//     // }
+
+//     res.json(resumes);
+//   } catch (error: any) {
+//     console.error("Error fetching contact resumes:", error);
+//     res.status(500).json({ message: "Internal server error", error: error.message });
+//   }
+// };
+
 const getContactResume = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id, resumeId } = req.params;
 
   try {
-    // if (!id) {
-    //   return res.status(400).json({ message: "User ID is required" });
-    // }
+    if (resumeId) {
+      const resume = await ContactResume.findById(resumeId);
+
+      if (!resume) {
+        return res.status(404).json({ message: "Resume not found" });
+      }
+
+      return res.json(resume);
+    }
 
     const resumes = await ContactResume.find({
       userId: id,
       resumeStatus: "pending",
     }).sort({ createdAt: -1 });
 
-    // if (!resumes || resumes.length === 0) {
-    //   return res.status(404).json({ message: "No pending resumes found" });
-    // }
-
-    res.json(resumes);
+    return res.json(resumes);
   } catch (error: any) {
     console.error("Error fetching contact resumes:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
+
 const allContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -55,7 +90,9 @@ const allContactResume = async (req: Request, res: Response) => {
     res.json(resumes);
   } catch (error: any) {
     console.error("Error fetching contact resumes:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 const getAllContactResume = async (req: Request, res: Response) => {
@@ -67,8 +104,10 @@ const getAllContactResume = async (req: Request, res: Response) => {
   }
 };
 
-
-const createContactResume = async (req: Request, res: Response): Promise<Response> => {
+const createContactResume = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const photoFile = req.files?.find((file) => file.fieldname === "photo");
     const photo = photoFile ? photoFile.filename : null;
@@ -225,7 +264,7 @@ const updateResume = async (req: Request, res: Response) => {
       postCode,
       linkedIn,
       portfolio,
-      templateId
+      templateId,
     } = req.body;
 
     if (!userId) {
@@ -235,7 +274,7 @@ const updateResume = async (req: Request, res: Response) => {
     let existingResume;
 
     if (id) {
-      existingResume = await ContactResume.findOne({ _id: id, userId});
+      existingResume = await ContactResume.findOne({ _id: id, userId });
     } else {
       existingResume = await ContactResume.findOne({ userId });
     }
@@ -257,7 +296,7 @@ const updateResume = async (req: Request, res: Response) => {
         postCode,
         linkedIn,
         portfolio,
-        templateId
+        templateId,
       });
 
       const saved = await newResume.save();
@@ -308,8 +347,6 @@ const updateResume = async (req: Request, res: Response) => {
   }
 };
 
-
-
 // const updateResume = async (req: Request, res: Response) => {
 //   try {
 //     const { id } = req.params;
@@ -350,5 +387,5 @@ export {
   updateResume,
   getContactResume,
   getAllContactResume,
-  allContactResume
+  allContactResume,
 };
