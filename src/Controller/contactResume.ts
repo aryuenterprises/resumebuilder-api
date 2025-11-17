@@ -47,13 +47,13 @@ const getContactResume = async (req: Request, res: Response) => {
 
   try {
     if (resumeId) {
-      const resume = await ContactResume.findById(resumeId);
+      const resumes = await ContactResume.findById(resumeId);
 
       // if (!resume) {
       //   return res.status(404).json({ message: "Resume not found" });
       // }
 
-      return res.json(resume);
+      return res.json(resumes);
     }
 
     const resumes = await ContactResume.find({
