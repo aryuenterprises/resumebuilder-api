@@ -42,7 +42,8 @@ import mongoose from "mongoose";
 // };
 
 const getContactResume = async (req: Request, res: Response) => {
-  const { id, resumeId } = req.params;
+  const { id } = req.params;
+  const { resumeId } = req.query;
 
   try {
     if (resumeId) {
