@@ -8,10 +8,11 @@
   </body>
 </html> -->
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
   <body style="font-family: Arial, sans-serif; color: #333">
-    <h2>Welcome to Resumint!</h2>
+    <img src="" alt="">
+    <h2>Welcome to ResumeMint!</h2>
     <p>Hi {{firstName}},</p>
     <p>
       Please click the button below to verify your email address and activate
@@ -28,8 +29,152 @@
       "
       >Verify My Email</a
     >
-    <p>If you didn’t register, please ignore this email.</p>
-    <p>— Resumint Team</p>
+    <p>If you didn't register, please ignore this email.</p>
+    <p>— ResumeMint Team</p>
+    <hr>
+    <footer class="bg-dark text-white py-1">
+    <div class="container text-center">
+        <p class="text-center mt-2">
+            © <span id="currentYear"></span> Aryu Academy |
+            <p>All rights reserved</p>
+        </p>
+        <p>Our mailing address is:</p>
+        <p>ResumeMint</p>
+        <p>2055 Lombard Street, #1272
+
+            San Francisco, CA 94147</p>
+       
+        <a href="https://aryuacademy.com/privacy-policy" style="text-decoration: none;">Privacy Policy</a> | <a href="https://aryuacademy.com/terms-condition" style="text-decoration: none;">Terms and Conditions</a>
+
+    </div>
+</footer>
+ <script>
+        document.getElementById("currentYear").textContent =
+            new Date().getFullYear();
+    </script>
   </body>
 </html>
+ -->
 
+<!DOCTYPE html>
+<html lang="en">
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+      color: #333;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="padding: 20px 0; background: #f5f5f5"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="background: #fff; border-radius: 8px; overflow: hidden"
+          >
+            <!-- HEADER IMAGE -->
+            <tr>
+              <td>
+                <img
+                  src="https://YOUR-IMAGE-URL-HERE.png"
+                  alt="ResumeMint"
+                  width="100%"
+                  style="display: block; max-width: 600px"
+                />
+              </td>
+            </tr>
+
+            <!-- TITLE -->
+            <tr>
+              <td style="padding: 30px 40px 10px">
+                <h2 style="margin: 0; text-align: center; color: #2e86de">
+                  Welcome to ResumeMint!
+                </h2>
+              </td>
+            </tr>
+
+            <!-- CONTENT -->
+            <tr>
+              <td
+                style="padding: 0 40px 30px; font-size: 16px; line-height: 1.6"
+              >
+                <p>Hi <strong>{{firstName}}</strong>,</p>
+
+                <p>
+                  Please click the button below to verify your email address and
+                  activate your account:
+                </p>
+
+                <div style="text-align: center; margin: 30px 0">
+                  <a
+                    href="{{verificationLink}}"
+                    style="
+                      background: #2e86de;
+                      color: #fff;
+                      padding: 12px 25px;
+                      font-size: 16px;
+                      border-radius: 5px;
+                      text-decoration: none;
+                      display: inline-block;
+                    "
+                  >
+                    Verify My Email
+                  </a>
+                </div>
+
+                <p>If you didn’t register, simply ignore this email.</p>
+                <p>— ResumeMint Team</p>
+              </td>
+            </tr>
+
+            <!-- FOOTER -->
+            <tr>
+              <td
+                style="
+                  background: #222;
+                  color: #fff;
+                  text-align: center;
+                  padding: 20px;
+                  font-size: 13px;
+                "
+              >
+                <p style="margin: 5px 0">
+                  © {{year}} ResumeMint / Aryu Academy — All rights reserved
+                </p>
+
+                <p style="margin: 5px 0">
+                  2055 Lombard Street, #1272, San Francisco, CA 94147
+                </p>
+
+                <p style="margin: 10px 0">
+                  <a
+                    href="https://aryuacademy.com/privacy-policy"
+                    style="color: #fff; text-decoration: underline"
+                  >
+                    Privacy Policy
+                  </a>
+                  &nbsp;|&nbsp;
+                  <a
+                    href="https://aryuacademy.com/terms-condition"
+                    style="color: #fff; text-decoration: underline"
+                  >
+                    Terms & Conditions
+                  </a>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
