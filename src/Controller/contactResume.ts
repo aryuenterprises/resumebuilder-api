@@ -41,35 +41,35 @@ import mongoose from "mongoose";
 //   }
 // };
 
-const getContactResume = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { resumeId } = req.query;
+// const getContactResume = async (req: Request, res: Response) => {
+//   const { id } = req.params;
+//   const { resumeId } = req.query;
 
-  try {
-    if (resumeId) {
-      const resumes = await ContactResume.findById(resumeId);
+//   try {
+//     if (resumeId) {
+//       const resumes = await ContactResume.findById(resumeId);
 
-      // if (!resume) {
-      //   return res.status(404).json({ message: "Resume not found" });
-      // }
+//       // if (!resume) {
+//       //   return res.status(404).json({ message: "Resume not found" });
+//       // }
 
-      return res.json(resumes);
-    }
+//       return res.json(resumes);
+//     }
 
-    const resumes = await ContactResume.find({
-      userId: id,
-      resumeStatus: "pending",
-    }).sort({ createdAt: -1 });
+//     const resumes = await ContactResume.find({
+//       userId: id,
+//       resumeStatus: "pending",
+//     }).sort({ createdAt: -1 });
 
-    return res.json(resumes);
-  } catch (error: any) {
-    console.error("Error fetching contact resumes:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-};
+//     return res.json(resumes);
+//   } catch (error: any) {
+//     console.error("Error fetching contact resumes:", error);
+//     res.status(500).json({
+//       message: "Internal server error",
+//       error: error.message,
+//     });
+//   }
+// };
 
 const allContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -247,9 +247,147 @@ const createContactResume = async (
 //     res.status(500).json({ message: error.message });
 //   }
 // };
+// const updateResume = async (req: Request, res: Response) => {
+//   try {
+//     const { id, userId } = req.query;
+
+//     const {
+//       firstName,
+//       lastName,
+//       email,
+//       jobTitle,
+//       keywords,
+//       tones,
+//       phone,
+//       country,
+//       city,
+//       address,
+//       postCode,
+//       linkedIn,
+//       portfolio,
+//       templateId,
+//     } = req.body;
+
+//     if (!userId) {
+//       return res.status(400).json({ message: "userId are required" });
+//     }
+
+//     let existingResume;
+
+//     if (id) {
+//       existingResume = await ContactResume.findOne({ _id: id, userId });
+//     } else {
+//       existingResume = await ContactResume.findOne({ userId });
+//     }
+
+//     // if (!existingResume || existingResume.resumeStatus === "success") {
+//     if (!id && !existingResume) {
+//       const newResume = new ContactResume({
+//         userId,
+//         firstName,
+//         lastName,
+//         email,
+//         jobTitle,
+//         keywords,
+//         tones,
+//         phone,
+//         country,
+//         city,
+//         address,
+//         postCode,
+//         linkedIn,
+//         portfolio,
+//         templateId,
+//       });
+
+//       const saved = await newResume.save();
+//       return res.status(201).json({
+//         message: "Resume created successfully",
+//         resume: saved,
+//       });
+//     }
+
+//     const updateData: Record<string, any> = {};
+
+//     const allFields = {
+//       firstName,
+//       lastName,
+//       email,
+//       jobTitle,
+//       phone,
+//       country,
+//       city,
+//       address,
+//       postCode,
+//       linkedIn,
+//       portfolio,
+//       keywords,
+//       tones,
+//     };
+
+//     for (const key in allFields) {
+//       if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+//         updateData[key] = allFields[key];
+//       }
+//     }
+//     const photoFile = req.files?.find((file) => file.fieldname === "photo");
+//     if (photoFile) {
+//       updateData.photo = photoFile.filename;
+//     }
+//     console.log("Update Data:", photoFile);
+
+//     Object.assign(existingResume, updateData);
+//     const updated = await existingResume.save();
+
+//     res.status(200).json({
+//       message: "Resume updated successfully",
+//       resume: updated,
+//     });
+//   } catch (error: any) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+
+// GET contact resumes
+const getContactResume = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { resumeId } = req.query;
+
+  try {
+    if (resumeId) {
+      const resume = await ContactResume.findById(resumeId);
+
+      if (!resume) {
+        return res.status(404).json({ message: "Resume not found" });
+      }
+
+      return res.json(resume);
+    }
+
+    const resumes = await ContactResume.find({
+      userId: id,
+      resumeStatus: "pending",
+    }).sort({ createdAt: -1 });
+
+    return res.json(resumes);
+  } catch (error: any) {
+    console.error("Error fetching contact resumes:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// UPDATE or CREATE resume
 const updateResume = async (req: Request, res: Response) => {
   try {
     const { id, userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
 
     const {
       firstName,
@@ -268,19 +406,12 @@ const updateResume = async (req: Request, res: Response) => {
       templateId,
     } = req.body;
 
-    if (!userId) {
-      return res.status(400).json({ message: "userId are required" });
-    }
+    // Find existing resume
+    let existingResume = id
+      ? await ContactResume.findOne({ _id: id, userId })
+      : await ContactResume.findOne({ userId });
 
-    let existingResume;
-
-    if (id) {
-      existingResume = await ContactResume.findOne({ _id: id, userId });
-    } else {
-      existingResume = await ContactResume.findOne({ userId });
-    }
-
-    // if (!existingResume || existingResume.resumeStatus === "success") {
+    // If no resume exists, create a new one
     if (!id && !existingResume) {
       const newResume = new ContactResume({
         userId,
@@ -300,13 +431,14 @@ const updateResume = async (req: Request, res: Response) => {
         templateId,
       });
 
-      const saved = await newResume.save();
+      const savedResume = await newResume.save();
       return res.status(201).json({
         message: "Resume created successfully",
-        resume: saved,
+        resume: savedResume,
       });
     }
 
+    // Update existing resume
     const updateData: Record<string, any> = {};
 
     const allFields = {
@@ -323,30 +455,37 @@ const updateResume = async (req: Request, res: Response) => {
       portfolio,
       keywords,
       tones,
+      templateId,
     };
 
     for (const key in allFields) {
-      if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+      if (req.body[key] !== undefined) {
         updateData[key] = allFields[key];
       }
     }
-    const photoFile = req.files?.find((file) => file.fieldname === "photo");
+
+    // Handle photo upload
+    const photoFile = (req.files as Express.Multer.File[])?.find(
+      (file) => file.fieldname === "photo"
+    );
     if (photoFile) {
       updateData.photo = photoFile.filename;
     }
-    console.log("Update Data:", photoFile);
 
     Object.assign(existingResume, updateData);
-    const updated = await existingResume.save();
+    const updatedResume = await existingResume.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Resume updated successfully",
-      resume: updated,
+      resume: updatedResume,
     });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    console.error("Error updating resume:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
+
+
 
 // const updateResume = async (req: Request, res: Response) => {
 //   try {
