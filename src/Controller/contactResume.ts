@@ -406,13 +406,24 @@ const updateResume = async (req: Request, res: Response) => {
       templateId,
     } = req.body;
 
-    // Find existing resume
-    let existingResume = id
-      ? await ContactResume.findOne({ _id: id, userId })
-      : await ContactResume.findOne({ userId });
+    let existingResume;
 
-    // If no resume exists, create a new one
-    if (!id && !existingResume) {
+    if (id) {
+      // Update by specific resume ID
+      existingResume = await ContactResume.findOne({ _id: id, userId });
+      if (!existingResume) {
+        return res.status(404).json({ message: "Resume not found" });
+      }
+    } else {
+      // Find latest pending resume for user
+      existingResume = await ContactResume.findOne({
+        userId,
+        resumeStatus: "pending",
+      }).sort({ createdAt: -1 });
+    }
+
+    if (!existingResume) {
+      // No existing resume → create a new one
       const newResume = new ContactResume({
         userId,
         firstName,
@@ -431,6 +442,14 @@ const updateResume = async (req: Request, res: Response) => {
         templateId,
       });
 
+      // Handle photo upload
+      const photoFile = (req.files as Express.Multer.File[])?.find(
+        (file) => file.fieldname === "photo"
+      );
+      if (photoFile) {
+        newResume.photo = photoFile.filename;
+      }
+
       const savedResume = await newResume.save();
       return res.status(201).json({
         message: "Resume created successfully",
@@ -440,7 +459,6 @@ const updateResume = async (req: Request, res: Response) => {
 
     // Update existing resume
     const updateData: Record<string, any> = {};
-
     const allFields = {
       firstName,
       lastName,
@@ -480,10 +498,11 @@ const updateResume = async (req: Request, res: Response) => {
       resume: updatedResume,
     });
   } catch (error: any) {
-    console.error("Error updating resume:", error);
+    console.error("Error updating or creating resume:", error);
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
