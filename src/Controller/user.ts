@@ -622,16 +622,13 @@ const downloadResume = async (req: Request, res: Response): Promise<void> => {
 
       if (!plan) return false;
 
-      // Skip unlimited plans
       if (plan === "unlimited") return false;
 
-      // Handle 7-day access plan expiration
       if (plan === "7-days access") {
         const createdAt = new Date(payment.createdAt);
-        return createdAt < sevenDaysAgo; // expired → remove plan
+        return createdAt < sevenDaysAgo;
       }
 
-      // All other plans should be reset
       return true;
     });
 
