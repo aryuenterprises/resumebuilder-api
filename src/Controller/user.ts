@@ -287,16 +287,51 @@ const dashboard = async (req: Request, res: Response) => {
         );
       }
     }
+    // const updatedPayments = await Payment.find({ userId: userId })
+    //   .populate("planId", "name price plan")
+    //   .lean();
+
+    // const formattedPayments = updatedPayments.map((payment) => ({
+    //   plan: payment.planId?.name || null,
+    //   amount: payment.planId?.price || null,
+    //   limit: payment.planId?.plan || null,
+    //   status: payment.status,
+    // }));
+
+    // return res.json({ payments: formattedPayments });
+
     const updatedPayments = await Payment.find({ userId: userId })
       .populate("planId", "name price plan")
       .lean();
 
-    const formattedPayments = updatedPayments.map((payment) => ({
-      plan: payment.planId?.name || null,
-      amount: payment.planId?.price || null,
-      limit: payment.planId?.plan || null,
-      status: payment.status,
-    }));
+    const formattedPayments = updatedPayments.map((payment) => {
+      let accessPeriod = null;
+
+      // Add accessPeriod ONLY if plan is "7-days access"
+      if (payment.planId?.plan === "7-days access") {
+        const startDate = new Date(payment.createdAt);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 7);
+
+        const formatDate = (date) =>
+          `${String(date.getDate()).padStart(2, "0")}-${String(
+            date.getMonth() + 1
+          ).padStart(2, "0")}-${date.getFullYear()}`;
+
+        accessPeriod = {
+          start: formatDate(startDate),
+          end: formatDate(endDate),
+        };
+      }
+
+      return {
+        plan: payment.planId?.name || null,
+        amount: payment.planId?.price || null,
+        limit: payment.planId?.plan || null,
+        status: payment.status,
+        accessPeriod, // ⬅️ Added here
+      };
+    });
 
     return res.json({ payments: formattedPayments });
   } catch (error) {
@@ -539,7 +574,6 @@ const dashboard = async (req: Request, res: Response) => {
 //   }
 // };
 
-
 const downloadResume = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, contactId, message } = req.body;
@@ -666,12 +700,10 @@ const loginUser = async (req: Request, res: Response) => {
     }
 
     if (user.isVerified === false) {
-      return res
-        .status(401)
-        .json({
-          message:
-            "User not verified. Please check your registered email to complete verification",
-        });
+      return res.status(401).json({
+        message:
+          "User not verified. Please check your registered email to complete verification",
+      });
     }
 
     const isMatch = await user.comparePassword(password);
