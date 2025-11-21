@@ -544,7 +544,7 @@ const getPaymentRecord = async (req: Request, res: Response) => {
     if (type === "latest") {
       const latestPlan = await Payment.findOne({ userId })
         .populate("planId", "name price plan") // plan contains '7-days access' or other info
-        .select("planId amount status createdAt")
+        .select("planId amount status createdAt updatedAt")
         .sort({ createdAt: -1 });
 
       if (!latestPlan || !latestPlan.planId) {
@@ -555,7 +555,7 @@ const getPaymentRecord = async (req: Request, res: Response) => {
 
       // Only calculate accessPeriod if plan is "7-days access"
       if (latestPlan.planId.plan === "7-days access") {
-        const startDate = new Date(latestPlan.createdAt);
+        const startDate = new Date(latestPlan.updatedAt);
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 7);
 

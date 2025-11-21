@@ -309,7 +309,7 @@ const dashboard = async (req: Request, res: Response) => {
 
       // Add accessPeriod ONLY if plan is "7-days access"
       if (payment.planId?.plan === "7-days access") {
-        const startDate = new Date(payment.createdAt);
+        const startDate = new Date(payment.updatedAt);
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 7);
 
