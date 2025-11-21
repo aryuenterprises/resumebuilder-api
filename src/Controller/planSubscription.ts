@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 
 const createPlanSubscription = async (req: Request, res: Response) => {
     try {
-        const { price,plan,status,name,description } = req.body;
-        const planSubscriptionDetails = new PlanSubscription({ plan,price,status,name,description });
+        const { price,plan,status,name,description,order } = req.body;
+        const planSubscriptionDetails = new PlanSubscription({ plan,price,status,name,description,order });
         await planSubscriptionDetails.save();
         res.status(201).json(planSubscriptionDetails);
     } catch (error) {
@@ -14,13 +14,27 @@ const createPlanSubscription = async (req: Request, res: Response) => {
     }
 };
 
+// const getPlanSubscription = async (req: Request, res: Response) => {
+//     try {
+//         const type = req.query.type as string;
+        
+//         const query = type === 'active' ? { status: '1' } : {};
+//         const planSubscriptionDetails = await PlanSubscription.find(query);
+        
+//         return res.json(planSubscriptionDetails);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// };
 const getPlanSubscription = async (req: Request, res: Response) => {
     try {
         const type = req.query.type as string;
-        
+
         const query = type === 'active' ? { status: '1' } : {};
-        const planSubscriptionDetails = await PlanSubscription.find(query);
-        
+
+        const planSubscriptionDetails = await PlanSubscription.find(query).sort({ order: 1 });
+
         return res.json(planSubscriptionDetails);
     } catch (error) {
         console.error(error);

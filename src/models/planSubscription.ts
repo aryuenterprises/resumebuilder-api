@@ -4,6 +4,7 @@ export interface IPlanSubscription extends Document {
   description: string;
   plan: string;
   price: number;
+  order: string;
   status: string;
 }
 
@@ -24,6 +25,9 @@ const PlanSubscriptionSchema = new Schema<IPlanSubscription>(
     price: {
       type: Number,
       required: true,
+    },
+    order:{
+      type:String
     },
     status: {
       type: String,
