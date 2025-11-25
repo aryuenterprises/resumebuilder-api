@@ -109,7 +109,7 @@ const addUser = async (req: Request, res: Response) => {
       firstName,
       verificationLink,
     });
-    
+
     res.status(201).json({
       success: true,
       message: "Verification email sent to user",
@@ -689,7 +689,7 @@ const loginUser = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Email and password are required" });
     }
-
+    const verifyToken = crypto.randomBytes(32).toString("hex");
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
@@ -699,16 +699,31 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User is inactive" });
     }
 
-    if(user.isDeleted === "1") {
+    if (user.isDeleted === "1") {
       return res.status(401).json({ message: "User is deleted" });
     }
 
     if (user.isVerified === false) {
-      return res.status(401).json({
+      const API_URL = process.env.API_URL;
+      const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
+
+      await sendEmail(email, "Verify your Resumint account", "addUser.html", {
+        firstName: user.firstName,
+        verificationLink,
+      });
+
+     
+      return res.status(403).json({
         message:
-          "User not verified. Please check your registered email to complete verification",
+          "User not verified. Please check your registered email to complete verification.",
       });
     }
+    // if (user.isVerified === false) {
+    //   return res.status(401).json({
+    //     message:
+    //       "User not verified. Please check your registered email to complete verification",
+    //   });
+    // }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -773,7 +788,11 @@ const editUser = async (req: Request, res: Response) => {
 const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const desiredJobTitle = await User.findByIdAndUpdate(id, { $set: { isDeleted: "1" } }, { new: true });
+    const desiredJobTitle = await User.findByIdAndUpdate(
+      id,
+      { $set: { isDeleted: "1" } },
+      { new: true }
+    );
 
     if (!desiredJobTitle) {
       return res.status(404).json({ error: "User not found" });
