@@ -2,7 +2,7 @@
 import cron from "node-cron";
 import { User } from "../models/User";
 
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("*/10 * * * *", async () => {
   try {
     // Flag users
     await User.updateMany(
