@@ -16,7 +16,7 @@ export interface IUser extends Document {
   resetOtp: string,
   resetOtpExpire: Date,
   isDeleted: string,
-
+  shouldRedirect: boolean
 
 
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -81,7 +81,10 @@ const userSchema = new Schema<IUser>(
       type: String,
       default: '0'
     },
-  
+    shouldRedirect: {
+      type: Boolean,
+      default: false
+    }
 
     
   },
