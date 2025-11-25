@@ -6,7 +6,7 @@ export interface ISetting extends Document {
   logoImage: string;
   email:string;
   currenyType: string;
-
+  currencyName:string;
   //smtp
 
   host: string;
@@ -32,6 +32,7 @@ const SettingSchema = new Schema<ISetting>(
       type: String,
       required: false,
     },
+    currencyName:{type: String, required: false},
     //smtp
     host: { type: String, required: false },
     port: { type: Number, required: false },

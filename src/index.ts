@@ -12,6 +12,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import morgan from 'morgan';
 import "./cron/resetPlans.js";
+import "./cron/logout.js";
 import connectDB from './config/database.js';
 
 import authRoutes from './routes/auth.js';

@@ -90,7 +90,8 @@ const createSetting = async (req: Request, res: Response) => {
       port,
       username,
       password,
-      fromName
+      fromName,
+      currencyName
     } = req.body;
 
     const logoFile = req.file;
@@ -115,7 +116,7 @@ const createSetting = async (req: Request, res: Response) => {
     if (username) settings.username = username;
     if (password) settings.password = password;
     if (fromName) settings.fromName = fromName;
-
+    if (currencyName) settings.currencyName = currencyName;
     await settings.save();
 
     return res.status(isNew ? 201 : 200).json({

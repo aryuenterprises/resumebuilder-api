@@ -2,22 +2,34 @@
 import cron from "node-cron";
 import { User } from "../models/User";
 
-cron.schedule("*/10 * * * *", async () => {
+cron.schedule("* * * * *", async () => {
+    console.log("Cron running every 10 seconds");
   try {
-    // Flag users
+    // Group 1: Should redirect
     await User.updateMany(
-      { $or: [{ isDeleted: "1" }, { status: "0" }, { isVerified: false }] },
+      {
+        $or: [
+          { isDeleted: "1" },
+          { status: "0" },
+          { isVerified: false }
+        ]
+      },
       { $set: { shouldRedirect: true } }
     );
 
-    // Clear flag for eligible users
+    // Group 2: Should NOT redirect  
     await User.updateMany(
-      { $and: [{ isDeleted: { $ne: "1" } }, { status: { $ne: "0" } }, { isVerified: true }] },
+      {
+        isDeleted: "0",
+        status: "1",      // *** FIX: only users with status "1" are allowed ***
+        isVerified: true
+      },
       { $set: { shouldRedirect: false } }
     );
 
-    console.log("Cron job executed successfully");
+    console.log("Cron ran successfully");
   } catch (err) {
     console.error("Cron error:", err);
   }
 });
+

@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import {PlanSubscription} from '../models/planSubscription';
 import mongoose from 'mongoose';
+import { setting } from '@models/setting';
 
 const createPlanSubscription = async (req: Request, res: Response) => {
     try {
@@ -29,13 +30,14 @@ const createPlanSubscription = async (req: Request, res: Response) => {
 // };
 const getPlanSubscription = async (req: Request, res: Response) => {
     try {
+        const settings = await setting.find().select('currenyType');
         const type = req.query.type as string;
 
         const query = type === 'active' ? { status: '1' } : {};
 
         const planSubscriptionDetails = await PlanSubscription.find(query).sort({ order: 1 });
 
-        return res.json(planSubscriptionDetails);
+        return res.json({planSubscriptionDetails, setting:settings});
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });

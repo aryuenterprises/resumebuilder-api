@@ -584,13 +584,13 @@ const getPaymentRecord = async (req: Request, res: Response) => {
 
       return res.status(200).json(paymentRecord);
     }
-
+    const settings = await setting.find().select("currenyType");
     const paymentRecord = await PaymentLog.find()
       .populate("planId", "name price")
       .populate("userId", "firstName lastName email")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json(paymentRecord);
+    return res.status(200).json({paymentRecord, settings});
   } catch (error) {
     res.status(500).json({ message: "Error fetching payment records", error });
   }

@@ -8,6 +8,7 @@ import crypto from "crypto";
 import { ContactResume } from "@models/ContactResume";
 import { PaymentLog } from "@models/paymentLogModel";
 import bcrypt from "bcryptjs";
+import { setting } from "@models/setting";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
@@ -272,7 +273,8 @@ const dashboard = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(400).json({ message: "userId is required" });
     }
-
+    const settings = await setting.find({}).select("logoImage currencyName currenyType").lean();
+    const userDetails = await User.findById(userId).select("shouldRedirect");
     if (type === "download") {
       const payments = await Payment.find({ userId: userId })
         .populate("planId", "name")
@@ -327,16 +329,20 @@ const dashboard = async (req: Request, res: Response) => {
         };
       }
 
+      
+
       return {
         plan: payment.planId?.name || null,
         amount: payment.planId?.price || null,
         limit: payment.planId?.plan || null,
         status: payment.status,
-        accessPeriod, // ⬅️ Added here
+        accessPeriod,
+        
       };
     });
 
-    return res.json({ payments: formattedPayments });
+    return res.json({ payments: formattedPayments, setting:settings,
+        user: userDetails });
   } catch (error) {
     console.error("Error in dashboard:", error);
     return res.status(500).json({ message: "Internal server error" });
