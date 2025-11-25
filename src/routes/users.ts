@@ -10,7 +10,7 @@ userRouter.post('/create', addUser);
 userRouter.post('/forgot-password', forgotPassword);
 userRouter.post('/login', loginUser);
 userRouter.put('/particular-user-edit/:id', editUser);
-userRouter.delete('/particular-user-delete/:id', deleteUser);
+userRouter.put('/particular-user-delete/:id', deleteUser);
 userRouter.get('/dashboard',dashboard);
 userRouter.post('/download-resume', upload.single("resume"), downloadResume);
 userRouter.get("/verify/:token", verifyEmail);

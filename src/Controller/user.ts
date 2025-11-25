@@ -699,6 +699,10 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User is inactive" });
     }
 
+    if(user.isDeleted === "1") {
+      return res.status(401).json({ message: "User is deleted" });
+    }
+
     if (user.isVerified === false) {
       return res.status(401).json({
         message:
@@ -769,11 +773,13 @@ const editUser = async (req: Request, res: Response) => {
 const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const desiredJobTitle = await User.findByIdAndDelete(id);
+    const desiredJobTitle = await User.findByIdAndUpdate(id, { $set: { isDeleted: "1" } }, { new: true });
+
     if (!desiredJobTitle) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.json({ message: "user deleted successfully" });
+
+    return res.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
