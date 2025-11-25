@@ -109,11 +109,14 @@ const addUser = async (req: Request, res: Response) => {
       firstName,
       verificationLink,
     });
+    
     res.status(201).json({
       success: true,
       message: "Verification email sent to user",
       user,
     });
+
+    console.log("User created:", user);
   } catch (error: unknown) {
     console.error("Error creating user:", error);
 
@@ -161,7 +164,7 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     await user.save();
 
     res.redirect(
-      "https://resumebuilder.aryuacademy.com/loginig?verified=success"
+      "https://resumebuilder.aryuacademy.com/loging?verified=success"
     );
   } catch (error) {
     console.error("Error verifying email:", error);

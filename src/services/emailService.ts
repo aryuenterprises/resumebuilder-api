@@ -74,12 +74,13 @@ export const sendEmail = async (
     const transporter = nodemailer.createTransport({
       host: smtp.host,
       port: Number(smtp.port),
-      secure: false,
+      // secure: Number(smtp.port) === 465,
       auth: {
         user: smtp.username,
         pass: smtp.password,
       },
     });
+    console.log("transporter", transporter);
 
     // Load template
     const __filename = fileURLToPath(import.meta.url);
