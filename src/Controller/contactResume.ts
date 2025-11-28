@@ -381,6 +381,158 @@ const getContactResume = async (req: Request, res: Response) => {
 };
 
 // UPDATE or CREATE resume
+// const updateResume = async (req: Request, res: Response) => {
+//   try {
+//     const { id, userId } = req.query;
+
+//     if (!userId) {
+//       return res.status(400).json({ message: "userId is required" });
+//     }
+
+//     const {
+//       firstName,
+//       lastName,
+//       email,
+//       jobTitle,
+//       keywords,
+//       tones,
+//       phone,
+//       country,
+//       city,
+//       address,
+//       postCode,
+//       linkedIn,
+//       portfolio,
+//       templateId,
+//     } = req.body;
+
+//     let existingResume;
+
+//     if (id) {
+//       // Update by specific resume ID
+//       existingResume = await ContactResume.findOne({ _id: id, userId });
+//       if (!existingResume) {
+//         return res.status(404).json({ message: "Resume not found" });
+//       }
+//     } else {
+//       // Find latest pending resume for user
+//       existingResume = await ContactResume.findOne({
+//         userId,
+//         resumeStatus: "pending",
+//       }).sort({ createdAt: -1 });
+//     }
+
+//     if (!existingResume) {
+//       // No existing resume → create a new one
+//       const newResume = new ContactResume({
+//         userId,
+//         firstName,
+//         lastName,
+//         email,
+//         jobTitle,
+//         keywords,
+//         tones,
+//         phone,
+//         country,
+//         city,
+//         address,
+//         postCode,
+//         linkedIn,
+//         portfolio,
+//         templateId,
+//       });
+
+//       // Handle photo upload
+//       // const photoFile = (req.files as Express.Multer.File[])?.find(
+//       //   (file) => file.fieldname === "photo"
+//       // );
+//       // if (photoFile) {
+//       //   newResume.photo = photoFile.filename;
+//       // }
+
+//       const photoFile =
+//   req.files?.photo && req.files.photo.length > 0
+//     ? req.files.photo[0]
+//     : null;
+
+// if (photoFile) {
+//   newResume.photo = photoFile.filename;
+// }
+// console.log("Photo File:", photoFile);
+
+//       const savedResume = await newResume.save();
+//       return res.status(201).json({
+//         message: "Resume created successfully",
+//         resume: savedResume,
+//       });
+//     }
+
+//     // Update existing resume
+//     const updateData: Record<string, any> = {};
+//     const allFields = {
+//       firstName,
+//       lastName,
+//       email,
+//       jobTitle,
+//       phone,
+//       country,
+//       city,
+//       address,
+//       postCode,
+//       linkedIn,
+//       portfolio,
+//       keywords,
+//       tones,
+//       templateId,
+      
+//     };
+
+//     for (const key in allFields) {
+//       if (req.body[key] !== undefined) {
+//         updateData[key] = allFields[key];
+//       }
+//     }
+
+//     // Handle photo upload
+//     // const photoFile = (req.files as Express.Multer.File[])?.find(
+//     //   (file) => file.fieldname === "photo"
+//     // );
+//     // if (photoFile) {
+//     //   updateData.photo = photoFile.filename;
+//     // }
+
+//     const photoFile =
+//   req.files?.photo && req.files.photo.length > 0
+//     ? req.files.photo[0]
+//     : null;
+// console.log("Photo File update:", photoFile);
+// if (photoFile) {
+//   updateData.photo = photoFile.filename;
+// }
+
+
+//     Object.assign(existingResume, updateData);
+//     const updatedResume = await existingResume.save();
+
+//     return res.status(200).json({
+//       message: "Resume updated successfully",
+//       resume: updatedResume,
+//     });
+//   } catch (error: any) {
+//     console.error("Error updating or creating resume:", error);
+//     return res.status(500).json({ message: error.message });
+//   }
+// };
+
+
+
+interface MulterFile {
+  filename: string;
+  path: string;
+  mimetype: string;
+  size: number;
+}
+
 const updateResume = async (req: Request, res: Response) => {
   try {
     const { id, userId } = req.query;
@@ -389,6 +541,7 @@ const updateResume = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "userId is required" });
     }
 
+    // Extract fields
     const {
       firstName,
       lastName,
@@ -408,23 +561,22 @@ const updateResume = async (req: Request, res: Response) => {
 
     let existingResume;
 
+    // If id passed → update specific resume
     if (id) {
-      // Update by specific resume ID
       existingResume = await ContactResume.findOne({ _id: id, userId });
-      if (!existingResume) {
-        return res.status(404).json({ message: "Resume not found" });
-      }
     } else {
-      // Find latest pending resume for user
+      // Otherwise find the latest pending resume for that user
       existingResume = await ContactResume.findOne({
         userId,
         resumeStatus: "pending",
       }).sort({ createdAt: -1 });
     }
 
+    // ===================================================================
+    // 🚀 CREATE NEW RESUME IF NONE EXISTS
+    // ===================================================================
     if (!existingResume) {
-      // No existing resume → create a new one
-      const newResume = new ContactResume({
+      const newResume: any = new ContactResume({
         userId,
         firstName,
         lastName,
@@ -442,28 +594,30 @@ const updateResume = async (req: Request, res: Response) => {
         templateId,
       });
 
-      // Handle photo upload
-      const photoFile = (req.files as Express.Multer.File[])?.find(
-        (file) => file.fieldname === "photo"
-      );
+      // Handle uploaded photo (single)
+      const photoFile = req.file as MulterFile | undefined;
       if (photoFile) {
-        newResume.photo = photoFile.filename;
+        newResume.photo = photoFile.filename; // store only filename OR full path (your choice)
       }
 
       const savedResume = await newResume.save();
+
       return res.status(201).json({
         message: "Resume created successfully",
         resume: savedResume,
       });
     }
 
-    // Update existing resume
-    const updateData: Record<string, any> = {};
-    const allFields = {
+    // ===================================================================
+    // 🚀 UPDATE EXISTING RESUME
+    // ===================================================================
+    const updateData: Record<string, any> = {
       firstName,
       lastName,
       email,
       jobTitle,
+      keywords,
+      tones,
       phone,
       country,
       city,
@@ -471,26 +625,23 @@ const updateResume = async (req: Request, res: Response) => {
       postCode,
       linkedIn,
       portfolio,
-      keywords,
-      tones,
       templateId,
     };
 
-    for (const key in allFields) {
-      if (req.body[key] !== undefined) {
-        updateData[key] = allFields[key];
-      }
-    }
-
-    // Handle photo upload
-    const photoFile = (req.files as Express.Multer.File[])?.find(
-      (file) => file.fieldname === "photo"
+    // Remove undefined fields
+    Object.keys(updateData).forEach(
+      (key) => updateData[key] === undefined && delete updateData[key]
     );
+
+    // Update photo if uploaded
+    const photoFile = req.file as MulterFile | undefined;
     if (photoFile) {
       updateData.photo = photoFile.filename;
     }
 
+    // Apply updates
     Object.assign(existingResume, updateData);
+
     const updatedResume = await existingResume.save();
 
     return res.status(200).json({
@@ -498,12 +649,10 @@ const updateResume = async (req: Request, res: Response) => {
       resume: updatedResume,
     });
   } catch (error: any) {
-    console.error("Error updating or creating resume:", error);
+    console.error("Error updating/creating resume:", error);
     return res.status(500).json({ message: error.message });
   }
 };
-
-
 
 
 // const updateResume = async (req: Request, res: Response) => {

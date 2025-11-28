@@ -11,7 +11,7 @@ import bcrypt from "bcryptjs";
 import { setting } from "@models/setting";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const users = await User.find().sort({ createdAt: -1 });
+    const users = await User.find({isDeleted: "0"}).sort({ createdAt: -1 });
 
     const planSubscriptions = await Promise.all(
       users.map(async (user) => {

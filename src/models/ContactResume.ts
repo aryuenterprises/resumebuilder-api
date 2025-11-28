@@ -4,7 +4,7 @@ export interface IContactResume extends Document {
   userId: Types.ObjectId;
   firstName: string;
   lastName: string;
-  photo?: string;
+  photo: string;
   templateId: string;
   jobTitle: Types.ObjectId;
   keywords: string[];
