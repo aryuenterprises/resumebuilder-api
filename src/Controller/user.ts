@@ -11,7 +11,7 @@ import bcrypt from "bcryptjs";
 import { setting } from "@models/setting";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const users = await User.find({isDeleted: "0"}).sort({ createdAt: -1 });
+    const users = await User.find({ isDeleted: "0" }).sort({ createdAt: -1 });
 
     const planSubscriptions = await Promise.all(
       users.map(async (user) => {
@@ -78,7 +78,10 @@ const addUser = async (req: Request, res: Response) => {
     if (!strongPasswordRegex.test(password)) {
       return res
         .status(400)
-        .json({ message: "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character." });
+        .json({
+          message:
+            "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.",
+        });
     }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -163,14 +166,19 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     user.verifyToken = undefined;
     await user.save();
 
-    res.redirect(
-      "https://resumebuilder.aryuacademy.com/verify-email-success"
-    );
-  } catch (error) {
-    console.error("Error verifying email:", error);
-    res
-      .status(500)
-      .send("<h3>Internal server error. Please try again later.</h3>");
+    res.redirect("https://resumebuilder.aryuacademy.com/verify-email-success");
+  } catch (error: any) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors: Record<string, string> = {};
+      for (const field in error.errors) {
+        if (Object.prototype.hasOwnProperty.call(error.errors, field)) {
+          errors[field] = error.errors[field].message;
+        }
+      }
+      res.status(400).json({ success: false, errors });
+      return;
+    }
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -231,9 +239,18 @@ const forgotPassword = async (req: Request, res: Response) => {
     );
 
     res.json({ message: "OTP sent to your email" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors: Record<string, string> = {};
+      for (const field in error.errors) {
+        if (Object.prototype.hasOwnProperty.call(error.errors, field)) {
+          errors[field] = error.errors[field].message;
+        }
+      }
+      res.status(400).json({ success: false, errors });
+      return;
+    }
+    res.status(400).json({ error: error.message });
   }
 };
 const verifyOtpAndResetPassword = async (req: Request, res: Response) => {
@@ -259,9 +276,18 @@ const verifyOtpAndResetPassword = async (req: Request, res: Response) => {
     await user.save();
 
     res.json({ message: "Password reset successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      const errors: Record<string, string> = {};
+      for (const field in error.errors) {
+        if (Object.prototype.hasOwnProperty.call(error.errors, field)) {
+          errors[field] = error.errors[field].message;
+        }
+      }
+      res.status(400).json({ success: false, errors });
+      return;
+    }
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -272,7 +298,10 @@ const dashboard = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(400).json({ message: "userId is required" });
     }
-    const settings = await setting.find({}).select("logoImage currencyName currenyType").lean();
+    const settings = await setting
+      .find({})
+      .select("logoImage currencyName currenyType")
+      .lean();
     const userDetails = await User.findById(userId).select("shouldRedirect");
     if (type === "download") {
       const payments = await Payment.find({ userId: userId })
@@ -328,20 +357,20 @@ const dashboard = async (req: Request, res: Response) => {
         };
       }
 
-      
-
       return {
         plan: payment.planId?.name || null,
         amount: payment.planId?.price || null,
         limit: payment.planId?.plan || null,
         status: payment.status,
         accessPeriod,
-        
       };
     });
 
-    return res.json({ payments: formattedPayments, setting:settings,
-        user: userDetails });
+    return res.json({
+      payments: formattedPayments,
+      setting: settings,
+      user: userDetails,
+    });
   } catch (error) {
     console.error("Error in dashboard:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -717,7 +746,6 @@ const loginUser = async (req: Request, res: Response) => {
         verificationLink,
       });
 
-     
       return res.status(403).json({
         message:
           "User not verified. Please check your registered email to complete verification.",
