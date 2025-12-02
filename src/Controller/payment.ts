@@ -456,6 +456,7 @@ const paymentUpdate = async (req: Request, res: Response) => {
         { paymentId: paymentIntent.id },
         {
           status: paymentIntent.status,
+          currency: paymentIntent.currency,
           planId: planId,
           paymentDetails,
         },
