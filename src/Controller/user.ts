@@ -106,7 +106,7 @@ const addUser = async (req: Request, res: Response) => {
     const API_URL = process.env.API_URL;
     const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
 
-    await sendEmail(email, "Verify your Resumint account", "addUser.html", {
+    await sendEmail(email, "Verify Your ResumeMint Account", "addUser.html", {
       firstName,
       verificationLink,
     });
@@ -223,7 +223,7 @@ const forgotPassword = async (req: Request, res: Response) => {
 
     await sendEmail(
       email,
-      "Your Resumint Password Reset OTP",
+      "Your ResumeMint Password Reset OTP",
       "otpEmail.html",
       {
         firstName: user.firstName,

@@ -14,7 +14,7 @@ import morgan from 'morgan';
 import "./cron/resetPlans.js";
 import "./cron/logout.js";
 import connectDB from './config/database.js';
-
+import bodyParser from "body-parser";
 import authRoutes from './routes/auth.js';
 // import candidateRouter from './routes/candidates.js';
 import contactRouter from './routes/contacts.js';
@@ -53,7 +53,8 @@ app.use(
   })
 );
 
-
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.json());
 app.use(morgan('dev'));
 async function start(){
