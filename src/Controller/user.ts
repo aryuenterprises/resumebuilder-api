@@ -266,6 +266,17 @@ const verifyOtpAndResetPassword = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!strongPasswordRegex.test(newPassword)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.",
+        });
+    }
+
     const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
     if (hashedOtp !== user.resetOtp) {
       return res.status(400).json({ message: "Invalid OTP" });
