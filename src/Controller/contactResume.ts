@@ -155,199 +155,6 @@ const createContactResume = async (
   }
 };
 
-// const updateResume = async (req: Request, res: Response) => {
-//   try {
-//     const { id, userId } = req.query;
-//     const {
-//       firstName,
-//       lastName,
-//       email,
-//       jobTitle,
-//       keywords,
-//       tones,
-//       phone,
-//       country,
-//       city,
-//       address,
-//       postCode,
-//       linkedIn,
-//       portfolio,
-//     } = req.body;
-
-//     // Step 1: Find existing resume
-//     let existingResume;
-
-//     if (id) {
-//       existingResume = await ContactResume.findOne({ _id: id, userId });
-//     } else {
-//       existingResume = await ContactResume.findOne({ userId });
-//     }
-
-//     // Step 2: If not found, create new one
-//     if (!existingResume) {
-//       const newResume = new ContactResume({
-//         userId,
-//         firstName,
-//         lastName,
-//         email,
-//         jobTitle,
-//         keywords,
-//         tones,
-//         phone,
-//         country,
-//         city,
-//         address,
-//         postCode,
-//         linkedIn,
-//         portfolio,
-//       });
-
-//       const saved = await newResume.save();
-//       return res.status(201).json({
-//         message: "Resume created successfully",
-//         resume: saved,
-//       });
-//     }
-
-//     const updateData: Record<string, any> = {};
-
-//     const allFields = {
-//       firstName,
-//       lastName,
-//       email,
-//       jobTitle,
-//       phone,
-//       country,
-//       city,
-//       address,
-//       postCode,
-//       linkedIn,
-//       portfolio,
-//       keywords,
-//       tones,
-//     };
-
-//     for (const key in allFields) {
-//       if (Object.prototype.hasOwnProperty.call(req.body, key)) {
-//         // Directly assign the value — including empty strings
-//         updateData[key] = allFields[key];
-//       }
-//     }
-
-//     // Step 4: Apply updates
-//     Object.assign(existingResume, updateData);
-
-//     const updated = await existingResume.save();
-
-//     res.status(200).json({
-//       message: "Resume updated successfully",
-//       resume: updated,
-//     });
-//   } catch (error: any) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-// const updateResume = async (req: Request, res: Response) => {
-//   try {
-//     const { id, userId } = req.query;
-
-//     const {
-//       firstName,
-//       lastName,
-//       email,
-//       jobTitle,
-//       keywords,
-//       tones,
-//       phone,
-//       country,
-//       city,
-//       address,
-//       postCode,
-//       linkedIn,
-//       portfolio,
-//       templateId,
-//     } = req.body;
-
-//     if (!userId) {
-//       return res.status(400).json({ message: "userId are required" });
-//     }
-
-//     let existingResume;
-
-//     if (id) {
-//       existingResume = await ContactResume.findOne({ _id: id, userId });
-//     } else {
-//       existingResume = await ContactResume.findOne({ userId });
-//     }
-
-//     // if (!existingResume || existingResume.resumeStatus === "success") {
-//     if (!id && !existingResume) {
-//       const newResume = new ContactResume({
-//         userId,
-//         firstName,
-//         lastName,
-//         email,
-//         jobTitle,
-//         keywords,
-//         tones,
-//         phone,
-//         country,
-//         city,
-//         address,
-//         postCode,
-//         linkedIn,
-//         portfolio,
-//         templateId,
-//       });
-
-//       const saved = await newResume.save();
-//       return res.status(201).json({
-//         message: "Resume created successfully",
-//         resume: saved,
-//       });
-//     }
-
-//     const updateData: Record<string, any> = {};
-
-//     const allFields = {
-//       firstName,
-//       lastName,
-//       email,
-//       jobTitle,
-//       phone,
-//       country,
-//       city,
-//       address,
-//       postCode,
-//       linkedIn,
-//       portfolio,
-//       keywords,
-//       tones,
-//     };
-
-//     for (const key in allFields) {
-//       if (Object.prototype.hasOwnProperty.call(req.body, key)) {
-//         updateData[key] = allFields[key];
-//       }
-//     }
-//     const photoFile = req.files?.find((file) => file.fieldname === "photo");
-//     if (photoFile) {
-//       updateData.photo = photoFile.filename;
-//     }
-//     console.log("Update Data:", photoFile);
-
-//     Object.assign(existingResume, updateData);
-//     const updated = await existingResume.save();
-
-//     res.status(200).json({
-//       message: "Resume updated successfully",
-//       resume: updated,
-//     });
-//   } catch (error: any) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
 
 // GET contact resumes
 const getContactResume = async (req: Request, res: Response) => {
@@ -380,150 +187,6 @@ const getContactResume = async (req: Request, res: Response) => {
   }
 };
 
-// UPDATE or CREATE resume
-// const updateResume = async (req: Request, res: Response) => {
-//   try {
-//     const { id, userId } = req.query;
-
-//     if (!userId) {
-//       return res.status(400).json({ message: "userId is required" });
-//     }
-
-//     const {
-//       firstName,
-//       lastName,
-//       email,
-//       jobTitle,
-//       keywords,
-//       tones,
-//       phone,
-//       country,
-//       city,
-//       address,
-//       postCode,
-//       linkedIn,
-//       portfolio,
-//       templateId,
-//     } = req.body;
-
-//     let existingResume;
-
-//     if (id) {
-//       // Update by specific resume ID
-//       existingResume = await ContactResume.findOne({ _id: id, userId });
-//       if (!existingResume) {
-//         return res.status(404).json({ message: "Resume not found" });
-//       }
-//     } else {
-//       // Find latest pending resume for user
-//       existingResume = await ContactResume.findOne({
-//         userId,
-//         resumeStatus: "pending",
-//       }).sort({ createdAt: -1 });
-//     }
-
-//     if (!existingResume) {
-//       // No existing resume → create a new one
-//       const newResume = new ContactResume({
-//         userId,
-//         firstName,
-//         lastName,
-//         email,
-//         jobTitle,
-//         keywords,
-//         tones,
-//         phone,
-//         country,
-//         city,
-//         address,
-//         postCode,
-//         linkedIn,
-//         portfolio,
-//         templateId,
-//       });
-
-//       // Handle photo upload
-//       // const photoFile = (req.files as Express.Multer.File[])?.find(
-//       //   (file) => file.fieldname === "photo"
-//       // );
-//       // if (photoFile) {
-//       //   newResume.photo = photoFile.filename;
-//       // }
-
-//       const photoFile =
-//   req.files?.photo && req.files.photo.length > 0
-//     ? req.files.photo[0]
-//     : null;
-
-// if (photoFile) {
-//   newResume.photo = photoFile.filename;
-// }
-// console.log("Photo File:", photoFile);
-
-//       const savedResume = await newResume.save();
-//       return res.status(201).json({
-//         message: "Resume created successfully",
-//         resume: savedResume,
-//       });
-//     }
-
-//     // Update existing resume
-//     const updateData: Record<string, any> = {};
-//     const allFields = {
-//       firstName,
-//       lastName,
-//       email,
-//       jobTitle,
-//       phone,
-//       country,
-//       city,
-//       address,
-//       postCode,
-//       linkedIn,
-//       portfolio,
-//       keywords,
-//       tones,
-//       templateId,
-      
-//     };
-
-//     for (const key in allFields) {
-//       if (req.body[key] !== undefined) {
-//         updateData[key] = allFields[key];
-//       }
-//     }
-
-//     // Handle photo upload
-//     // const photoFile = (req.files as Express.Multer.File[])?.find(
-//     //   (file) => file.fieldname === "photo"
-//     // );
-//     // if (photoFile) {
-//     //   updateData.photo = photoFile.filename;
-//     // }
-
-//     const photoFile =
-//   req.files?.photo && req.files.photo.length > 0
-//     ? req.files.photo[0]
-//     : null;
-// console.log("Photo File update:", photoFile);
-// if (photoFile) {
-//   updateData.photo = photoFile.filename;
-// }
-
-
-//     Object.assign(existingResume, updateData);
-//     const updatedResume = await existingResume.save();
-
-//     return res.status(200).json({
-//       message: "Resume updated successfully",
-//       resume: updatedResume,
-//     });
-//   } catch (error: any) {
-//     console.error("Error updating or creating resume:", error);
-//     return res.status(500).json({ message: error.message });
-//   }
-// };
-
 
 
 interface MulterFile {
@@ -541,7 +204,7 @@ const updateResume = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "userId is required" });
     }
 
-    // Extract fields
+  
     const {
       firstName,
       lastName,
@@ -561,20 +224,18 @@ const updateResume = async (req: Request, res: Response) => {
 
     let existingResume;
 
-    // If id passed → update specific resume
+   
     if (id) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
     } else {
-      // Otherwise find the latest pending resume for that user
+     
       existingResume = await ContactResume.findOne({
         userId,
         resumeStatus: "pending",
       }).sort({ createdAt: -1 });
     }
 
-    // ===================================================================
-    // 🚀 CREATE NEW RESUME IF NONE EXISTS
-    // ===================================================================
+ 
     if (!existingResume) {
       const newResume: any = new ContactResume({
         userId,
@@ -594,10 +255,9 @@ const updateResume = async (req: Request, res: Response) => {
         templateId,
       });
 
-      // Handle uploaded photo (single)
       const photoFile = req.file as MulterFile | undefined;
       if (photoFile) {
-        newResume.photo = photoFile.filename; // store only filename OR full path (your choice)
+        newResume.photo = photoFile.filename;
       }
 
       const savedResume = await newResume.save();
@@ -608,9 +268,7 @@ const updateResume = async (req: Request, res: Response) => {
       });
     }
 
-    // ===================================================================
-    // 🚀 UPDATE EXISTING RESUME
-    // ===================================================================
+
     const updateData: Record<string, any> = {
       firstName,
       lastName,
@@ -628,18 +286,18 @@ const updateResume = async (req: Request, res: Response) => {
       templateId,
     };
 
-    // Remove undefined fields
+   
     Object.keys(updateData).forEach(
       (key) => updateData[key] === undefined && delete updateData[key]
     );
 
-    // Update photo if uploaded
+
     const photoFile = req.file as MulterFile | undefined;
     if (photoFile) {
       updateData.photo = photoFile.filename;
     }
 
-    // Apply updates
+
     Object.assign(existingResume, updateData);
 
     const updatedResume = await existingResume.save();
@@ -655,40 +313,7 @@ const updateResume = async (req: Request, res: Response) => {
 };
 
 
-// const updateResume = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const { firstName, lastName, email, jobTitle, keywords, tones, phone, country, city, address, postCode, linkedIn, portfolio } = req.body;
-//     const resume = await ContactResume.findById(id);
-//     if (!resume) {
-//       return res.status(404).json({ message: "Resume not found" });
-//     }
-//     if (firstName) resume.firstName = firstName;
-//     if (lastName) resume.lastName = lastName;
-//     if (email) resume.email = email;
-//     if (phone) resume.phone = phone;
-//     if (jobTitle) resume.jobTitle = jobTitle;
-//     if (country) resume.country = country;
-//     if (city) resume.city = city;
-//     if (address) resume.address = address;
-//     if (postCode) resume.postCode = postCode;
-//     if (linkedIn) resume.linkedIn = linkedIn;
-//     if (portfolio) resume.portfolio = portfolio;
-//     if (keywords && Array.isArray(keywords)) {
-//       resume.keywords = keywords;
-//     }
-//     if (tones && Array.isArray(tones)) {
-//       resume.tones = tones;
-//     }
-//     await resume.save();
-//     res.status(200).json({
-//       message: "Resume updated successfully",
-//       resume
-//     });
-//   } catch (error: any) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+
 
 export {
   createContactResume,

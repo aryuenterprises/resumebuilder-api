@@ -78,9 +78,8 @@ const addUser = async (req: Request, res: Response) => {
     if (!strongPasswordRegex.test(password)) {
       return res
         .status(400)
-        .json({ message: "Password must be 8+ chars and include Aa1@" });
+        .json({ message: "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character." });
     }
-
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
@@ -165,7 +164,7 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     await user.save();
 
     res.redirect(
-      "https://resumebuilder.aryuacademy.com/loging?verified=success"
+      "https://resumebuilder.aryuacademy.com/verify-email-success"
     );
   } catch (error) {
     console.error("Error verifying email:", error);
