@@ -238,7 +238,7 @@ const fetchPaymentIntent = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { amount, metadata, userId, templateId, planId, ...paymentDetails } =
+    const { amount, metadata, userId, templateId, planId,currencyName, ...paymentDetails } =
       req.body;
 
     if (amount === undefined || !userId || !planId) {
@@ -297,7 +297,7 @@ const fetchPaymentIntent = async (
       // Create new payment intent
       paymentIntent = await stripe.paymentIntents.create({
         amount: amountInCents,
-        currency: "eur",
+        currency: currencyName,
         description: "Payment for Resume Builder Service",
         metadata: {
           userId,
