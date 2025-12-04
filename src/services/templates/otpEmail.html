@@ -56,7 +56,7 @@
               >
                 <p>Hi <strong>{{firstName}}</strong>,</p>
 
-                <p>Your OTP for resetting your ResumeMint password is:</p>
+                <p>Your OTP for resetting your {{fromName}} password is:</p>
 
                 <div
                   style="
@@ -73,7 +73,7 @@
                   {{otp}}
                 </div>
 
-                <p>— ResumeMint Team</p>
+                <p>— {{fromName}} Team</p>
               </td>
             </tr>
 
@@ -81,15 +81,15 @@
             <tr>
               <td
                 style="
-                  background: #222;
-                  color: #fff;
+                  color: #222;
+                  background: #fff;
                   text-align: center;
                   padding: 20px;
                   font-size: 13px;
                 "
               >
                 <p style="margin: 5px 0">
-                  © 2025 ResumeMint — All Rights Reserved
+                  © 2025 {{fromName}} — All Rights Reserved
                 </p>
 
                 <!-- <p style="margin: 5px 0">

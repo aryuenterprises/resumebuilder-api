@@ -8,7 +8,7 @@ import crypto from "crypto";
 import { ContactResume } from "@models/ContactResume";
 import { PaymentLog } from "@models/paymentLogModel";
 import bcrypt from "bcryptjs";
-import { setting } from "@models/setting";
+import { setting, setting } from "@models/setting";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
     const users = await User.find({ isDeleted: "0" }).sort({ createdAt: -1 });
@@ -107,10 +107,12 @@ const addUser = async (req: Request, res: Response) => {
     // });
     const API_URL = process.env.API_URL;
     const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
-
-    await sendEmail(email, "Verify Your ResumeMint Account", "addUser.html", {
+    const settingDetails = await setting.findOne().lean();
+    const fromName = settingDetails ? settingDetails.fromName : 'ResumeMint';
+    await sendEmail(email, `Verify Your ${fromName} Account`, "addUser.html", {
       firstName,
       verificationLink,
+      fromName,
     });
 
     res.status(201).json({
@@ -227,13 +229,15 @@ const forgotPassword = async (req: Request, res: Response) => {
     user.resetOtp = hashedOtp;
     // user.resetOtpExpire = Date.now() + 5 * 60 * 1000;
     await user.save();
-
+    const settingDetails = await setting.findOne().lean();
+    const fromName = settingDetails ? settingDetails.fromName : 'ResumeMint';
     await sendEmail(
       email,
-      "Your ResumeMint Password Reset OTP",
+      `Your ${fromName} Password Reset OTP`,
       "otpEmail.html",
       {
         firstName: user.firstName,
+        fromName,
         otp,
       }
     );
@@ -741,25 +745,27 @@ const loginUser = async (req: Request, res: Response) => {
     }
 
     if (user.status === "0") {
-      return res.status(401).json({ message: "User is inactive" });
+      return res.status(401).json({ message: "User is InActive" });
     }
 
     if (user.isDeleted === "1") {
-      return res.status(401).json({ message: "User is deleted" });
+      return res.status(401).json({ message: "User Removed" });
     }
 
     if (user.isVerified === false) {
       const API_URL = process.env.API_URL;
       const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
-
-      await sendEmail(email, "Verify your Resumint account", "addUser.html", {
+      const settingDetails = await setting.findOne().lean();
+      const fromName = settingDetails ? settingDetails.fromName : 'ResumeMint';
+      await sendEmail(email, `Verify your ${fromName} account`, "addUser.html", {
         firstName: user.firstName,
         verificationLink,
+        fromName,
       });
 
       return res.status(403).json({
         message:
-          "User not verified. Please check your registered email to complete verification.",
+          "User verification is pending. We have resent the verification link to your registered email address.",
       });
     }
     // if (user.isVerified === false) {
