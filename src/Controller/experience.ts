@@ -7,9 +7,9 @@ import { Skill } from "../models/skillResume";
 import { Summary } from "../models/summaryResume";
 import { FinalizeResume } from "../models/finalizeResume";
 import { text } from "stream/consumers";
-import { PlanSubscription } from "@models/planSubscription";
-import { Payment } from "@models/paymentModel";
-import { User } from "@models/User";
+import { PlanSubscription } from "../models/planSubscription";
+import { Payment } from "../models/paymentModel";
+import { User } from "../models/User";
 const createExperience = async (req: Request, res: Response) => {
   try {
     const { contactId, experiences } = req.body;

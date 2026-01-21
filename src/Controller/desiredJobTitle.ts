@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {DesiredJobTitle} from '../models/desiredJobTitle';
 import mongoose from 'mongoose';
-import { PlanSubscription } from '@models/planSubscription';
+import { PlanSubscription } from '../models/planSubscription';
 
 const createDesiredJobTitle = async (req: Request, res: Response) => {
     try {

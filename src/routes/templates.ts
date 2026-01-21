@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import upload from '../middlewares/upload.js';
-import { createTemplate, deleteTemplate, getTemplateById, getTemplates, updateTemplate } from '../Controller/templates.js';
+import { createTemplate, deleteTemplate, getTemplateById, getTemplates, updateTemplate } from '../Controller/templates';
 
 
 const templateRoutes = Router();

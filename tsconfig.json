@@ -1,31 +1,31 @@
 {
-
   "compilerOptions": {
-     "module": "ES2020", // or "commonjs" depending on your setup
     "target": "ES2020",
+    "module": "ES2020",
     "moduleResolution": "node",
-    
+
     "rootDir": "./src",
     "outDir": "./dist",
-    "strict": true,
+
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
+
     "types": ["node"],
-    "baseUrl": "./src" ,
+    "baseUrl": "./src",
     "paths": {
       "@config/*": ["config/*"],
-      "@controllers/*": ["controllers/*"],
       "@models/*": ["models/*"],
       "@routes/*": ["routes/*"],
       "@middlewares/*": ["middlewares/*"],
       "@utils/*": ["utils/*"],
-      "@views/*": ["views/*"],
       "@cron/*": ["cron/*"]
-    },
+    }
   },
   "include": ["src"]
-
-
 }

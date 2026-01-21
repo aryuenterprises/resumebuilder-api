@@ -1,14 +1,12 @@
-"use strict";
 // import cron from "node-cron";
 // import ejs from "ejs";
 // import path from "path";
 // import { fileURLToPath } from "url";
-// import sendEmail from "../config/nodemailer.js";
+// import { sendEmail } from "../services/emailService";
 // import Notification, { INotification } from "../models/notification.js";
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 // const autoEmailSendJob = () => {
-//   // ⏱ Run every minute
 //   cron.schedule("* * * * *", async () => {
 //     try {
 //       const pendingNotifications: INotification[] = await Notification.find({

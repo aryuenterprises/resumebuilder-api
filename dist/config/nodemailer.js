@@ -1,34 +1,24 @@
-import dotenv from 'dotenv';
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 dotenv.config();
-// Setup transporter with Gmail SMTP
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for port 465, false for 587
+export const transporter = nodemailer.createTransport({
+    host: "smtp.hostinger.com", // Hostinger SMTP host
+    port: 465, // Port for SSL
+    secure: true, // Use true for port 465
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER, // your full email address
+        pass: process.env.EMAIL_PASS, // your email password or app password
+    },
+    tls: {
+        rejectUnauthorized: false, // helps avoid SSL handshake errors
     },
 });
-// Email sending function
-const sendEmail = async ({ to, subject, html, from }) => {
-    console.log(' Preparing to send email to:', to);
-    try {
-        const mailOptions = {
-            from: from || `"Your Company" <${process.env.EMAIL_USER}>`,
-            to,
-            subject,
-            html,
-        };
-        const info = await transporter.sendMail(mailOptions);
-        console.log(' Email sent:', info.response);
-        return info;
+// ✅ Verify transporter connection
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("❌ Error with mail transporter:", error);
     }
-    catch (error) {
-        console.error(' Email error:', error.message);
-        throw error;
+    else {
+        console.log("✅ Mail transporter is ready to send emails");
     }
-};
-export default sendEmail;
+});

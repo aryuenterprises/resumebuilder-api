@@ -1,0 +1,72 @@
+import { Tone } from '../models/toneResume';
+const createTone = async (req, res) => {
+    try {
+        const { desiredJobTitle, keywords, tones, status } = req.body;
+        const toneResume = new Tone({ desiredJobTitle, keywords, tones, status });
+        await toneResume.save();
+        res.status(201).json(toneResume);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+const getToneById = async (req, res) => {
+    try {
+        const { id } = req.query;
+        const toneResume = await Tone.find({ desiredJobTitle: id }).populate('desiredJobTitle');
+        if (!toneResume) {
+            return res.status(404).json({ error: 'Tone Resume not found' });
+        }
+        res.json(toneResume);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+const getTone = async (req, res) => {
+    try {
+        const toneResume = await Tone.find();
+        res.json(toneResume);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+const editTone = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { desiredJobTitle, keywords, tones, status } = req.body;
+        const toneResume = await Tone.findById(id);
+        if (!toneResume) {
+            return res.status(404).json({ error: 'Tone Resume not found' });
+        }
+        toneResume.desiredJobTitle = desiredJobTitle;
+        toneResume.keywords = keywords;
+        toneResume.tones = tones;
+        toneResume.status = status;
+        await toneResume.save();
+        res.json(toneResume);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+const deleteTone = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const toneResume = await Tone.findByIdAndDelete(id);
+        if (!toneResume) {
+            return res.status(404).json({ error: 'Tone Name not found' });
+        }
+        res.json({ message: 'Tone Name deleted successfully' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+export { createTone, getTone, editTone, deleteTone, getToneById };

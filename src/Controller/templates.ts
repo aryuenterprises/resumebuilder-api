@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Template from '../models/Template.js';
+import Template from '../models/Template';
 
 // Create a new template
 //  const createTemplate = async (req: Request, res: Response) => {

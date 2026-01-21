@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {PlanSubscription} from '../models/planSubscription';
 import mongoose from 'mongoose';
-import { setting } from '@models/setting';
+import { setting } from '../models/setting';
 
 const createPlanSubscription = async (req: Request, res: Response) => {
     try {

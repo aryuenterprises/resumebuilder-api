@@ -1,14 +1,14 @@
-import { User } from "@models/User";
+import { User } from "../models/User";
 import { Request, Response } from "express";
 import mongoose, { trusted } from "mongoose";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../services/emailService";
 import { Payment } from "../models/paymentModel";
 import crypto from "crypto";
-import { ContactResume } from "@models/ContactResume";
-import { PaymentLog } from "@models/paymentLogModel";
+import { ContactResume } from "../models/ContactResume";
+import { PaymentLog } from "../models/paymentLogModel";
 import bcrypt from "bcryptjs";
-import { setting, setting } from "@models/setting";
+import { setting } from "../models/setting";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
     const users = await User.find({ isDeleted: "0" }).sort({ createdAt: -1 });

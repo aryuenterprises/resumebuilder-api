@@ -11,40 +11,40 @@ import * as dotenv from 'dotenv';
 import path from "path";
 import { fileURLToPath } from "url";
 import morgan from 'morgan';
-import "./cron/resetPlans.js";
-import "./cron/logout.js";
-import connectDB from './config/database.js';
+import "./cron/resetPlans";
+import "./cron/logout";
+import connectDB from './config/database';
 import bodyParser from "body-parser";
-import authRoutes from './routes/auth.js';
+import authRoutes from './routes/auth';
 // import candidateRouter from './routes/candidates.js';
-import contactRouter from './routes/contacts.js';
+import contactRouter from './routes/contacts';
 // import autoEmailSendJob from './cron/email';
-import userRoutes from './routes/users.js';
+import userRoutes from './routes/users';
 import candidateRoutes from './routes/candidates';
 // import templateRoutes from './routes/templates';
-// import contactRoutes from './routes/contact.js';
+// import contactRoutes from './routes/contact';
 // import candidateRouter from './routes/candidates';
-// import autoEmailSendJob from './cron/email.js';
-import templateRoutes from './routes/templates.js';
-import contactResumeRouter from './routes/contactResumeRouter.js';
-import experienceRouter  from './routes/experienceRouter.js';
-import educationRouter from './routes/educationRouter.js';
-import skillResumeRouter from './routes/skillResumeRouter.js';
-import desiredJobTitleRouter from './routes/desiredJobTitleRouter.js'
-import planSubscriptionRouter from './routes/planSubscriptionRouter.js'
-import summaryRouter from './routes/summaryRouter.js'
-import finalizeResumeRouter from './routes/finalizeResumeRouter.js'
-import keyboardRouter from './routes/keyboardRouter.js';
-import toneRouter from './routes/toneRouter.js';
-import resumeTemplateRouter from './routes/resumeTemplateRouter.js';
-import paymentRouter from './routes/paymentRouter.js';
-import settingRouter from '@routes/settingRouter.js';
+// import autoEmailSendJob from './cron/email';
+import templateRoutes from './routes/templates';
+import contactResumeRouter from './routes/contactResumeRouter';
+import experienceRouter  from './routes/experienceRouter';
+import educationRouter from './routes/educationRouter';
+import skillResumeRouter from './routes/skillResumeRouter';
+import desiredJobTitleRouter from './routes/desiredJobTitleRouter'
+import planSubscriptionRouter from './routes/planSubscriptionRouter'
+import summaryRouter from './routes/summaryRouter'
+import finalizeResumeRouter from './routes/finalizeResumeRouter'
+import keyboardRouter from './routes/keyboardRouter';
+import toneRouter from './routes/toneRouter';
+import resumeTemplateRouter from './routes/resumeTemplateRouter';
+import paymentRouter from './routes/paymentRouter';
+import settingRouter from '@routes/settingRouter';
 // Resolve __dirname in ES Module context
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3003;
 const app = express();
 app.use(
   cors({

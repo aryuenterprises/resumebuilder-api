@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import Stripe from "stripe";
 import { Payment } from "../models/paymentModel";
-import { PaymentLog } from "@models/paymentLogModel";
-import { User } from "@models/User";
+import { PaymentLog } from "../models/paymentLogModel";
+import { User } from "../models/User";
 import { v4 as uuidv4 } from "uuid";
-import { ContactResume } from "@models/ContactResume";
-import { setting } from "@models/setting";
+import { ContactResume } from "../models/ContactResume";
+import { setting } from "../models/setting";
 
 // const fetchPaymentIntent = async (req: Request, res: Response) => {
 //   try {

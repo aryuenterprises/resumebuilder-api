@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {verifyOtpAndResetPassword,verifyEmail,dashboard,downloadResume, addUser, deleteUser, editUser, getAllUsers, getUserById, loginUser, forgotPassword } from '../Controller/user';
-import upload from "../middlewares/upload.js";
+import upload from "../middlewares/upload";
 
 const userRouter = Router();
 
