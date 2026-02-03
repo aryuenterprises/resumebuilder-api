@@ -1,30 +1,53 @@
 pipeline {
-  agent any
+    agent any
 
-  tools {
-    nodejs "node18"
-  }
-
-  stages {
-    stage('Install') {
-      steps {
-        sh 'npm install'
-      }
+    environment {
+        PROJECT_DIR = "/var/www/aryu_resumebuilder/resumebuilderapi-nodejs"
+        APP_NAME    = "resumebuilder-api"
     }
 
-    stage('Build') {
-      steps {
-        sh 'npm run build'
-      }
-    }
+    stages {
 
-    stage('Restart Server') {
-      steps {
-        sh '''
-          pm2 restart resumebuilder-api || pm2 start dist/index.js --name resumebuilder-api
-        '''
-      }
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/aryuenterprises/resumebuilderapi-nodejs.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh """
+                    cd $PROJECT_DIR
+                    npm install
+                """
+            }
+        }
+
+        stage('Restart Backend (PM2)') {
+            steps {
+                sh """
+                    cd $PROJECT_DIR
+
+                    pm2 delete $APP_NAME || true
+
+                    pm2 start node_modules/tsx/dist/cli.cjs \
+                        --name $APP_NAME \
+                        -- src/index.ts
+
+                    pm2 save
+                """
+            }
+        }
+
+        stage('Verify Running') {
+            steps {
+                sh """
+                    pm2 list
+                    ss -lntp | grep 3015 || true
+                """
+            }
+        }
     }
-  }
 }
 
