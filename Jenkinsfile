@@ -11,6 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
+                    credentialsId: 'github-ayhrms',
                     url: 'https://github.com/aryuenterprises/resumebuilderapi-nodejs.git'
             }
         }
@@ -28,13 +29,8 @@ pipeline {
             steps {
                 sh """
                     cd $PROJECT_DIR
-
                     pm2 delete $APP_NAME || true
-
-                    pm2 start node_modules/tsx/dist/cli.cjs \
-                        --name $APP_NAME \
-                        -- src/index.ts
-
+                    pm2 start node_modules/tsx/dist/cli.cjs --name $APP_NAME -- src/index.ts
                     pm2 save
                 """
             }
