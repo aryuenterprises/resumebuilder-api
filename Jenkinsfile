@@ -8,18 +8,10 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    credentialsId: 'github-ayhrms',
-                    url: 'https://github.com/aryuenterprises/resumebuilderapi-nodejs.git'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh """
-                    cd $PROJECT_DIR
+                    cd $WORKSPACE
                     npm install
                 """
             }
@@ -28,7 +20,7 @@ pipeline {
         stage('Restart Backend (PM2)') {
             steps {
                 sh """
-                    cd $PROJECT_DIR
+                    cd $WORKSPACE
                     pm2 delete $APP_NAME || true
                     pm2 start node_modules/tsx/dist/cli.cjs --name $APP_NAME -- src/index.ts
                     pm2 save
