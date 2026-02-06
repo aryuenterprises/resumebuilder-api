@@ -23,7 +23,7 @@ import userRoutes from './routes/users';
 import candidateRoutes from './routes/candidates';
 // import templateRoutes from './routes/templates';
 // import contactRoutes from './routes/contact';
-// import candidateRouter from './routes/candidates';
+import candidateRouter from './routes/candidates';
 // import autoEmailSendJob from './cron/email';
 import templateRoutes from './routes/templates';
 import contactResumeRouter from './routes/contactResumeRouter';
@@ -39,6 +39,8 @@ import toneRouter from './routes/toneRouter';
 import resumeTemplateRouter from './routes/resumeTemplateRouter';
 import paymentRouter from './routes/paymentRouter';
 import settingRouter from '@routes/settingRouter';
+
+
 // Resolve __dirname in ES Module context
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,7 +67,7 @@ await connectDB()
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-// app.use('/api/candidates', candidateRouter);
+app.use('/api/candidates', candidateRouter);
 app.use('/api/templates', templateRoutes);
 app.use('/api/contacts', contactRouter);
 app.use('/api/contact-resume', contactResumeRouter);

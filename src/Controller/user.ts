@@ -20,7 +20,7 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
         })
           .populate("planId", "name price plan")
           .select(
-            "paymentDetails planId userId _id paymentId status createdAt "
+            "paymentDetails planId userId _id paymentId status createdAt currencyType currencyAmount amount"
           )
           .sort({ createdAt: -1 });
         return planSubscription;
@@ -158,6 +158,7 @@ const addUser = async (req: Request, res: Response) => {
 const verifyEmail = async (req: Request, res: Response): Promise<void> => {
   try {
     const { token } = req.params;
+    const FRONTEND_URL = process.env.FRONTEND_URL;
     const user = await User.findOne({ verifyToken: token });
     if (!user) {
       res.status(400).send("<h3>Invalid or expired verification link.</h3>");
@@ -168,7 +169,7 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     user.verifyToken = undefined;
     await user.save();
 
-    res.redirect("https://resumebuilder.aryuacademy.com/verify-email-success");
+    res.redirect(`${FRONTEND_URL}/verify-email-success`);
   } catch (error: any) {
     if (error instanceof mongoose.Error.ValidationError) {
       const errors: Record<string, string> = {};
@@ -315,7 +316,7 @@ const dashboard = async (req: Request, res: Response) => {
     }
     const settings = await setting
       .find({})
-      .select("logoImage currencyName currenyType")
+      .select("logoImage currencyName currencyType")
       .lean();
     const userDetails = await User.findById(userId).select("shouldRedirect");
     if (type === "download") {
@@ -752,28 +753,28 @@ const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "User Removed" });
     }
 
-    if (user.isVerified === false) {
-      const API_URL = process.env.API_URL;
-      const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
-      const settingDetails = await setting.findOne().lean();
-      const fromName = settingDetails ? settingDetails.fromName : 'ResumeMint';
-      await sendEmail(email, `Verify your ${fromName} account`, "addUser.html", {
-        firstName: user.firstName,
-        verificationLink,
-        fromName,
-      });
-
-      return res.status(403).json({
-        message:
-          "User verification is pending. We have resent the verification link to your registered email address.",
-      });
-    }
     // if (user.isVerified === false) {
-    //   return res.status(401).json({
+    //   const API_URL = process.env.API_URL;
+    //   const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
+    //   const settingDetails = await setting.findOne().lean();
+    //   const fromName = settingDetails ? settingDetails.fromName : 'ResumeMint';
+    //   await sendEmail(email, `Verify your ${fromName} account`, "addUser.html", {
+    //     firstName: user.firstName,
+    //     verificationLink,
+    //     fromName,
+    //   });
+
+    //   return res.status(403).json({
     //     message:
-    //       "User not verified. Please check your registered email to complete verification",
+    //       "User verification is pending. We have resent the verification link to your registered email address.",
     //   });
     // }
+    if (user.isVerified === false) {
+      return res.status(401).json({
+        message:
+          "User not verified. Please check your registered email to complete verification",
+      });
+    }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -784,6 +785,7 @@ const loginUser = async (req: Request, res: Response) => {
       { id: user._id, email: user.email },
       process.env.JWT_SECRET || "your_secret_key",
       { expiresIn: "1h" }
+      // { expiresIn: "10m" }
     );
     const payments = await Payment.findOne({ userId: user._id }).populate(
       "planId"
