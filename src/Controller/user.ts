@@ -106,7 +106,7 @@ const addUser = async (req: Request, res: Response) => {
     //   email,
     // });
     const API_URL = process.env.API_URL;
-    const verificationLink = `${API_URL}api/users/verify/${verifyToken}`;
+    const verificationLink = `${API_URL}/api/users/verify/${verifyToken}`;
     const settingDetails = await setting.findOne().lean();
     const fromName = settingDetails ? settingDetails.fromName : 'ResumeMint';
     await sendEmail(email, `Verify Your ${fromName} Account`, "addUser.html", {

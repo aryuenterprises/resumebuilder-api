@@ -46,7 +46,7 @@ const generatePdf = async (
     res.status(200).end(pdfBuffer);
   } catch (error) {
     console.error("PDF generation error:", error);
-    res.status(500).json({ message: "Failed to generate PDF" });
+    res.status(500).json({ message: "Failed to generate PDFs" });
   } finally {
     if (browser) await browser.close();
   }
