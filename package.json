@@ -42,6 +42,7 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.9",
     "puppeteer": "^24.37.1",
+    "razorpay": "^2.9.6",
     "stripe": "^19.2.0",
     "uuid": "^13.0.0"
   },

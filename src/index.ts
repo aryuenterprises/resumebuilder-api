@@ -39,7 +39,7 @@ import toneRouter from './routes/toneRouter';
 import resumeTemplateRouter from './routes/resumeTemplateRouter';
 import paymentRouter from './routes/paymentRouter';
 import settingRouter from '@routes/settingRouter';
-
+import paymentRazorRouter from './routes/paymentrazorRouter';
 
 // Resolve __dirname in ES Module context
 const __filename = fileURLToPath(import.meta.url);
@@ -83,6 +83,7 @@ app.use('/api/tone-resume', toneRouter);
 app.use('/api/resume-template', resumeTemplateRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/setting', settingRouter);
+app.use('/api/payment-razor', paymentRazorRouter);
 
 }
 start();
