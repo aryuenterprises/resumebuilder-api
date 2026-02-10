@@ -118,7 +118,7 @@ const getAllContacts = async (req: Request, res: Response) => {
     // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
     const contacts = await ContactResume.find({ _id: id })
       // .populate("userId")
-      .populate("jobTitle")
+      // .populate("jobTitle")
       .lean();
     const contactResume = await ContactResume.findById(id)
     let hasResume: boolean = false;
@@ -211,7 +211,7 @@ const getUserContacts = async (req: Request, res: Response) => {
     const contacts = await ContactResume.find({ userId: id })
 
       // .populate("userId")
-      .populate("jobTitle")
+      // .populate("jobTitle")
       .lean();
     // console.log("Contacts:", contacts);
     const planSubscriptions = await Promise.all(
