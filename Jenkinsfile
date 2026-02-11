@@ -1,74 +1,40 @@
 pipeline {
     agent any
 
-    environment {
-        APP_NAME    = "resumebuilder-api"
-        BUILD_DIR  = "/var/lib/jenkins/workspace/Ai-Resumebuilder-backend"
-        RUNTIME_DIR = "/var/www/aryu_resumebuilder/resumebuilderapi-nodejs"
-    }
-
     stages {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                dir('/var/www/aryu_resumebuilder/resumebuilderapi-nodejs') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/aryuenterprises/resumebuilder-api.git',
+                            credentialsId: 'github-ayhrms'
+                        ]]
+                    ])
+                }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh """
-                    cd $BUILD_DIR
-                    npm install
-                """
+                dir('/var/www/aryu_resumebuilder/resumebuilderapi-nodejs') {
+                    sh 'npm install'
+                }
             }
         }
 
-        stage('Build') {
+        stage('Restart Backend') {
             steps {
-                sh """
-                    cd $BUILD_DIR
-                    npm run build
-                """
-            }
-        }
-
-        stage('Sync to Runtime Directory') {
-            steps {
-                sh """
-                    rsync -av --delete \
-                      --exclude node_modules \
-                      $BUILD_DIR/ \
-                      $RUNTIME_DIR/
-                """
-            }
-        }
-
-        stage('Restart Backend (PM2)') {
-            steps {
-                sh """
-                    cd $RUNTIME_DIR
-                    pm2 delete $APP_NAME || true
-                    pm2 start dist/index.js --name $APP_NAME
-                    pm2 save
-                """
-            }
-        }
-
-        stage('Verify Running') {
-            steps {
-                sh """
-                    echo "=== BUILD COMMIT ==="
-                    cd $BUILD_DIR
-                    git rev-parse HEAD
-
-                    echo "=== RUNTIME COMMIT ==="
-                    cd $RUNTIME_DIR
-                    git rev-parse HEAD
-
-                    pm2 show $APP_NAME
-                    ss -lntp | grep 3015 || true
-                """
+                dir('/var/www/aryu_resumebuilder/resumebuilderapi-nodejs') {
+                    sh '''
+                        pm2 delete resumebuilder-api || true
+                        pm2 start node_modules/tsx/dist/cli.cjs --name resumebuilder-api -- src/index.ts
+                        pm2 save
+                    '''
+                }
             }
         }
     }
