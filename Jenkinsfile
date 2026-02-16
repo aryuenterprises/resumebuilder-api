@@ -1,41 +1,41 @@
 pipeline {
     agent any
 
-    environment {
-        PROJECT_DIR = "/var/www/aryu_resumebuilder/resumebuilderapi-nodejs"
-        APP_NAME    = "resumebuilder-api"
-    }
-
     stages {
+
+        stage('Checkout') {
+            steps {
+                dir('/var/www/aryu_resumebuilder/resumebuilderapi-nodejs') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/aryuenterprises/resumebuilder-api.git',
+                            credentialsId: 'github-ayhrms'
+                        ]]
+                    ])
+                }
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
-                sh """
-                    cd $PROJECT_DIR
-                    npm install
-                """
+                dir('/var/www/aryu_resumebuilder/resumebuilderapi-nodejs') {
+                    sh 'npm install'
+                }
             }
         }
 
-        stage('Restart Backend (PM2)') {
+        stage('Restart Backend') {
             steps {
-                sh """
-                    cd $PROJECT_DIR
-                    pm2 delete $APP_NAME || true
-                    pm2 start node_modules/tsx/dist/cli.cjs --name $APP_NAME -- src/index.ts
-                    pm2 save
-                """
-            }
-        }
-
-        stage('Verify Running') {
-            steps {
-                sh """
-                    pm2 show $APP_NAME
-                    ss -lntp | grep 3015 || true
-                """
+                dir('/var/www/aryu_resumebuilder/resumebuilderapi-nodejs') {
+                    sh '''
+                        pm2 delete resumebuilder-api || true
+                        pm2 start node_modules/tsx/dist/cli.cjs --name resumebuilder-api -- src/index.ts
+                        pm2 save
+                    '''
+                }
             }
         }
     }
 }
-
