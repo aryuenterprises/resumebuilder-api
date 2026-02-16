@@ -169,7 +169,7 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     user.verifyToken = undefined;
     await user.save();
 
-    res.redirect(`${FRONTEND_URL}/verify-email-success`);
+    res.redirect(`${FRONTEND_URL}/email-verified`);
   } catch (error: any) {
     if (error instanceof mongoose.Error.ValidationError) {
       const errors: Record<string, string> = {};
