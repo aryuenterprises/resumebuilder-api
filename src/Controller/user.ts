@@ -84,7 +84,7 @@ const addUser = async (req: Request, res: Response) => {
         });
     }
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    if (existingUser && existingUser.isDeleted === "0") {
       return res.status(400).json({ message: "Email already exists" });
     }
     const verifyToken = crypto.randomBytes(32).toString("hex");
