@@ -740,7 +740,7 @@ const loginUser = async (req: Request, res: Response) => {
         .json({ message: "Email and password are required" });
     }
     const verifyToken = crypto.randomBytes(32).toString("hex");
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).sort({ createdAt: -1 });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
