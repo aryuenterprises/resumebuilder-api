@@ -5,7 +5,7 @@ export interface ISetting extends Document {
   SecretKey: string;
   logoImage: string;
   email:string;
-  currenyType: string;
+  currencyType: string;
   currencyName:string;
   //smtp
 
