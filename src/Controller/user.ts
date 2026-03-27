@@ -9,6 +9,7 @@ import { ContactResume } from "../models/ContactResume";
 import { PaymentLog } from "../models/paymentLogModel";
 import bcrypt from "bcryptjs";
 import { setting } from "../models/setting";
+import paymentRazorModel from "@models/paymentRazorModel";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
     const users = await User.find({ isDeleted: "0" }).sort({ createdAt: -1 });
@@ -349,7 +350,7 @@ const dashboard = async (req: Request, res: Response) => {
 
     // return res.json({ payments: formattedPayments });
 
-    const updatedPayments = await Payment.find({ userId: userId })
+    const updatedPayments = await paymentRazorModel.find({ userId: userId })
       .populate("planId", "name price plan")
       .lean();
 
