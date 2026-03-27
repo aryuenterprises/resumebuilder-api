@@ -28,7 +28,7 @@ const SettingSchema = new Schema<ISetting>(
       type: String,
       required: false,
     },
-    currenyType: {
+    currencyType: {
       type: String,
       required: false,
     },

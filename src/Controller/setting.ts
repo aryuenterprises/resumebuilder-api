@@ -85,7 +85,7 @@ const createSetting = async (req: Request, res: Response) => {
       PublishableKey,
       SecretKey,
       email,
-      currenyType,
+      currencyType,
       host,
       port,
       username,
@@ -110,7 +110,7 @@ const createSetting = async (req: Request, res: Response) => {
     }
 
     if (email) settings.email = email;
-    if (currenyType) settings.currenyType = currenyType;
+    if (currencyType) settings.currencyType = currencyType;
     if (host) settings.host = host;
     if (port) settings.port = port;
     if (username) settings.username = username;
