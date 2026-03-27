@@ -29,8 +29,8 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
       {
         planId,
         amount: 0,
-        status: "created",
-        paymentId: uuidv4(),
+        status: "paid",
+        orderId: uuidv4(),
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
@@ -39,7 +39,8 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
       userId,
       amount: 0,
       planId,
-      status: "created",
+      status: "paid",
+      orderId: uuidv4(),
     });
 
     return res.status(201).json({
