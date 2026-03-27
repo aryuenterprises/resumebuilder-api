@@ -5,6 +5,7 @@ import PaymentRazorLog from "../models/paymentRazorLogModel";
 import { razorpay, createRazorpayOrder } from "../services/razorpayService";
 import { verifyRazorpaySignature } from "../utils/verifySignature";
 import { v4 as uuidv4 } from "uuid";
+import { setting } from "@models/setting";
 
 const freePlan = async (req: Request, res: Response): Promise<Response> => {
   const { userId, planId } = req.body;
@@ -206,9 +207,70 @@ const markPaymentFailed = async (req: Request, res: Response) => {
 
 
 
+const getPaymentAllRecord = async (req: Request, res: Response) => {
+    const { type, userId } = req.query;
+    try {
+        // if (type === 'latest') {
+        //   const latestPlan = await Payment.findOne({ userId })
+        //     .populate('planId', 'name price plan')
+        //     .select('planId amount status createdAt')
+        //     .sort({ createdAt: -1 });
+        //   if (!latestPlan || !latestPlan.planId) {
+        //     return res.status(200).json({ message: 'No Current Plan' });
+        //   }
+        //   return res.status(200).json({ latestPlan });
+        // }
+        // if (type === "latest") {
+        //     const latestPlan = await Payment.findOne({ userId })
+        //         .populate("planId", "name price plan") // plan contains '7-days access' or other info
+        //         .select("planId amount status createdAt updatedAt")
+        //         .sort({ createdAt: -1 });
+        //     if (!latestPlan || !latestPlan.planId) {
+        //         return res.status(200).json({ message: "No Current Plan" });
+        //     }
+        //     let accessPeriod;
+        //     // Only calculate accessPeriod if plan is "7-days access"
+        //     if (latestPlan.planId.plan === "7-days access") {
+        //         const startDate = new Date(latestPlan.updatedAt);
+        //         const endDate = new Date(startDate);
+        //         endDate.setDate(startDate.getDate() + 7);
+        //         const formatDate = (date) => {
+        //             return `${String(date.getDate()).padStart(2, "0")}-${String(date.getMonth() + 1).padStart(2, "0")}-${date.getFullYear()}`;
+        //         };
+        //         accessPeriod = {
+        //             start: formatDate(startDate),
+        //             end: formatDate(endDate),
+        //         };
+        //     }
+        //     return res
+        //         .status(200)
+        //         .json({ latestPlan, ...(accessPeriod && { accessPeriod }) });
+        // }
+        if (type === "all") {
+            const paymentRecord = await PaymentRazorLog.find({ userId })
+                .populate("planId", "name price plan")
+                .populate("userId", "firstName lastName email")
+                .sort({ createdAt: -1 });
+            return res.status(200).json(paymentRecord);
+        }
+        const settings = await setting.find().select("currencyType");
+        const paymentRecord = await PaymentRazorLog.find({status: { $in: ["paid", "failed"] }})
+            .populate("planId", "name price")
+            .populate("userId", "firstName lastName email")
+            .sort({ createdAt: -1 });
+        return res.status(200).json({ paymentRecord, settings });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error fetching payment records", error });
+    }
+};
+
+
+
 export {
     createOrder,
     verifyAndUpdatePayment,
     markPaymentFailed,
-    freePlan
+    freePlan,
+    getPaymentAllRecord
 }

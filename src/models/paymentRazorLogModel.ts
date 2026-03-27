@@ -22,7 +22,7 @@ export interface IPaymentRazorLog extends Document {
 const paymentRazorLogSchema = new Schema<IPaymentRazorLog>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    planId: { type: Schema.Types.ObjectId, ref: "planSubscription", required: true },
+    planId: { type: Schema.Types.ObjectId, ref: "PlanSubscription", required: true },
     orderId: { type: String, required: true, unique: true },
     paymentId: String,
     signature: String,
