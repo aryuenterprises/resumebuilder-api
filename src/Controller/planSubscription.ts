@@ -30,7 +30,7 @@ const createPlanSubscription = async (req: Request, res: Response) => {
 // };
 const getPlanSubscription = async (req: Request, res: Response) => {
     try {
-        const settings = await setting.find().select('currenyType');
+        const settings = await setting.find().select('currencyType');
         const type = req.query.type as string;
 
         const query = type === 'active' ? { status: '1' } : {};

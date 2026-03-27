@@ -25,7 +25,7 @@ const createPlanSubscription = async (req, res) => {
 // };
 const getPlanSubscription = async (req, res) => {
     try {
-        const settings = await setting.find().select('currenyType');
+        const settings = await setting.find().select('currencyType');
         const type = req.query.type;
         const query = type === 'active' ? { status: '1' } : {};
         const planSubscriptionDetails = await PlanSubscription.find(query).sort({ order: 1 });

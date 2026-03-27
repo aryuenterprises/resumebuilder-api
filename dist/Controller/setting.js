@@ -41,14 +41,14 @@ const getSetting = async (req, res) => {
 };
 // const createSetting = async (req: Request, res: Response) => {
 //   try {
-//     const { PublishableKey, SecretKey, email,currenyType, host,port,username,password,fromName  } = req.body;
+//     const { PublishableKey, SecretKey, email,currencyType, host,port,username,password,fromName  } = req.body;
 //     const logoImage = req.file;
 //     const settings = await setting.findOne() ?? new setting();
 //     settings.PublishableKey = PublishableKey;
 //     settings.SecretKey = SecretKey;
 //     settings.logoImage = logo?.filename;
 //     settings.email = email;
-//     settings.currenyType = currenyType;
+//     settings.currencyType = currencyType;
 //     settings.host = host;
 //     settings.port = port;
 //     settings.username = username;
@@ -66,7 +66,7 @@ const getSetting = async (req, res) => {
 // };
 const createSetting = async (req, res) => {
     try {
-        const { PublishableKey, SecretKey, email, currenyType, host, port, username, password, fromName, currencyName } = req.body;
+        const { PublishableKey, SecretKey, email, currencyType, host, port, username, password, fromName, currencyName } = req.body;
         const logoFile = req.file;
         console.log("Incoming file:", logoFile);
         let settings = await setting.findOne();
@@ -82,8 +82,8 @@ const createSetting = async (req, res) => {
         }
         if (email)
             settings.email = email;
-        if (currenyType)
-            settings.currenyType = currenyType;
+        if (currencyType)
+            settings.currencyType = currencyType;
         if (host)
             settings.host = host;
         if (port)

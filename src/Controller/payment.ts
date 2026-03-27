@@ -585,7 +585,7 @@ const getPaymentRecord = async (req: Request, res: Response) => {
 
       return res.status(200).json(paymentRecord);
     }
-    const settings = await setting.find().select("currenyType");
+    const settings = await setting.find().select("currencyType");
     const paymentRecord = await PaymentLog.find()
       .populate("planId", "name price")
       .populate("userId", "firstName lastName email")

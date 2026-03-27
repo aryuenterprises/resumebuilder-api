@@ -259,7 +259,7 @@ const dashboard = async (req, res) => {
         }
         const settings = await setting
             .find({})
-            .select("logoImage currencyName currenyType")
+            .select("logoImage currencyName currencyType")
             .lean();
         const userDetails = await User.findById(userId).select("shouldRedirect");
         if (type === "download") {

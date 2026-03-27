@@ -10,7 +10,7 @@ const SettingSchema = new Schema({
         type: String,
         required: false,
     },
-    currenyType: {
+    currencyType: {
         type: String,
         required: false,
     },
