@@ -22,7 +22,7 @@ export interface IPaymentRazor extends Document {
 const paymentRazorSchema = new Schema<IPaymentRazor>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    planId: { type: Schema.Types.ObjectId, ref: "planSubscription", required: true },
+    planId: { type: Schema.Types.ObjectId, ref: "PlanSubscription", required: true },
     orderId: { type: String, required: true, unique: true },
     paymentId: String,
     signature: String,
@@ -43,5 +43,6 @@ const paymentRazorSchema = new Schema<IPaymentRazor>(
   },
   { timestamps: true }
 );
+
 
 export default mongoose.model<IPaymentRazor>("PaymentRazor", paymentRazorSchema);
