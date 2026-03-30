@@ -21,7 +21,7 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
     if (existingPayment && existingPayment.amount === 0) {
       return res
         .status(400)
-        .json({ message: "User already has this plan activated" });
+        .json({ message: "Free Plan Already Used" });
     }
 
     const payment = await PaymentRazor.findOneAndUpdate(
@@ -34,14 +34,16 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
-
-    const paymentLog = await PaymentRazorLog.create({
-      userId,
-      amount: 0,
-      planId,
-      status: "paid",
-      orderId: uuidv4(),
-    });
+    if (!existingPayment || existingPayment.amount !== 0) {
+      const paymentLog = await PaymentRazorLog.create({
+        userId,
+        amount: 0,
+        planId,
+        status: "paid",
+        orderId: uuidv4(),
+      });
+    }
+    
 
     return res.status(201).json({
       message: "Free plan activated successfully",
