@@ -351,7 +351,7 @@ const dashboard = async (req: Request, res: Response) => {
     // return res.json({ payments: formattedPayments });
 
     const updatedPayments = await paymentRazorModel.find({ userId: userId, status:"paid" })
-      .populate("planId", "name price plan")
+      .populate("planId", "name price plan description")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -380,6 +380,7 @@ const dashboard = async (req: Request, res: Response) => {
         amount: payment.planId?.price || null,
         limit: payment.planId?.plan || null,
         status: payment.status,
+        description: payment.description,
         accessPeriod,
       };
     });
