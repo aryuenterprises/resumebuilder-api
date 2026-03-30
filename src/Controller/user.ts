@@ -380,7 +380,7 @@ const dashboard = async (req: Request, res: Response) => {
         amount: payment.planId?.price || null,
         limit: payment.planId?.plan || null,
         status: payment.status,
-        description: payment.description,
+        description: payment.planId?.description || null,
         accessPeriod,
       };
     });
