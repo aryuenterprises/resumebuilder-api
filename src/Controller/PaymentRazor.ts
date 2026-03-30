@@ -9,7 +9,6 @@ import { setting } from "@models/setting";
 
 const freePlan = async (req: Request, res: Response): Promise<Response> => {
   const { userId, planId } = req.body;
-  // console.log("Free Plan Request - userId:", userId, "planId:", planId);
 
   if (!userId || !planId) {
     return res.status(400).json({ message: "Missing required parameters" });
@@ -19,10 +18,10 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
     const existingPayment = await PaymentRazor.findOne({ userId, planId });
 
     if (existingPayment && existingPayment.amount === 0) {
-      return res
-        .status(400)
-        .json({ message: "Free Plan Already Used" });
+      return res.status(400).json({ message: "Free Plan Already Used" });
     }
+
+    const orderId = uuidv4();
 
     const payment = await PaymentRazor.findOneAndUpdate(
       { userId },
@@ -30,27 +29,34 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
         planId,
         amount: 0,
         status: "paid",
-        orderId: uuidv4(),
+        orderId,
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
+
+    let paymentLog = null;
+
     if (!existingPayment || existingPayment.amount !== 0) {
-      const paymentLog = await PaymentRazorLog.create({
+      paymentLog = await PaymentRazorLog.create({
         userId,
         amount: 0,
         planId,
         status: "paid",
-        orderId: uuidv4(),
+        orderId,
       });
     }
-    
 
     return res.status(201).json({
       message: "Free plan activated successfully",
-      payment,paymentLog
+      payment,
+      paymentLog,
     });
+
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error", error });
+    return res.status(500).json({
+      message: "Internal server error",
+      error,
+    });
   }
 };
 
