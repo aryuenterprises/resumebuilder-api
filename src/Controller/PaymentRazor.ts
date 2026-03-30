@@ -11,7 +11,7 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
   const { userId, planId } = req.body;
 
   if (!userId || !planId) {
-    return res.status(400).json({ message: "Missing required parameters" });
+    return res.status(400).json({ message: "User and Plan Required" });
   }
 
   try {
