@@ -255,15 +255,18 @@ const getPaymentAllRecord = async (req: Request, res: Response) => {
         //         .status(200)
         //         .json({ latestPlan, ...(accessPeriod && { accessPeriod }) });
         // }
+        const settings = await setting.find().select("currencyType");
+
         if (type === "all") {
-            const paymentRecord = await PaymentRazorLog.find({ userId })
+            const paymentRecord = await PaymentRazorLog.find({status: { $in: ["paid", "failed"] }})
                 .populate("planId", "name price plan")
                 .populate("userId", "firstName lastName email")
                 .sort({ createdAt: -1 });
-            return res.status(200).json(paymentRecord);
+           const settings = await setting.find().select("currencyType");
+
+            return res.status(200).json({paymentRecord, settings});
         }
-        const settings = await setting.find().select("currencyType");
-        const paymentRecord = await PaymentRazorLog.find({status: { $in: ["paid", "failed"] }})
+        const paymentRecord = await PaymentRazorLog.find({status: { $in: ["paid", "failed"] }, userId: userId})
             .populate("planId", "name price")
             .populate("userId", "firstName lastName email")
             .sort({ createdAt: -1 });

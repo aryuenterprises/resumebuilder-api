@@ -10,14 +10,15 @@ import { PaymentLog } from "../models/paymentLogModel";
 import bcrypt from "bcryptjs";
 import { setting } from "../models/setting";
 import paymentRazorModel from "@models/paymentRazorModel";
+import paymentRazorLogModel from "@models/paymentRazorLogModel";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
     const users = await User.find({ isDeleted: "0" }).sort({ createdAt: -1 });
 
     const planSubscriptions = await Promise.all(
       users.map(async (user) => {
-        const planSubscription = await PaymentLog.find({
-          userId: user._id,
+        const planSubscription = await paymentRazorLogModel.find({
+          userId: user._id, status:{$in:["paid","failed"]},
         })
           .populate("planId", "name price plan")
           .select(
