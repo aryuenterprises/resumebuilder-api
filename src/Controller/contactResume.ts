@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { ContactResume } from "../models/ContactResume";
 import mongoose from "mongoose";
+import { Experience } from "../models/experience";
+import { Skill } from "../models/skillResume";
+import { Summary } from "../models/summaryResume";
+import { FinalizeResume } from "../models/finalizeResume";
+import { Education } from "../models/educationResume";
 
 // const getContactResume = async (req: Request, res: Response) => {
 //   const { id } = req.params;
@@ -71,24 +76,126 @@ import mongoose from "mongoose";
 //   }
 // };
 
+// const allContactResume = async (req: Request, res: Response) => {
+//   const { id } = req.params;
+
+//   try {
+//     // if (!id) {
+//     //   return res.status(400).json({ message: "User ID is required" });
+//     // }
+
+//     const resumes = await ContactResume.find({
+//       userId: id,
+//       // resumeStatus: "pending",
+//     }).sort({ createdAt: -1 });
+
+//     // if (!resumes || resumes.length === 0) {
+//     //   return res.status(404).json({ message: "No pending resumes found" });
+//     // }
+
+//     res.json(resumes);
+//   } catch (error: any) {
+//     console.error("Error fetching contact resumes:", error);
+//     res
+//       .status(500)
+//       .json({ message: "Internal server error", error: error.message });
+//   }
+// };
 const allContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    // if (!id) {
-    //   return res.status(400).json({ message: "User ID is required" });
-    // }
-
     const resumes = await ContactResume.find({
       userId: id,
-      // resumeStatus: "pending",
     }).sort({ createdAt: -1 });
 
-    // if (!resumes || resumes.length === 0) {
-    //   return res.status(404).json({ message: "No pending resumes found" });
-    // }
+    const experience = await Experience.find({
+      contactId: resumes?.[0]?._id,
+    }).sort({ createdAt: -1 });
 
-    res.json(resumes);
+    const educations = await Education.find({
+      contactId: resumes?.[0]?._id,
+    }).sort({ createdAt: -1 });
+    
+    const skills = await Skill.find({ contactId: resumes?.[0]?._id }).sort({
+      createdAt: -1,
+    });
+    
+    const summary = await Summary.find({ contactId: resumes?.[0]?._id }).sort({
+      createdAt: -1,
+    });
+    
+    const finalizeResumes = await FinalizeResume.find({
+      contactId: resumes?.[0]?._id,
+    }).sort({ createdAt: -1 });
+
+    const formattedAll = resumes.map((resume) => ({
+      ...resume.toObject(),
+      experience,
+      educations,
+      skills,
+      summary,
+      finalizeResumes,
+    }));
+
+    const formattedOrder = formattedAll.map((data) => ({
+      firstName: data?.firstName,
+      lastName: data?.lastName,
+      templateId: data?.templateId,
+      email: data?.email,
+      phone: data?.phone,
+      country: data?.country,
+      city: data?.city,
+
+      // Map all experiences
+      experiences:
+        data?.experience?.[0]?.experiences?.map((exp: any) => ({
+          jobTitle: exp?.jobTitle,
+          employer: exp?.employer,
+          location: exp?.location,
+          startDate: exp?.startDate,
+          endDate: exp?.endDate,
+          text: exp?.text,
+        })) || [],
+
+      // Map all educations
+      educations:
+        data?.educations?.[0]?.education?.map((edu: any) => ({
+          schoolname: edu?.schoolname,
+          location: edu?.location,
+          degree: edu?.degree,
+          startDate: edu?.startDate,
+          endDate: edu?.endDate,
+          text: edu?.text,
+        })) || [],
+
+      // Map all skills
+      skills:
+        data?.skills?.[0]?.skills?.map((skill: any) => ({
+          skillName: skill?.skill,
+        })) || [],
+
+      summary: data?.summary?.[0]?.text,
+      
+      certificationsAndLicenses: data?.finalizeResumes?.[0]?.skillsData?.certificationsAndLicenses?.map((certification: any) => ({
+        name: certification?.name,
+      })) || [],
+      
+      hobbiesAndInterests: data?.finalizeResumes?.[0]?.skillsData?.hobbiesAndInterests?.map((hobbies: any) => ({
+        name: hobbies?.name,
+      })) || [],
+      
+      awardsAndHonors: data?.finalizeResumes?.[0]?.skillsData?.awardsAndHonors?.map((awards: any) => ({
+        name: awards?.name,
+      })) || [],
+      
+      customSection: data?.finalizeResumes?.[0]?.skillsData?.customSection?.map((custom: any) => ({
+        name: custom?.name,
+        description: custom?.description
+      })) || []
+    }));
+
+    res.json(formattedOrder);
   } catch (error: any) {
     console.error("Error fetching contact resumes:", error);
     res
@@ -107,7 +214,7 @@ const getAllContactResume = async (req: Request, res: Response) => {
 
 const createContactResume = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<Response> => {
   try {
     const photoFile = req.files?.find((file) => file.fieldname === "photo");
@@ -155,7 +262,6 @@ const createContactResume = async (
   }
 };
 
-
 // GET contact resumes
 const getContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -187,8 +293,6 @@ const getContactResume = async (req: Request, res: Response) => {
   }
 };
 
-
-
 interface MulterFile {
   filename: string;
   path: string;
@@ -204,7 +308,6 @@ const updateResume = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "userId is required" });
     }
 
-  
     const {
       firstName,
       lastName,
@@ -224,18 +327,15 @@ const updateResume = async (req: Request, res: Response) => {
 
     let existingResume;
 
-   
     if (id) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
     } else {
-     
       existingResume = await ContactResume.findOne({
         userId,
         resumeStatus: "pending",
       }).sort({ createdAt: -1 });
     }
 
- 
     if (!existingResume) {
       const newResume: any = new ContactResume({
         userId,
@@ -268,7 +368,6 @@ const updateResume = async (req: Request, res: Response) => {
       });
     }
 
-
     const updateData: Record<string, any> = {
       firstName,
       lastName,
@@ -286,17 +385,14 @@ const updateResume = async (req: Request, res: Response) => {
       templateId,
     };
 
-   
     Object.keys(updateData).forEach(
-      (key) => updateData[key] === undefined && delete updateData[key]
+      (key) => updateData[key] === undefined && delete updateData[key],
     );
-
 
     const photoFile = req.file as MulterFile | undefined;
     if (photoFile) {
       updateData.photo = photoFile.filename;
     }
-
 
     Object.assign(existingResume, updateData);
 
@@ -311,9 +407,6 @@ const updateResume = async (req: Request, res: Response) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
-
-
 
 export {
   createContactResume,
