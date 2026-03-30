@@ -18,7 +18,7 @@ const freePlan = async (req: Request, res: Response): Promise<Response> => {
   try {
     const existingPayment = await PaymentRazor.findOne({ userId, planId });
 
-    if (existingPayment && existingPayment.amount !== 0) {
+    if (existingPayment && existingPayment.amount === 0) {
       return res
         .status(400)
         .json({ message: "User already has this plan activated" });
