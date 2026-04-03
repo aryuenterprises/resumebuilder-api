@@ -139,6 +139,7 @@ const allContactResume = async (req: Request, res: Response) => {
     }));
 
     const formattedOrder = formattedAll.map((data) => ({
+      templateId: data?.templateId,
       contact: {
         _id: data?._id,
         userId: data?.userId,
