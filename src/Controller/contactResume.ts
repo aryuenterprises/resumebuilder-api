@@ -193,7 +193,7 @@ const allContactResume = async (req: Request, res: Response) => {
           _id: skill?._id,
         })) || [],
 
-      summary: data?.summary?.[0]?.text ? [data.summary[0].text] : [],
+      summary: data?.summary?.[0]?.text || "-",
       
       finalize: data?.finalizeResumes?.map((finalize: any) => ({
         certificationsAndLicenses: finalize?.skillsData?.certificationsAndLicenses?.map((certification: any) => ({
