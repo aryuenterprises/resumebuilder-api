@@ -139,14 +139,27 @@ const allContactResume = async (req: Request, res: Response) => {
     }));
 
     const formattedOrder = formattedAll.map((data) => ({
-      firstName: data?.firstName,
-      lastName: data?.lastName,
-      templateId: data?.templateId,
-      email: data?.email,
-      phone: data?.phone,
-      country: data?.country,
-      city: data?.city,
-
+      contact: {
+        _id: data?._id,
+        userId: data?.userId,
+        firstName: data?.firstName,
+        lastName: data?.lastName,
+        templateId: data?.templateId,
+        email: data?.email,
+        jobTitle: data?.jobTitle,
+        keywords: data?.keywords || [],
+        tones: data?.tones || [],
+        phone: data?.phone,
+        country: data?.country,
+        city: data?.city,
+        address: data?.address,
+        postCode: data?.postCode,
+        linkedIn: data?.linkedIn,
+        portfolio: data?.portfolio,
+        resumeStatus: data?.resumeStatus,
+        __v: data?.__v,
+      },
+      
       // Map all experiences
       experiences:
         data?.experience?.[0]?.experiences?.map((exp: any) => ({
@@ -156,6 +169,7 @@ const allContactResume = async (req: Request, res: Response) => {
           startDate: exp?.startDate,
           endDate: exp?.endDate,
           text: exp?.text,
+          _id: exp?._id,
         })) || [],
 
       // Map all educations
@@ -167,31 +181,37 @@ const allContactResume = async (req: Request, res: Response) => {
           startDate: edu?.startDate,
           endDate: edu?.endDate,
           text: edu?.text,
+          _id: edu?._id,
         })) || [],
 
       // Map all skills
       skills:
         data?.skills?.[0]?.skills?.map((skill: any) => ({
-          skillName: skill?.skill,
+          skill: skill?.skill,
+          level: skill?.level,
+          _id: skill?._id,
         })) || [],
 
-      summary: data?.summary?.[0]?.text,
+      summary: data?.summary?.[0]?.text ? [data.summary[0].text] : [],
       
-      certificationsAndLicenses: data?.finalizeResumes?.[0]?.skillsData?.certificationsAndLicenses?.map((certification: any) => ({
-        name: certification?.name,
-      })) || [],
-      
-      hobbiesAndInterests: data?.finalizeResumes?.[0]?.skillsData?.hobbiesAndInterests?.map((hobbies: any) => ({
-        name: hobbies?.name,
-      })) || [],
-      
-      awardsAndHonors: data?.finalizeResumes?.[0]?.skillsData?.awardsAndHonors?.map((awards: any) => ({
-        name: awards?.name,
-      })) || [],
-      
-      customSection: data?.finalizeResumes?.[0]?.skillsData?.customSection?.map((custom: any) => ({
-        name: custom?.name,
-        description: custom?.description
+      finalize: data?.finalizeResumes?.map((finalize: any) => ({
+        certificationsAndLicenses: finalize?.skillsData?.certificationsAndLicenses?.map((certification: any) => ({
+          name: certification?.name,
+          _id: certification?._id,
+        })) || [],
+        hobbiesAndInterests: finalize?.skillsData?.hobbiesAndInterests?.map((hobbies: any) => ({
+          name: hobbies?.name,
+          _id: hobbies?._id,
+        })) || [],
+        awardsAndHonors: finalize?.skillsData?.awardsAndHonors?.map((awards: any) => ({
+          name: awards?.name,
+          _id: awards?._id,
+        })) || [],
+        customSection: finalize?.skillsData?.customSection?.map((custom: any) => ({
+          name: custom?.name,
+          description: custom?.description,
+          _id: custom?._id,
+        })) || []
       })) || []
     }));
 
