@@ -301,7 +301,7 @@ const getContactResume = async (req: Request, res: Response) => {
 
     const resumes = await ContactResume.find({
       userId: id,
-      resumeStatus: "pending",
+      // resumeStatus: "pending",
     }).sort({ createdAt: -1 });
 
     return res.json(resumes);
@@ -353,7 +353,7 @@ const updateResume = async (req: Request, res: Response) => {
     } else {
       existingResume = await ContactResume.findOne({
         userId,
-        resumeStatus: "pending",
+        // resumeStatus: "pending",
       }).sort({ createdAt: -1 });
     }
 
