@@ -57,9 +57,9 @@ const updateSummary = async (req: Request, res: Response) => {
     let existingExperience;
 
     if (id) {
-      existingExperience = await Summary.findOne({ _id: id, contactId });
+      existingExperience = await Summary.findOne({ _id: id, contactId, templateId:templateId });
     } else {
-      existingExperience = await Summary.findOne({ contactId });
+      existingExperience = await Summary.findOne({ contactId, templateId:templateId }).sort({ createdAt: -1 });
     }
 
     if (!existingExperience) {

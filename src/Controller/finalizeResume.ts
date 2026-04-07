@@ -237,8 +237,8 @@ const updateFinalizeResume = async (req: Request, res: Response) => {
     }
 
     let existingFinalize = id
-      ? await FinalizeResume.findOne({ _id: id, contactId })
-      : await FinalizeResume.findOne({ contactId });
+      ? await FinalizeResume.findOne({ _id: id, contactId, templateId:templateId })
+      : await FinalizeResume.findOne({ contactId, templateId:templateId });
 
     if (!existingFinalize) {
       const newFinalize = new FinalizeResume({

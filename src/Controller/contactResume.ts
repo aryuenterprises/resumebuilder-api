@@ -103,10 +103,12 @@ import { Education } from "../models/educationResume";
 // };
 const allContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
+  // const {templateId} = req.query;
 
   try {
     const resumes = await ContactResume.find({
       userId: id,
+      // templateId: templateId,
     }).sort({ createdAt: -1 });
 
     const experience = await Experience.find({
@@ -286,11 +288,18 @@ const createContactResume = async (
 // GET contact resumes
 const getContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { resumeId } = req.query;
+  const { resumeId, templeteId } = req.query;
 
   try {
     if (resumeId) {
-      const resume = await ContactResume.findById(resumeId);
+      const resume = await ContactResume.findById({ _id: resumeId, templateId: templeteId });
+      if(templeteId != resume?.templateId){
+        return res.status(202).json({ 
+          success: true,
+          data:[],
+          message: "No resume found"
+        });
+      }
 
       if (!resume) {
         return res.status(404).json({ message: "Resume not found" });
@@ -301,6 +310,7 @@ const getContactResume = async (req: Request, res: Response) => {
 
     const resumes = await ContactResume.find({
       userId: id,
+      templateId: templeteId,
       // resumeStatus: "pending",
     }).sort({ createdAt: -1 });
 
@@ -323,7 +333,7 @@ interface MulterFile {
 
 const updateResume = async (req: Request, res: Response) => {
   try {
-    const { id, userId } = req.query;
+    const { id, userId, templateId } = req.query;
 
     if (!userId) {
       return res.status(400).json({ message: "userId is required" });
@@ -343,16 +353,17 @@ const updateResume = async (req: Request, res: Response) => {
       postCode,
       linkedIn,
       portfolio,
-      templateId,
+      
     } = req.body;
 
     let existingResume;
 
     if (id) {
-      existingResume = await ContactResume.findOne({ _id: id, userId });
+      existingResume = await ContactResume.findOne({ _id: id, userId, templateId: templateId });
     } else {
       existingResume = await ContactResume.findOne({
         userId,
+        templateId: templateId,
         // resumeStatus: "pending",
       }).sort({ createdAt: -1 });
     }
@@ -360,6 +371,8 @@ const updateResume = async (req: Request, res: Response) => {
     if (!existingResume) {
       const newResume: any = new ContactResume({
         userId,
+        templateId,
+
         firstName,
         lastName,
         email,
@@ -373,7 +386,6 @@ const updateResume = async (req: Request, res: Response) => {
         postCode,
         linkedIn,
         portfolio,
-        templateId,
       });
 
       const photoFile = req.file as MulterFile | undefined;

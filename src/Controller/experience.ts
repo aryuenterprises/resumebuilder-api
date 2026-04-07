@@ -77,9 +77,9 @@ const updateExperience = async (req: Request, res: Response) => {
     let existingExperience;
 
     if (id) {
-      existingExperience = await Experience.findOne({ _id: id, contactId });
+      existingExperience = await Experience.findOne({ _id: id, contactId, templateId: templateId });
     } else {
-      existingExperience = await Experience.findOne({ contactId });
+      existingExperience = await Experience.findOne({ contactId, templateId: templateId }).sort({ createdAt: -1 });
     }
 
     if (!existingExperience) {
@@ -113,14 +113,15 @@ const updateExperience = async (req: Request, res: Response) => {
 
 const getAllContacts = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { templateId } = req.query;
   try {
     // const contacts = await ContactResume.find({ _id: id }).lean();
     // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
-    const contacts = await ContactResume.find({ _id: id })
+    const contacts = await ContactResume.find({ _id: id, templateId: templateId })
       // .populate("userId")
       // .populate("jobTitle")
       .lean();
-    const contactResume = await ContactResume.findById(id)
+    const contactResume = await ContactResume.findById(contacts?.[0]?._id);
     let hasResume: boolean = false;
 
     if (contactResume && contactResume.resume && contactResume.resume.trim() !== "") {
