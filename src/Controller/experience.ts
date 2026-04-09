@@ -113,11 +113,11 @@ const updateExperience = async (req: Request, res: Response) => {
 
 const getAllContacts = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { templateId } = req.query;
+  // const { templateId, userId } = req.query;
   try {
     // const contacts = await ContactResume.find({ _id: id }).lean();
     // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
-    const contacts = await ContactResume.find({ _id: id, templateId: templateId })
+    const contacts = await ContactResume.find({ _id: id })
       // .populate("userId")
       // .populate("jobTitle")
       .lean();

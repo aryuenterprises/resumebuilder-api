@@ -97,19 +97,18 @@ const updateExperience = async (req, res) => {
 };
 const getAllContacts = async (req, res) => {
     const { id } = req.params;
+    // const {templateId, userId} = req.query;
     try {
-        // const contacts = await ContactResume.find({ _id: id }).lean();
-        // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
-        const contacts = await ContactResume.find({ _id: id })
-            // .populate("userId")
-            .populate("jobTitle")
+    
+        const contacts = await ContactResume.findById(id)
             .lean();
+        console.log("Contacts:", contacts);
         const contactResume = await ContactResume.findById(id);
         let hasResume = false;
         if (contactResume && contactResume.resume && contactResume.resume.trim() !== "") {
             hasResume = true;
         }
-        console.log("Resume Exists:", hasResume);
+        // console.log("Resume Exists:", hasResume);
         const planSubscriptions = (await Promise.all(contacts.map(async (contact) => {
             const planSubscription = await Payment.findOne({
                 userId: contact.userId,
@@ -157,7 +156,7 @@ const getAllContacts = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "All contacts with experiences and educations fetched successfully",
-            data: result,
+            data: result,contacts
         });
     }
     catch (error) {

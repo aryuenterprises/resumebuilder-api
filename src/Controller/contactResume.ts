@@ -288,18 +288,18 @@ const createContactResume = async (
 // GET contact resumes
 const getContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { resumeId, templeteId } = req.query;
+  const { resumeId, templateId } = req.query;
 
   try {
     if (resumeId) {
-      const resume = await ContactResume.findById({ _id: resumeId, templateId: templeteId });
-      if(templeteId != resume?.templateId){
-        return res.status(202).json({ 
-          success: true,
-          data:[],
-          message: "No resume found"
-        });
-      }
+      const resume = await ContactResume.findOne({ _id: resumeId});
+      // if(templateId != resume?.templateId){
+      //   return res.status(202).json({ 
+      //     success: true,
+      //     data:[],
+      //     message: "No resume found"
+      //   });
+      // }
 
       if (!resume) {
         return res.status(404).json({ message: "Resume not found" });
@@ -308,9 +308,9 @@ const getContactResume = async (req: Request, res: Response) => {
       return res.json(resume);
     }
 
-    const resumes = await ContactResume.find({
+    const resumes = await ContactResume.findOne({
       userId: id,
-      templateId: templeteId,
+      templateId: templateId,
       // resumeStatus: "pending",
     }).sort({ createdAt: -1 });
 
@@ -333,7 +333,7 @@ interface MulterFile {
 
 const updateResume = async (req: Request, res: Response) => {
   try {
-    const { id, userId, templateId } = req.query;
+    const { id, userId, templateId, type } = req.query;
 
     if (!userId) {
       return res.status(400).json({ message: "userId is required" });
@@ -358,17 +358,27 @@ const updateResume = async (req: Request, res: Response) => {
 
     let existingResume;
 
-    if (id) {
-      existingResume = await ContactResume.findOne({ _id: id, userId, templateId: templateId });
-    } else {
+     if (id && type !== "old" && templateId && userId) {
+      existingResume = await ContactResume.findOne({ _id: id, userId });  
+    } 
+    else if (id && type !== "old") {
+      existingResume = await ContactResume.findOne({ _id: id, userId });  
+    } 
+
+    else if (id && type !== "old" ) {
+      existingResume = await ContactResume.findOne({ _id: id, userId });
+    }
+    
+   
+    
+    else {
       existingResume = await ContactResume.findOne({
-        userId,
-        templateId: templateId,
-        // resumeStatus: "pending",
+        userId, 
+        resumeStatus: "pending",
       }).sort({ createdAt: -1 });
     }
 
-    if (!existingResume) {
+    if (type === "new") {
       const newResume: any = new ContactResume({
         userId,
         templateId,
@@ -400,7 +410,7 @@ const updateResume = async (req: Request, res: Response) => {
         resume: savedResume,
       });
     }
-
+    
     const updateData: Record<string, any> = {
       firstName,
       lastName,
