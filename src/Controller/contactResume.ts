@@ -354,10 +354,7 @@ const updateResume = async (req: Request, res: Response) => {
   try {
     const { id, userId, templateId, type, resume } = req.query;
 
-    if (!userId) {
-      return res.status(400).json({ message: "userId is required" });
-    }
-
+  
     const {
       firstName,
       lastName,
@@ -376,30 +373,32 @@ const updateResume = async (req: Request, res: Response) => {
     } = req.body;
 
     let existingResume;
-    const existingResumeDoc = await ContactResume.find({ userId });
+    const existingResumeDoc = await ContactResume.find({ userId, resumeId: resume });
+    console.log("Resume ID from query:", existingResumeDoc);
+    console.log("Existing Resumes for User:", existingResumeDoc.some(doc => doc.resumeId === resume));
 
     if (id && templateId && userId && existingResumeDoc.some(doc => doc.resumeId === resume)) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
     } else if (id) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
-    } else {
-      existingResume = await ContactResume.findOne({
-        userId,
-        resumeStatus: "pending",
-      }).sort({ createdAt: -1 });
-    }
+    } 
+    // else {
+    //   existingResume = await ContactResume.findOne({
+    //     userId,
+    //     resumeStatus: "pending",
+    //   }).sort({ createdAt: -1 });
+    // }
 
     const shouldCreateNew = !existingResume || 
       (resume && existingResumeDoc.some(doc => doc.resumeId !== resume));
 
     if (shouldCreateNew) {
-      // Generate unique resumeId
       const uniqueResumeId = await generateUniqueResumeId(userId);
       
       const newResume: any = new ContactResume({
         userId,
         templateId,
-        resumeId: uniqueResumeId, // Use generated unique ID
+        resumeId: uniqueResumeId,
         firstName,
         lastName,
         email,
