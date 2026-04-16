@@ -20,6 +20,7 @@ export interface IContactResume extends Document {
   resume: string;
   resumeStatus: string;
   resumeId: string;
+  dob: Date;
 
 }
 
@@ -31,6 +32,7 @@ const ContactResumeSchema = new Schema<IContactResume>(
     photo: { type: String, required: false },
     templateId: { type: String, required: [false, "Template is required"] },
     email: { type: String, required: [false, "Email is required"] },
+    dob: { type: Date, required: [false, "Date of Birth is required"] },
     // jobTitle: {
     //   type: Schema.Types.ObjectId,
     //   ref: "DesiredJobTitle",

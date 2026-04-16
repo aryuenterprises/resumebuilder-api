@@ -156,6 +156,7 @@ const allContactResume = async (req: Request, res: Response) => {
         country: data?.country,
         city: data?.city,
         address: data?.address,
+        dob:data?.dob,
         postCode: data?.postCode,
         linkedIn: data?.linkedIn,
         portfolio: data?.portfolio,
@@ -369,6 +370,7 @@ const updateResume = async (req: Request, res: Response) => {
       postCode,
       linkedIn,
       portfolio,
+      dob,
       resumeId
     } = req.body;
 
@@ -379,9 +381,12 @@ const updateResume = async (req: Request, res: Response) => {
 
     if (id && templateId && userId && existingResumeDoc.some(doc => doc.resumeId === resume)) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
-    } else if (id) {
+    } else if (id && existingResumeDoc.some(doc => doc.resumeId === resume)) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
-    } 
+    }
+    //  else if (id) {
+    //   existingResume = await ContactResume.findOne({ _id: id, userId });
+    // }
     // else {
     //   existingResume = await ContactResume.findOne({
     //     userId,
@@ -412,6 +417,7 @@ const updateResume = async (req: Request, res: Response) => {
         postCode,
         linkedIn,
         portfolio,
+        dob
       });
 
       const photoFile = req.file as MulterFile | undefined;
@@ -443,6 +449,7 @@ const updateResume = async (req: Request, res: Response) => {
       linkedIn,
       portfolio,
       templateId,
+      dob
     };
 
     Object.keys(updateData).forEach(

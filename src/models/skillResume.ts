@@ -1,8 +1,8 @@
 import {Schema, model, Document, Types} from 'mongoose';
 
 interface ISkillDetail {
-    skill: string;
-    level: string;
+    name: string;
+    title:string;
     
 }
 
@@ -10,18 +10,20 @@ export interface ISkill extends Document {
     contactId: Types.ObjectId;
     templateId: string;
     skills: ISkillDetail[];
+    
 }
 
 const SkillDetailSchema = new Schema<ISkillDetail>({
-    skill: {
+    name: {
+        type: String,
+        required: false,
+    },
+    title: {
         type: String,
         required: false,
     },
    
-    level: {
-        type: String,
-        required: false,
-    }
+   
 });
 
 const SkillSchema = new Schema<ISkill>({
