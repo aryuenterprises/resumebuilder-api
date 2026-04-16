@@ -163,6 +163,19 @@ const getAllContacts = async (req: Request, res: Response) => {
         .filter((skill) => skill.contactId?.toString() === contactIdStr)
         .map((skill) => skill.skills)
         .flat();
+      
+        const formattedContactSkills = contactSkills.map((skill) => {
+           return {
+                // contactId: skill.contactId,
+                id: skill._id,
+                title: skill.title,
+                name: skill.name,
+                skills: skill.skills.map((s) => ({
+                    name: s.name,
+                    id: s._id || skill._id
+                }))
+            };
+        });
 
       const contactSummary = summary
         .filter((summary) => summary.contactId?.toString() === contactIdStr)
@@ -181,7 +194,7 @@ const getAllContacts = async (req: Request, res: Response) => {
         contact,
         experiences: contactExperiences,
         educations: contactEducations,
-        skills: contactSkills,
+        skills: formattedContactSkills,
         summary: contactSummary,
         finalize: finalize,
         planSubscriptions: planSubscriptions,

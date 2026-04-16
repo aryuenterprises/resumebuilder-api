@@ -3,6 +3,7 @@ import {Schema, model, Document, Types} from 'mongoose';
 interface ISkillDetail {
     name: string;
     title:string;
+    skills: string[]
     
 }
 
@@ -10,6 +11,8 @@ export interface ISkill extends Document {
     contactId: Types.ObjectId;
     templateId: string;
     skills: ISkillDetail[];
+    title: string;
+    name:string;
     
 }
 
@@ -22,6 +25,14 @@ const SkillDetailSchema = new Schema<ISkillDetail>({
         type: String,
         required: false,
     },
+    skills:[
+        {
+            name: {
+                type: String,
+                required: false,
+            },
+        }
+    ]
    
    
 });

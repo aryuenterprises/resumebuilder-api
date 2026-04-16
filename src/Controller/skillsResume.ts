@@ -89,10 +89,23 @@ const getSkillById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const Skills = await Skill.find({ contactId: id });
+
+        const formattedSkills = Skills.map((skill) => {
+            return {
+                contactId: skill.contactId,
+                id: skill._id,
+                title: skill.title,
+                name: skill.name,
+                skills: skill.skills.map((s) => ({
+                    name: s.name,
+                    id: s._id || skill._id
+                }))
+            };
+        });
         if (!Skills) {
             return res.status(404).json({ message: 'Skill not found' });
         }
-        res.json(Skills);
+        res.json(formattedSkills);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
