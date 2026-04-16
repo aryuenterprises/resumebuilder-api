@@ -14,11 +14,11 @@ export interface IProjectResume extends Document {
 const ProjectResumeSchema = new Schema<IProjectResume>({
     contactId: { type: Schema.Types.ObjectId, ref: "ContactResume", required: true },
     projects: [{
-        title: { type: String, required: true },
+        title: { type: String},
         techStack: [{ type: String }],
-        liveUrl: { type: String, required: true },
-        githubUrl: { type: String, required: true },
-        description: { type: String, required: true }
+        liveUrl: { type: String },
+        githubUrl: { type: String },
+        description: { type: String }
     }]
 }, { timestamps: true });
 
