@@ -103,128 +103,118 @@ import { Education } from "../models/educationResume";
 // };
 const allContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
-  // const {templateId} = req.query;
 
   try {
-    const resumes = await ContactResume.find({
-      userId: id,
-      // templateId: templateId,
-    }).sort({ createdAt: -1 });
+    const resumes = await ContactResume.find({ userId: id }).sort({ createdAt: -1 });
 
-    const experience = await Experience.find({
-      contactId: resumes?.[0]?._id,
-    }).sort({ createdAt: -1 });
+    const formattedOrder = await Promise.all(
+      resumes.map(async (resume) => {
+        const resumeId = resume._id;
 
-    const educations = await Education.find({
-      contactId: resumes?.[0]?._id,
-    }).sort({ createdAt: -1 });
-    
-    const skills = await Skill.find({ contactId: resumes?.[0]?._id }).sort({
-      createdAt: -1,
-    });
-    
-    const summary = await Summary.find({ contactId: resumes?.[0]?._id }).sort({
-      createdAt: -1,
-    });
-    
-    const finalizeResumes = await FinalizeResume.find({
-      contactId: resumes?.[0]?._id,
-    }).sort({ createdAt: -1 });
+        const [experience, educations, skills, summary, finalizeResumes] =
+          await Promise.all([
+            Experience.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+            Education.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+            Skill.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+            Summary.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+            FinalizeResume.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+          ]);
 
-    const formattedAll = resumes.map((resume) => ({
-      ...resume.toObject(),
-      experience,
-      educations,
-      skills,
-      summary,
-      finalizeResumes,
-    }));
+        return {
+          templateId: resume?.templateId,
 
-    const formattedOrder = formattedAll.map((data) => ({
-      templateId: data?.templateId,
-      contact: {
-        _id: data?._id,
-        userId: data?.userId,
-        firstName: data?.firstName,
-        lastName: data?.lastName,
-        templateId: data?.templateId,
-        email: data?.email,
-        jobTitle: data?.jobTitle,
-        keywords: data?.keywords || [],
-        tones: data?.tones || [],
-        phone: data?.phone,
-        country: data?.country,
-        city: data?.city,
-        address: data?.address,
-        dob:data?.dob,
-        postCode: data?.postCode,
-        linkedIn: data?.linkedIn,
-        portfolio: data?.portfolio,
-        resumeStatus: data?.resumeStatus,
-        __v: data?.__v,
-      },
-      
-      // Map all experiences
-      experiences:
-        data?.experience?.[0]?.experiences?.map((exp: any) => ({
-          jobTitle: exp?.jobTitle,
-          employer: exp?.employer,
-          location: exp?.location,
-          startDate: exp?.startDate,
-          endDate: exp?.endDate,
-          text: exp?.text,
-          _id: exp?._id,
-        })) || [],
+          contact: {
+            _id: resume?._id,
+            userId: resume?.userId,
+            firstName: resume?.firstName,
+            lastName: resume?.lastName,
+            templateId: resume?.templateId,
+            email: resume?.email,
+            jobTitle: resume?.jobTitle,
+            keywords: resume?.keywords || [],
+            tones: resume?.tones || [],
+            phone: resume?.phone,
+            country: resume?.country,
+            city: resume?.city,
+            address: resume?.address,
+            dob: resume?.dob,
+            postCode: resume?.postCode,
+            linkedIn: resume?.linkedIn,
+            portfolio: resume?.portfolio,
+            resumeStatus: resume?.resumeStatus,
+            __v: resume?.__v,
+          },
 
-      // Map all educations
-      educations:
-        data?.educations?.[0]?.education?.map((edu: any) => ({
-          schoolname: edu?.schoolname,
-          location: edu?.location,
-          degree: edu?.degree,
-          startDate: edu?.startDate,
-          endDate: edu?.endDate,
-          text: edu?.text,
-          _id: edu?._id,
-        })) || [],
+          experiences:
+            experience?.[0]?.experiences?.map((exp: any) => ({
+              jobTitle: exp?.jobTitle,
+              employer: exp?.employer,
+              location: exp?.location,
+              startDate: exp?.startDate,
+              endDate: exp?.endDate,
+              text: exp?.text,
+              _id: exp?._id,
+            })) || [],
 
-      // Map all skills
-      skills:
-        data?.skills?.[0]?.skills?.map((skill: any) => ({
-          skill: skill?.skill,
-          level: skill?.level,
-          _id: skill?._id,
-        })) || [],
+          educations:
+            educations?.[0]?.education?.map((edu: any) => ({
+              schoolname: edu?.schoolname,
+              location: edu?.location,
+              degree: edu?.degree,
+              startDate: edu?.startDate,
+              endDate: edu?.endDate,
+              text: edu?.text,
+              _id: edu?._id,
+            })) || [],
 
-      summary: data?.summary?.[0]?.text || "-",
-      
-      finalize: data?.finalizeResumes?.map((finalize: any) => ({
-        certificationsAndLicenses: finalize?.skillsData?.certificationsAndLicenses?.map((certification: any) => ({
-          name: certification?.name,
-          _id: certification?._id,
-        })) || [],
-        hobbiesAndInterests: finalize?.skillsData?.hobbiesAndInterests?.map((hobbies: any) => ({
-          name: hobbies?.name,
-          _id: hobbies?._id,
-        })) || [],
-        awardsAndHonors: finalize?.skillsData?.awardsAndHonors?.map((awards: any) => ({
-          name: awards?.name,
-          _id: awards?._id,
-        })) || [],
-        customSection: finalize?.skillsData?.customSection?.map((custom: any) => ({
-          name: custom?.name,
-          description: custom?.description,
-          _id: custom?._id,
-        })) || []
-      })) || []
-    }));
+          skills:
+            skills?.[0]?.skills?.map((skill: any) => ({
+              name:skill.name,
+              title: skill.title,
+              skills: skill.skills?.map((s: any) => ({
+                name: s.name,
+                id: s._id,
+              })),
+              id: skill?._id,
+            })) || [],
+
+          summary: summary?.[0]?.text || "-",
+
+          finalize:
+            finalizeResumes?.map((finalize: any) => ({
+              certificationsAndLicenses:
+                finalize?.skillsData?.certificationsAndLicenses?.map((c: any) => ({
+                  name: c?.name,
+                  _id: c?._id,
+                })) || [],
+
+              hobbiesAndInterests:
+                finalize?.skillsData?.hobbiesAndInterests?.map((h: any) => ({
+                  name: h?.name,
+                  _id: h?._id,
+                })) || [],
+
+              awardsAndHonors:
+                finalize?.skillsData?.awardsAndHonors?.map((a: any) => ({
+                  name: a?.name,
+                  _id: a?._id,
+                })) || [],
+
+              customSection:
+                finalize?.skillsData?.customSection?.map((c: any) => ({
+                  name: c?.name,
+                  description: c?.description,
+                  _id: c?._id,
+                })) || [],
+            })) || [],
+        };
+      })
+    );
 
     res.json(formattedOrder);
   } catch (error: any) {
     console.error("Error fetching contact resumes:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 const getAllContactResume = async (req: Request, res: Response) => {
