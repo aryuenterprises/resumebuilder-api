@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import PaymentRazor from "../models/paymentRazorModel";
+import {PaymentRazor} from "../models/paymentRazorModel";
 import PaymentRazorLog from "../models/paymentRazorLogModel";
 import { razorpay, createRazorpayOrder } from "../services/razorpayService";
 import { verifyRazorpaySignature } from "../utils/verifySignature";
@@ -156,6 +156,7 @@ const verifyAndUpdatePayment = async (req: Request, res: Response) => {
           email: paymentDetails.email,
           contact: paymentDetails.contact,
           metadata: paymentDetails,
+          updatedAt: new Date(),
         },
       }
     );

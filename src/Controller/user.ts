@@ -9,7 +9,7 @@ import { ContactResume } from "../models/ContactResume";
 import { PaymentLog } from "../models/paymentLogModel";
 import bcrypt from "bcryptjs";
 import { setting } from "../models/setting";
-import paymentRazorModel from "@models/paymentRazorModel";
+import {PaymentRazor} from "../models/paymentRazorModel";
 import paymentRazorLogModel from "@models/paymentRazorLogModel";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -316,6 +316,8 @@ const dashboard = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(400).json({ message: "userId is required" });
     }
+
+    
     const settings = await setting
       .find({})
       .select("logoImage currencyName currencyType")
@@ -351,7 +353,7 @@ const dashboard = async (req: Request, res: Response) => {
 
     // return res.json({ payments: formattedPayments });
 
-    const updatedPayments = await paymentRazorModel.find({ userId: userId, status:"paid" })
+    const updatedPayments = await PaymentRazor.find({ userId: userId, status:"paid" })
       .populate("planId", "name price plan description")
       .sort({ createdAt: -1 })
       .lean();
@@ -376,12 +378,28 @@ const dashboard = async (req: Request, res: Response) => {
         };
       }
 
+    let date = null;
+
+if (payment.planId?.plan === "one month") {
+  date = new Date(payment.updatedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+} else if (payment.planId?.plan === "three month") {
+  date = new Date(payment.updatedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
+} else if (payment.planId?.plan === "free") {
+  date = new Date(payment.updatedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+} else if (payment.planId?.plan === "unlimited") {
+  date = "Life Time";
+}
+
+
       return {
         plan: payment.planId?.name || null,
         amount: payment.planId?.price || null,
         limit: payment.planId?.plan || null,
+        id:payment._id,
         status: payment.status,
         description: payment.planId?.description || null,
+        expiry_date:date,
+        access_date:payment.updatedAt,
         accessPeriod,
       };
     });

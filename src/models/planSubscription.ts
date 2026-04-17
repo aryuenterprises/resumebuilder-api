@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from "mongoose";
 export interface IPlanSubscription extends Document {
   name: string;
+  title:string;
   description: string;
   plan: string;
   price: number;
@@ -13,6 +14,9 @@ const PlanSubscriptionSchema = new Schema<IPlanSubscription>(
     name: {
       type: String,
       required: true,
+    },
+    title:{
+      type:String
     },
     description: {
       type: String,

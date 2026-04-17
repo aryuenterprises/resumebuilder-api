@@ -45,4 +45,5 @@ const paymentRazorSchema = new Schema<IPaymentRazor>(
 );
 
 
-export default mongoose.model<IPaymentRazor>("PaymentRazor", paymentRazorSchema);
+// export default mongoose.model<IPaymentRazor>("PaymentRazor", paymentRazorSchema);
+export const PaymentRazor = mongoose.model<IPaymentRazor>("PaymentRazor", paymentRazorSchema);

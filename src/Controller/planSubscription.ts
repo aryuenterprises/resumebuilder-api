@@ -5,8 +5,8 @@ import { setting } from '../models/setting';
 
 const createPlanSubscription = async (req: Request, res: Response) => {
     try {
-        const { price,plan,status,name,description,order } = req.body;
-        const planSubscriptionDetails = new PlanSubscription({ plan,price,status,name,description,order });
+        const { price,plan,status,name,description,order, title } = req.body;
+        const planSubscriptionDetails = new PlanSubscription({ plan,price,status,name,description,order, title });
         await planSubscriptionDetails.save();
         res.status(201).json(planSubscriptionDetails);
     } catch (error) {
@@ -48,13 +48,14 @@ const getPlanSubscription = async (req: Request, res: Response) => {
 const editPlanSubscription = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { plan,price,status,name,description,order } = req.body;
+        const { plan,price,status,name,description,order,title } = req.body;
         const planSubscriptionDetails = await PlanSubscription.findById(id);
         if (!planSubscriptionDetails) {
             return res.status(404).json({ error: 'planSubscriptionDetails not found' });
         }
         planSubscriptionDetails.price = price;
         planSubscriptionDetails.name = name;
+        planSubscriptionDetails.title = title;
         planSubscriptionDetails.plan = plan;
         planSubscriptionDetails.description = description;
         planSubscriptionDetails.order = order;
