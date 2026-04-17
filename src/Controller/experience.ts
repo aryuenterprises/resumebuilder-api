@@ -114,87 +114,88 @@ const updateExperience = async (req: Request, res: Response) => {
 
 const getAllContacts = async (req: Request, res: Response) => {
   const { id } = req.params;
-  // const { templateId, userId } = req.query;
-  try {
-    // const contacts = await ContactResume.find({ _id: id }).lean();
-    // const planSubscriptions = await PlanSubscription.findOne({desiredJobTitle: contacts.jobTitle});
-    const contacts = await ContactResume.find({ _id: id })
-      // .populate("userId")
-      // .populate("jobTitle")
-      .lean();
-    const contactResume = await ContactResume.findById(contacts?.[0]?._id);
-    let hasResume: boolean = false;
 
-    if (contactResume && contactResume.resume && contactResume.resume.trim() !== "") {
-      hasResume = true;
+  try {
+    const contacts = await ContactResume.find({ _id: id }).lean();
+
+    if (!contacts.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No contacts found",
+      });
     }
+
+    const contactResume = await ContactResume.findById(contacts[0]._id);
+
+    const hasResume =
+      !!contactResume?.resume && contactResume.resume.trim() !== "";
 
     console.log("Resume Exists:", hasResume);
 
+    // Fetch all related data in parallel
+    const [
+      experiences,
+      educations,
+      skillsDocs,
+      summary,
+      projects,
+      finalizeResumes,
+    ] = await Promise.all([
+      Experience.find().lean(),
+      Education.find().lean(),
+      Skill.find().lean(),
+      Summary.find().lean(),
+      ProjectResume.find().lean(),
+      FinalizeResume.find().lean(),
+    ]);
+
+    // Plan subscriptions
     const planSubscriptions = (
       await Promise.all(
-        contacts.map(async (contact) => {
-          const planSubscription = await Payment.findOne({
-            userId: contact.userId,
-          });
-          return planSubscription;
-        })
+        contacts.map((contact) =>
+          Payment.findOne({ userId: contact.userId })
+        )
       )
     ).filter((ps): ps is NonNullable<typeof ps> => ps !== null);
-    const experiences = await Experience.find().lean();
-    const educations = await Education.find().lean();
-    const skills = await Skill.find().lean();
-    const summary = await Summary.find().lean();
-    const projects = await ProjectResume.find().lean();
-    const finalizeResumes = await FinalizeResume.find().lean();
 
     const result = contacts.map((contact) => {
       const contactIdStr = contact._id.toString();
 
       const contactExperiences = experiences
         .filter((exp) => exp.contactId?.toString() === contactIdStr)
-        .map((exp) => exp.experiences)
-        .flat();
+        .flatMap((exp) => exp.experiences || []);
 
       const contactEducations = educations
         .filter((edu) => edu.contactId?.toString() === contactIdStr)
-        .map((edu) => edu.education)
-        .flat();
+        .flatMap((edu) => edu.education || []);
 
       const contactProjects = projects
         .filter((project) => project.contactId?.toString() === contactIdStr)
-        .map((project) => project.projects)
-        .flat();
+        .flatMap((project) => project.projects || []);
 
-     const contactSkills = skills
-  .filter((item) => item.contactId?.toString() === contactIdStr)
-  .flatMap((item) => item.skills || []);
-
- const formattedSkills = contactSkills.flatMap((doc) =>
-      (doc.skills || []).map((group) => ({
-        contactId: doc.contactId,
-        id: group._id,
-        title: group.title,
-        name: group.name,
-        skills: (group.skills || []).map((s) => ({
-          name: s.name,
-          id: s._id,
-        })),
-      }))
-    );
+      // FIXED: no await inside map, use pre-fetched skillsDocs
+      const formattedSkills = skillsDocs
+        .filter((doc) => doc.contactId?.toString() === contactIdStr)
+        .flatMap((doc) =>
+          (doc.skills || []).map((group) => ({
+            contactId: doc.contactId,
+            id: group._id,
+            title: group.title,
+            name: group.name,
+            skills: (group.skills || []).map((s) => ({
+              name: s.name,
+              id: s._id,
+            })),
+          }))
+        );
 
       const contactSummary = summary
-        .filter((summary) => summary.contactId?.toString() === contactIdStr)
-        .map((summary) => summary.text)
-        .flat();
+        .filter((s) => s.contactId?.toString() === contactIdStr)
+        .map((s) => s.text);
 
       const finalize = finalizeResumes
-        .filter(
-          (finalizeResumes) =>
-            finalizeResumes.contactId?.toString() === contactIdStr
-        )
-        .map((finalizeResumes) => finalizeResumes.skillsData)
-        .flat();
+        .filter((f) => f.contactId?.toString() === contactIdStr)
+        .flatMap((f) => f.skillsData || []);
 
       return {
         contact,
@@ -203,16 +204,15 @@ const getAllContacts = async (req: Request, res: Response) => {
         projects: contactProjects,
         skills: formattedSkills,
         summary: contactSummary,
-        finalize: finalize,
-        planSubscriptions: planSubscriptions,
-        hasResume: hasResume,
+        finalize,
+        planSubscriptions,
+        hasResume,
       };
     });
 
     res.status(200).json({
       success: true,
-      message:
-        "All contacts with experiences and educations fetched successfully",
+      message: "All contacts fetched successfully",
       data: result,
     });
   } catch (error: any) {
