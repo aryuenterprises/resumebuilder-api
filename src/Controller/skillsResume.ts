@@ -86,29 +86,32 @@ const updateSkill = async (req: Request, res: Response) => {
   }
 };
 const getSkillById = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const Skills = await Skill.find({ contactId: id });
+  try {
+    const { id } = req.params;
 
-        const formattedSkills = Skills.map((skill) => {
-            return {
-                contactId: skill.contactId,
-                id: skill._id,
-                title: skill.title,
-                name: skill.name,
-                skills: skill.skills.map((s) => ({
-                    name: s.name,
-                    id: s._id || skill._id
-                }))
-            };
-        });
-        if (!Skills) {
-            return res.status(404).json({ message: 'Skill not found' });
-        }
-        res.json(formattedSkills);
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
+    const skills = await Skill.find({ contactId: id });
+
+    if (!skills || skills.length === 0) {
+      return res.status(404).json({ message: 'Skill not found' });
     }
+
+    const formattedSkills = skills.flatMap((doc) =>
+      (doc.skills || []).map((group) => ({
+        contactId: doc.contactId,
+        id: group._id,
+        title: group.title,
+        name: group.name,
+        skills: (group.skills || []).map((s) => ({
+          name: s.name,
+          id: s._id,
+        })),
+      }))
+    );
+
+    res.json(formattedSkills);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 };
 const getSkill= async (req: Request, res: Response) => {
     try {
