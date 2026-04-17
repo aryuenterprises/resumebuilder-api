@@ -10,6 +10,7 @@ import { text } from "stream/consumers";
 import { PlanSubscription } from "../models/planSubscription";
 import { Payment } from "../models/paymentModel";
 import { User } from "../models/User";
+import { ProjectResume } from "../models/projectResume";
 const createExperience = async (req: Request, res: Response) => {
   try {
     const { contactId, experiences } = req.body;
@@ -144,6 +145,7 @@ const getAllContacts = async (req: Request, res: Response) => {
     const educations = await Education.find().lean();
     const skills = await Skill.find().lean();
     const summary = await Summary.find().lean();
+    const projects = await ProjectResume.find().lean();
     const finalizeResumes = await FinalizeResume.find().lean();
 
     const result = contacts.map((contact) => {
@@ -157,6 +159,11 @@ const getAllContacts = async (req: Request, res: Response) => {
       const contactEducations = educations
         .filter((edu) => edu.contactId?.toString() === contactIdStr)
         .map((edu) => edu.education)
+        .flat();
+
+      const contactProjects = projects
+        .filter((project) => project.contactId?.toString() === contactIdStr)
+        .map((project) => project.projects)
         .flat();
 
      const contactSkills = skills
@@ -193,6 +200,7 @@ const getAllContacts = async (req: Request, res: Response) => {
         contact,
         experiences: contactExperiences,
         educations: contactEducations,
+        projects: contactProjects,
         skills: formattedSkills,
         summary: contactSummary,
         finalize: finalize,

@@ -6,6 +6,7 @@ import { Skill } from "../models/skillResume";
 import { Summary } from "../models/summaryResume";
 import { FinalizeResume } from "../models/finalizeResume";
 import { Education } from "../models/educationResume";
+import { ProjectResume } from "../models/projectResume";
 
 // const getContactResume = async (req: Request, res: Response) => {
 //   const { id } = req.params;
@@ -105,20 +106,29 @@ const allContactResume = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const resumes = await ContactResume.find({ userId: id }).sort({ createdAt: -1 });
+    const resumes = await ContactResume.find({ userId: id }).sort({
+      createdAt: -1,
+    });
 
     const formattedOrder = await Promise.all(
       resumes.map(async (resume) => {
         const resumeId = resume._id;
 
-        const [experience, educations, skills, summary, finalizeResumes] =
-          await Promise.all([
-            Experience.find({ contactId: resumeId }).sort({ createdAt: -1 }),
-            Education.find({ contactId: resumeId }).sort({ createdAt: -1 }),
-            Skill.find({ contactId: resumeId }).sort({ createdAt: -1 }),
-            Summary.find({ contactId: resumeId }).sort({ createdAt: -1 }),
-            FinalizeResume.find({ contactId: resumeId }).sort({ createdAt: -1 }),
-          ]);
+        const [
+          experience,
+          educations,
+          skills,
+          summary,
+          projects,
+          finalizeResumes,
+        ] = await Promise.all([
+          Experience.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+          Education.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+          Skill.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+          Summary.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+          ProjectResume.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+          FinalizeResume.find({ contactId: resumeId }).sort({ createdAt: -1 }),
+        ]);
 
         return {
           templateId: resume?.templateId,
@@ -167,9 +177,19 @@ const allContactResume = async (req: Request, res: Response) => {
               _id: edu?._id,
             })) || [],
 
+          projects:
+            projects?.[0]?.projects?.map((project: any) => ({
+              title: project?.title,
+              description: project?.description,
+              techStack: project?.techStack,
+              liveUrl: project?.liveUrl,
+              githubUrl: project?.githubUrl,
+              _id: project?._id,
+            })) || [],
+
           skills:
             skills?.[0]?.skills?.map((skill: any) => ({
-              name:skill.name,
+              name: skill.name,
               title: skill.title,
               skills: skill.skills?.map((s: any) => ({
                 name: s.name,
@@ -183,10 +203,12 @@ const allContactResume = async (req: Request, res: Response) => {
           finalize:
             finalizeResumes?.map((finalize: any) => ({
               certificationsAndLicenses:
-                finalize?.skillsData?.certificationsAndLicenses?.map((c: any) => ({
-                  name: c?.name,
-                  _id: c?._id,
-                })) || [],
+                finalize?.skillsData?.certificationsAndLicenses?.map(
+                  (c: any) => ({
+                    name: c?.name,
+                    _id: c?._id,
+                  }),
+                ) || [],
 
               hobbiesAndInterests:
                 finalize?.skillsData?.hobbiesAndInterests?.map((h: any) => ({
@@ -208,13 +230,15 @@ const allContactResume = async (req: Request, res: Response) => {
                 })) || [],
             })) || [],
         };
-      })
+      }),
     );
 
     res.json(formattedOrder);
   } catch (error: any) {
     console.error("Error fetching contact resumes:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 const getAllContactResume = async (req: Request, res: Response) => {
@@ -283,9 +307,9 @@ const getContactResume = async (req: Request, res: Response) => {
 
   try {
     if (resumeId) {
-      const resume = await ContactResume.findOne({ _id: resumeId});
+      const resume = await ContactResume.findOne({ _id: resumeId });
       // if(templateId != resume?.templateId){
-      //   return res.status(202).json({ 
+      //   return res.status(202).json({
       //     success: true,
       //     data:[],
       //     message: "No resume found"
@@ -324,20 +348,20 @@ interface MulterFile {
 
 // generate unique resume ID
 const generateUniqueResumeId = async (userId) => {
-  const prefix = 'RES';
+  const prefix = "RES";
   const timestamp = Date.now().toString().slice(-8);
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   let baseId = `${prefix}-${timestamp}-${random}`;
-  
+
   let existing = await ContactResume.findOne({ resumeId: baseId });
   let counter = 1;
-  
+
   while (existing) {
     baseId = `${prefix}-${timestamp}-${random}-${counter}`;
     existing = await ContactResume.findOne({ resumeId: baseId });
     counter++;
   }
-  
+
   return baseId;
 };
 
@@ -345,7 +369,6 @@ const updateResume = async (req: Request, res: Response) => {
   try {
     const { id, userId, templateId, type, resume } = req.query;
 
-  
     const {
       firstName,
       lastName,
@@ -361,17 +384,28 @@ const updateResume = async (req: Request, res: Response) => {
       linkedIn,
       portfolio,
       dob,
-      resumeId
+      resumeId,
     } = req.body;
 
     let existingResume;
-    const existingResumeDoc = await ContactResume.find({ userId, resumeId: resume });
+    const existingResumeDoc = await ContactResume.find({
+      userId,
+      resumeId: resume,
+    });
     console.log("Resume ID from query:", existingResumeDoc);
-    console.log("Existing Resumes for User:", existingResumeDoc.some(doc => doc.resumeId === resume));
+    console.log(
+      "Existing Resumes for User:",
+      existingResumeDoc.some((doc) => doc.resumeId === resume),
+    );
 
-    if (id && templateId && userId && existingResumeDoc.some(doc => doc.resumeId === resume)) {
+    if (
+      id &&
+      templateId &&
+      userId &&
+      existingResumeDoc.some((doc) => doc.resumeId === resume)
+    ) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
-    } else if (id && existingResumeDoc.some(doc => doc.resumeId === resume)) {
+    } else if (id && existingResumeDoc.some((doc) => doc.resumeId === resume)) {
       existingResume = await ContactResume.findOne({ _id: id, userId });
     }
     //  else if (id) {
@@ -384,12 +418,13 @@ const updateResume = async (req: Request, res: Response) => {
     //   }).sort({ createdAt: -1 });
     // }
 
-    const shouldCreateNew = !existingResume || 
-      (resume && existingResumeDoc.some(doc => doc.resumeId !== resume));
+    const shouldCreateNew =
+      !existingResume ||
+      (resume && existingResumeDoc.some((doc) => doc.resumeId !== resume));
 
     if (shouldCreateNew) {
       const uniqueResumeId = await generateUniqueResumeId(userId);
-      
+
       const newResume: any = new ContactResume({
         userId,
         templateId,
@@ -407,7 +442,7 @@ const updateResume = async (req: Request, res: Response) => {
         postCode,
         linkedIn,
         portfolio,
-        dob
+        dob,
       });
 
       const photoFile = req.file as MulterFile | undefined;
@@ -439,7 +474,7 @@ const updateResume = async (req: Request, res: Response) => {
       linkedIn,
       portfolio,
       templateId,
-      dob
+      dob,
     };
 
     Object.keys(updateData).forEach(
@@ -487,7 +522,7 @@ const updateResume = async (req: Request, res: Response) => {
 //       linkedIn,
 //       portfolio,
 //       resumeId
-      
+
 //     } = req.body;
 
 //    let existingResume;
@@ -503,18 +538,16 @@ const updateResume = async (req: Request, res: Response) => {
 //   existingResume = await ContactResume.findOne({ _id: id, userId });
 // }
 //     else if (id && type !== "old") {
-//       existingResume = await ContactResume.findOne({ _id: id, userId });  
-//     } 
+//       existingResume = await ContactResume.findOne({ _id: id, userId });
+//     }
 
 //     else if (id && type !== "old" ) {
 //       existingResume = await ContactResume.findOne({ _id: id, userId });
 //     }
-    
-   
-    
+
 //     else {
 //       existingResume = await ContactResume.findOne({
-//         userId, 
+//         userId,
 //         resumeStatus: "pending",
 //       }).sort({ createdAt: -1 });
 //     }
@@ -551,7 +584,7 @@ const updateResume = async (req: Request, res: Response) => {
 //         resume: savedResume,
 //       });
 //     }
-    
+
 //     const updateData: Record<string, any> = {
 //       firstName,
 //       lastName,
