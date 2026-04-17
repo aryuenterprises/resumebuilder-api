@@ -170,7 +170,7 @@ const getAllContacts = async (req: Request, res: Response) => {
   .filter((item) => item.contactId?.toString() === contactIdStr)
   .flatMap((item) => item.skills || []);
 
- const formattedSkills = skills.flatMap((doc) =>
+ const formattedSkills = contactSkills.flatMap((doc) =>
       (doc.skills || []).map((group) => ({
         contactId: doc.contactId,
         id: group._id,

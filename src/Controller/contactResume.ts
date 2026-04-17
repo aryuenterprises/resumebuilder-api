@@ -130,9 +130,21 @@ const allContactResume = async (req: Request, res: Response) => {
           FinalizeResume.find({ contactId: resumeId }).sort({ createdAt: -1 }),
         ]);
 
+        const formattedSkills = (skills || []).flatMap((doc) =>
+          (doc.skills || []).map((group) => ({
+            contactId: doc.contactId,
+            id: group._id,
+            title: group.title,
+            name: group.name,
+            skills: (group.skills || []).map((s) => ({
+              name: s.name,
+              id: s._id,
+            })),
+          }))
+        );
+
         return {
           templateId: resume?.templateId,
-
           contact: {
             _id: resume?._id,
             userId: resume?.userId,
@@ -154,9 +166,8 @@ const allContactResume = async (req: Request, res: Response) => {
             resumeStatus: resume?.resumeStatus,
             __v: resume?.__v,
           },
-
           experiences:
-            experience?.[0]?.experiences?.map((exp: any) => ({
+            experience?.[0]?.experiences?.map((exp) => ({
               jobTitle: exp?.jobTitle,
               employer: exp?.employer,
               location: exp?.location,
@@ -165,9 +176,8 @@ const allContactResume = async (req: Request, res: Response) => {
               text: exp?.text,
               _id: exp?._id,
             })) || [],
-
           educations:
-            educations?.[0]?.education?.map((edu: any) => ({
+            educations?.[0]?.education?.map((edu) => ({
               schoolname: edu?.schoolname,
               location: edu?.location,
               degree: edu?.degree,
@@ -176,9 +186,8 @@ const allContactResume = async (req: Request, res: Response) => {
               text: edu?.text,
               _id: edu?._id,
             })) || [],
-
           projects:
-            projects?.[0]?.projects?.map((project: any) => ({
+            projects?.[0]?.projects?.map((project) => ({
               title: project?.title,
               description: project?.description,
               techStack: project?.techStack,
@@ -186,48 +195,31 @@ const allContactResume = async (req: Request, res: Response) => {
               githubUrl: project?.githubUrl,
               _id: project?._id,
             })) || [],
-
-          skills:
-            skills?.[0]?.skills?.map((skill: any) => ({
-              name: skill.name,
-              title: skill.title,
-              skills: skill.skills?.map((s: any) => ({
-                name: s.name,
-                id: s._id,
-              })),
-              id: skill?._id,
-            })) || [],
-
+          skills: formattedSkills,
           summary: summary?.[0]?.text || "-",
-
           finalize:
-            finalizeResumes?.map((finalize: any) => ({
+            finalizeResumes?.map((finalize) => ({
               certificationsAndLicenses:
-                finalize?.skillsData?.certificationsAndLicenses?.map(
-                  (c: any) => ({
-                    name: c?.name,
-                    _id: c?._id,
-                  }),
-                ) || [],
-
+          finalize?.skillsData?.certificationsAndLicenses?.map((c) => ({
+            name: c?.name,
+            _id: c?._id,
+          })) || [],
               hobbiesAndInterests:
-                finalize?.skillsData?.hobbiesAndInterests?.map((h: any) => ({
-                  name: h?.name,
-                  _id: h?._id,
-                })) || [],
-
+          finalize?.skillsData?.hobbiesAndInterests?.map((h) => ({
+            name: h?.name,
+            _id: h?._id,
+          })) || [],
               awardsAndHonors:
-                finalize?.skillsData?.awardsAndHonors?.map((a: any) => ({
-                  name: a?.name,
-                  _id: a?._id,
-                })) || [],
-
+          finalize?.skillsData?.awardsAndHonors?.map((a) => ({
+            name: a?.name,
+            _id: a?._id,
+          })) || [],
               customSection:
-                finalize?.skillsData?.customSection?.map((c: any) => ({
-                  name: c?.name,
-                  description: c?.description,
-                  _id: c?._id,
-                })) || [],
+          finalize?.skillsData?.customSection?.map((c) => ({
+            name: c?.name,
+            description: c?.description,
+            _id: c?._id,
+          })) || [],
             })) || [],
         };
       }),
