@@ -494,6 +494,26 @@ const updateResume = async (req: Request, res: Response) => {
   }
 };
 
+const deleteResume = async (req: Request, res: Response) => {
+  const {id} = req.params
+  try {
+    const resume = await ContactResume.findByIdAndDelete(id);
+    const education = await Education.deleteMany({ contactId: id });
+    const experience = await Experience.deleteMany({ contactId: id });
+    const project = await ProjectResume.deleteMany({ contactId: id });
+    const skill = await Skill.deleteMany({ contactId: id });
+    const summary = await Summary.deleteMany({ contactId: id });
+    const finalizeResume = await FinalizeResume.deleteMany({ contactId: id });
+    return res.status(200).json({
+      message: "Resume deleted successfully",
+      
+    });
+  } catch (error: any) {
+    console.error("Error updating/creating resume:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 // const updateResume = async (req: Request, res: Response) => {
 //   try {
 //     const { id, userId, templateId, type, resume } = req.query;
@@ -627,4 +647,5 @@ export {
   getContactResume,
   getAllContactResume,
   allContactResume,
+  deleteResume
 };
