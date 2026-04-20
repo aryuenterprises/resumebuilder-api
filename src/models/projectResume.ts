@@ -17,6 +17,7 @@ const ProjectResumeSchema = new Schema<IProjectResume>({
         title: { type: String},
         techStack: [{ type: String }],
         liveUrl: { type: String },
+
         githubUrl: { type: String },
         description: { type: String }
     }]

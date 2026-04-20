@@ -377,6 +377,7 @@ const updateResume = async (req: Request, res: Response) => {
       portfolio,
       dob,
       resumeId,
+      github,
     } = req.body;
 
     let existingResume;
@@ -435,6 +436,7 @@ const updateResume = async (req: Request, res: Response) => {
         linkedIn,
         portfolio,
         dob,
+        github
       });
 
       const photoFile = req.file as MulterFile | undefined;
@@ -467,6 +469,7 @@ const updateResume = async (req: Request, res: Response) => {
       portfolio,
       templateId,
       dob,
+      github
     };
 
     Object.keys(updateData).forEach(

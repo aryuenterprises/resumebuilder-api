@@ -20,6 +20,7 @@ export interface IContactResume extends Document {
   resume: string;
   resumeStatus: string;
   resumeId: string;
+  github: string;
   dob: Date;
 
 }
@@ -50,6 +51,7 @@ const ContactResumeSchema = new Schema<IContactResume>(
     portfolio: { type: String, required: false },
     resume: { type: String, required: false },
     resumeId: { type: String, required: false },
+    github: { type: String, required: false },
     resumeStatus:{
       type:String,
       default:'pending'

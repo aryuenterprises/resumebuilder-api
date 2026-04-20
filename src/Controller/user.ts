@@ -382,7 +382,7 @@ const dashboard = async (req: Request, res: Response) => {
 
 if (payment.planId?.plan === "one month") {
   date = new Date(payment.updatedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
-} else if (payment.planId?.plan === "three month") {
+} else if (payment.planId?.plan === "three months") {
   date = new Date(payment.updatedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
 } else if (payment.planId?.plan === "free") {
   date = new Date(payment.updatedAt.getTime() + 30 * 24 * 60 * 60 * 1000);

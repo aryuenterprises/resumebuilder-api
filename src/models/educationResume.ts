@@ -7,6 +7,8 @@ interface IEducationDetail {
     startDate: number;
     endDate?: number;
     text?: string;
+    grade: string;
+
 }
 
 export interface IEducation extends Document {
@@ -38,6 +40,10 @@ const EducationDetailSchema = new Schema<IEducationDetail>({
         required: false,
     },
     text: {
+        type: String,
+        required: false,
+    },
+    grade: {
         type: String,
         required: false,
     },
