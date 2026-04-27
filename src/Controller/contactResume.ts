@@ -164,6 +164,7 @@ const allContactResume = async (req: Request, res: Response) => {
             linkedIn: resume?.linkedIn,
             portfolio: resume?.portfolio,
             resumeStatus: resume?.resumeStatus,
+            github: resume?.github,
             __v: resume?.__v,
           },
           experiences:
@@ -174,6 +175,7 @@ const allContactResume = async (req: Request, res: Response) => {
               startDate: exp?.startDate,
               endDate: exp?.endDate,
               text: exp?.text,
+              grade: exp?.grade,
               _id: exp?._id,
             })) || [],
           educations:

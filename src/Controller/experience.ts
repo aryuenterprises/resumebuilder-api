@@ -61,10 +61,14 @@ const getExperienceById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const experience = await Experience.find({ contactId: id });
+    const formattedExperience = experience.map((exp) => ({
+      id: exp._id,
+      experiences: exp.experiences
+    }))
     if (!experience) {
       return res.status(404).json({ message: "Experience not found" });
     }
-    res.json(experience);
+    res.json(formattedExperience);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

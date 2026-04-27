@@ -5,6 +5,10 @@ const getProjectResumeById = async(req:Request, res:Response)=>{
     try{
         const {id} = req.params;
         const projectResume = await ProjectResume.findOne({contactId:id});
+        const formattedProjectResume = projectResume.map((exp) => ({
+            id: exp._id,
+            projects: exp.projects
+        }))
         if(!projectResume){
             return res.status(404).json({message:"Project resume not found"});
         }

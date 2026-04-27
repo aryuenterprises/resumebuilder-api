@@ -87,6 +87,10 @@ const getEducationById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const education = await Education.find({ contactId: id });
+        const formattedEducation = education.map((exp) => ({
+            id: exp._id,
+            education: exp.education
+        }))
         if (!education) {
             return res.status(404).json({ message: 'Education not found' });
         }
