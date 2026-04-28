@@ -57,9 +57,17 @@ const app = express();
 // );
 
 app.use(cors({
-  origin: "*",
+  origin: "https://passats.aryuacademy.com",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
+app.options("*", cors({
+  origin: "https://passats.aryuacademy.com",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
 
 app.options("*", cors());
