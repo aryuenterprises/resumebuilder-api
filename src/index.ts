@@ -57,20 +57,22 @@ const app = express();
 // );
 
 app.use(cors({
-  origin: "https://passats.aryuacademy.com",
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
-app.options("*", cors({
-  origin: "https://passats.aryuacademy.com",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
+// 🔥 THIS LINE IS CRITICAL
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  return res.sendStatus(200);
+});
 
-app.options("*", cors());
+// app.options("*", cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.json());
