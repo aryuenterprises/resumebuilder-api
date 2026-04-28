@@ -47,14 +47,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3015;
 const app = express();
-app.use(
-  cors({
-    origin: true, // allow all origins
-    credentials: true, // allow cookies/auth headers
-  })
-);
+// app.use(
+//   cors({
+//     origin: true,
+//     credentials: true,
+//   })
+// );
+
+app.use(cors({
+  origin: "*"
+}));
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));

@@ -61,14 +61,10 @@ const getExperienceById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const experience = await Experience.find({ contactId: id });
-    const formattedExperience = experience.map((exp) => ({
-      id: exp._id,
-      experiences: exp.experiences
-    }))
     if (!experience) {
       return res.status(404).json({ message: "Experience not found" });
     }
-    res.json(formattedExperience);
+    res.json(experience);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -82,9 +78,16 @@ const updateExperience = async (req: Request, res: Response) => {
     let existingExperience;
 
     if (id) {
-      existingExperience = await Experience.findOne({ _id: id, contactId, templateId: templateId });
+      existingExperience = await Experience.findOne({
+        _id: id,
+        contactId,
+        templateId: templateId,
+      });
     } else {
-      existingExperience = await Experience.findOne({ contactId, templateId: templateId }).sort({ createdAt: -1 });
+      existingExperience = await Experience.findOne({
+        contactId,
+        templateId: templateId,
+      }).sort({ createdAt: -1 });
     }
 
     if (!existingExperience) {
@@ -156,22 +159,20 @@ const getAllContacts = async (req: Request, res: Response) => {
     // Plan subscriptions
     const planSubscriptions = (
       await Promise.all(
-        contacts.map((contact) =>
-          Payment.findOne({ userId: contact.userId })
-        )
+        contacts.map((contact) => Payment.findOne({ userId: contact.userId })),
       )
     ).filter((ps): ps is NonNullable<typeof ps> => ps !== null);
 
     const result = contacts.map((contact) => {
       const contactIdStr = contact._id.toString();
 
-      const contactExperiences = experiences
-        .filter((exp) => exp.contactId?.toString() === contactIdStr)
-        .flatMap((exp) => exp.experiences || []);
+      // const contactExperiences = experiences
+      //   .filter((exp) => exp.contactId?.toString() === contactIdStr)
+      //   .flatMap((exp) => exp.experiences || []);
 
-      const contactEducations = educations
-        .filter((edu) => edu.contactId?.toString() === contactIdStr)
-        .flatMap((edu) => edu.education || []);
+      // const contactEducations = educations
+      //   .filter((edu) => edu.contactId?.toString() === contactIdStr)
+      //   .flatMap((edu) => edu.education || []);
 
       const contactProjects = projects
         .filter((project) => project.contactId?.toString() === contactIdStr)
@@ -190,7 +191,49 @@ const getAllContacts = async (req: Request, res: Response) => {
               name: s.name,
               id: s._id,
             })),
-          }))
+          })),
+        );
+      const formattedEducation = educations
+        .filter((doc) => doc.contactId?.toString() === contactIdStr)
+        .flatMap((doc) =>
+          // contactId: doc.contactId,
+          // id: doc._id,
+          doc.education.map((edu) => ({
+            id: edu._id,
+            schoolname: edu.schoolname,
+            location: edu.location,
+            degree: edu.degree,
+            startDate: edu.startDate,
+            endDate: edu.endDate,
+            text: edu.text,
+            grade: edu.grade,
+          })),
+        );
+
+      const formattedExperiences = experiences
+        .filter((doc) => doc.contactId?.toString() === contactIdStr)
+        .flatMap((doc) =>
+          doc.experiences.map((edu) => ({
+            id: edu.id || edu._id,
+            jobTitle: edu.jobTitle,
+            employer: edu.employer,
+            location: edu.location,
+            startDate: edu.startDate,
+            endDate: edu.endDate,
+            text: edu.text,
+          })),
+        );
+      const formattedProjects = projects
+        .filter((doc) => doc.contactId?.toString() === contactIdStr)
+        .flatMap((doc) =>
+          doc.projects.map((edu) => ({
+            id: edu.id || edu._id,
+            title: edu.title,
+            techStack: edu.techStack,
+            liveUrl: edu.liveUrl,
+            githubUrl: edu.githubUrl,
+            description: edu.description,
+          })),
         );
 
       const contactSummary = summary
@@ -203,9 +246,9 @@ const getAllContacts = async (req: Request, res: Response) => {
 
       return {
         contact,
-        experiences: contactExperiences,
-        educations: contactEducations,
-        projects: contactProjects,
+        experiences: formattedExperiences,
+        educations: formattedEducation,
+        projects: formattedProjects,
         skills: formattedSkills,
         summary: contactSummary,
         finalize,
@@ -245,7 +288,7 @@ const getUserContacts = async (req: Request, res: Response) => {
           userId: contact.userId,
         });
         return planSubscription;
-      })
+      }),
     );
     const experiences = await Experience.find().lean();
     const educations = await Education.find().lean();
@@ -279,7 +322,7 @@ const getUserContacts = async (req: Request, res: Response) => {
       const finalize = finalizeResumes
         .filter(
           (finalizeResumes) =>
-            finalizeResumes.contactId?.toString() === contactIdStr
+            finalizeResumes.contactId?.toString() === contactIdStr,
         )
         .map((finalizeResumes) => finalizeResumes.skillsData)
         .flat();
@@ -294,19 +337,19 @@ const getUserContacts = async (req: Request, res: Response) => {
         planSubscriptions: {
           planId:
             planSubscriptions.find(
-              (ps) => ps?.userId?.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString(),
             )?.planId || null,
           status:
             planSubscriptions.find(
-              (ps) => ps?.userId?.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString(),
             )?.status || "none",
           amount:
             planSubscriptions.find(
-              (ps) => ps?.userId?.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString(),
             )?.amount || 0,
           paymentDetails:
             planSubscriptions.find(
-              (ps) => ps?.userId?.toString() === contact.userId.toString()
+              (ps) => ps?.userId?.toString() === contact.userId.toString(),
             )?.paymentDetails || null,
         },
       };
