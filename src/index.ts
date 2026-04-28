@@ -57,22 +57,24 @@ const app = express();
 // );
 
 const allowedOrigins = [
-  "https://airesumeportal.aryuacademy.com/",
-  "https://passats.aryuacademy.com/",
-  "http://localhost:3000/"
+  "https://airesumeportal.aryuacademy.com",
+  "https://passats.aryuacademy.com",
+  "http://localhost:3000"
 ];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (Postman, mobile apps)
-    if (!origin) return callback(null, true);
+origin: (origin, callback) => {
+  if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  },
+  const isAllowed = allowedOrigins.some(o => origin.startsWith(o));
+
+  if (isAllowed) {
+    callback(null, true);
+  } else {
+    console.log("Blocked by CORS:", origin); // debug
+    callback(new Error("CORS not allowed"));
+  }
+},
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
