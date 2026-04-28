@@ -47,54 +47,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
-const PORT = process.env.PORT || 3015;
+const PORT = process.env.PORT || 3003;
 const app = express();
-// app.use(
-//   cors({
-//     origin: true,
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: true, // allow all origins
+    credentials: true, // allow cookies/auth headers
+  })
+);
 
-const allowedOrigins = [
-  "https://airesumeportal.aryuacademy.com",
-  "https://passats.aryuacademy.com",
-  "http://localhost:3000"
-];
-
-app.use(cors({
-origin: (origin, callback) => {
-  if (!origin) return callback(null, true);
-
-  const isAllowed = allowedOrigins.some(o => origin.startsWith(o));
-
-  if (isAllowed) {
-    callback(null, true);
-  } else {
-    console.log("Blocked by CORS:", origin); // debug
-    callback(new Error("CORS not allowed"));
-  }
-},
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
-}));
-
-// ✅ Preflight
-app.options("*", cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  },
-  credentials: true
-}));
-
-
-// app.options("*", cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.json());
