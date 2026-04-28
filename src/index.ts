@@ -57,9 +57,9 @@ const app = express();
 // );
 
 const allowedOrigins = [
-  "https://airesumeportal.aryuacademy.com",
-  "https://passats.aryuacademy.com",
-  "http://localhost:3000"
+  "https://airesumeportal.aryuacademy.com/",
+  "https://passats.aryuacademy.com/",
+  "http://localhost:3000/"
 ];
 
 app.use(cors({
