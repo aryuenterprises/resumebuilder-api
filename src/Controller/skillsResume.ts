@@ -52,9 +52,10 @@ const updateSkill = async (req: Request, res: Response) => {
 
     if (id) {
       existingExperience = await Skill.findOne({ _id: id, contactId, templateId:templateId });
-    } else {
-      existingExperience = await Skill.findOne({ contactId, templateId:templateId }).sort({ createdAt: -1 });
-    }
+    } 
+    // else {
+    //   existingExperience = await Skill.findOne({ contactId, templateId:templateId }).sort({ createdAt: -1 });
+    // }
 
     if (!existingExperience) {
       const newExperience = new Skill({

@@ -83,12 +83,13 @@ const updateExperience = async (req: Request, res: Response) => {
         contactId,
         templateId: templateId,
       });
-    } else {
-      existingExperience = await Experience.findOne({
-        contactId,
-        templateId: templateId,
-      }).sort({ createdAt: -1 });
-    }
+    } 
+    // else {
+    //   existingExperience = await Experience.findOne({
+    //     contactId,
+    //     templateId: templateId,
+    //   }).sort({ createdAt: -1 });
+    // }
 
     if (!existingExperience) {
       const newExperience = new Experience({
