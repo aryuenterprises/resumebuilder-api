@@ -48,8 +48,12 @@ const updateEducation = async (req: Request, res: Response) => {
 
     let existingExperience;
 
-    if (id) {
-      existingExperience = await Education.findOne({ _id: id, contactId, templateId:  templateId });
+    if (contactId) {
+      existingExperience = await Education.findOne({ 
+        //_id: id, 
+        contactId, 
+        // templateId:  templateId 
+      });
     }
     //  else {
     //   existingExperience = await Education.findOne({ contactId, templateId:  templateId }).sort({ createdAt: -1 });

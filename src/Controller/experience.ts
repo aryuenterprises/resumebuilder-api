@@ -77,11 +77,11 @@ const updateExperience = async (req: Request, res: Response) => {
 
     let existingExperience;
 
-    if (id) {
+    if (contactId) {
       existingExperience = await Experience.findOne({
-        _id: id,
+        // _id: id,
         contactId,
-        templateId: templateId,
+        // templateId: templateId,
       });
     } 
     // else {

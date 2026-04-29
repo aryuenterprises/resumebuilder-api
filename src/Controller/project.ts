@@ -26,9 +26,10 @@ const updateProjectResume = async (req: Request, res: Response) => {
         let existingProject;
         if (id) {
             existingProject = await ProjectResume.findOne({ _id: id });
-        } else {
-            existingProject = await ProjectResume.findOne({ contactId: contactId });   
-        }
+        } 
+        // else {
+        //     existingProject = await ProjectResume.findOne({ contactId: contactId });   
+        // }
         if(!existingProject){
             const newProjectResume = new ProjectResume({ contactId, projects });
             await newProjectResume.save();
