@@ -130,18 +130,7 @@ const allContactResume = async (req: Request, res: Response) => {
           FinalizeResume.find({ contactId: resumeId }).sort({ createdAt: -1 }),
         ]);
 
-        const formattedSkills = (skills || []).flatMap((doc) =>
-          (doc.skills || []).map((group) => ({
-            contactId: doc.contactId,
-            id: group._id,
-            title: group.title,
-            name: group.name,
-            skills: (group.skills || []).map((s) => ({
-              name: s.name,
-              id: s._id,
-            })),
-          }))
-        );
+        
 
         return {
           templateId: resume?.templateId,
@@ -197,7 +186,7 @@ const allContactResume = async (req: Request, res: Response) => {
               githubUrl: project?.githubUrl,
               _id: project?._id,
             })) || [],
-          skills: formattedSkills,
+          skills: skills?.[0]?.text || [],
           summary: summary?.[0]?.text || "-",
           finalize:
             finalizeResumes?.map((finalize) => ({

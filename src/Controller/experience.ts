@@ -178,21 +178,6 @@ const getAllContacts = async (req: Request, res: Response) => {
         .filter((project) => project.contactId?.toString() === contactIdStr)
         .flatMap((project) => project.projects || []);
 
-      // FIXED: no await inside map, use pre-fetched skillsDocs
-      const formattedSkills = skillsDocs
-        .filter((doc) => doc.contactId?.toString() === contactIdStr)
-        .flatMap((doc) =>
-          (doc.skills || []).map((group) => ({
-            contactId: doc.contactId,
-            id: group._id,
-            title: group.title,
-            name: group.name,
-            skills: (group.skills || []).map((s) => ({
-              name: s.name,
-              id: s._id,
-            })),
-          })),
-        );
       const formattedEducation = educations
         .filter((doc) => doc.contactId?.toString() === contactIdStr)
         .flatMap((doc) =>
@@ -239,6 +224,12 @@ const getAllContacts = async (req: Request, res: Response) => {
       const contactSummary = summary
         .filter((s) => s.contactId?.toString() === contactIdStr)
         .map((s) => s.text);
+      const contactSkills = skillsDocs
+        .filter((s) => s.contactId?.toString() === contactIdStr)
+        .reduce((acc, s) => {
+          acc["text"] = s.text;
+          return acc;
+        }, {});
 
       const finalize = finalizeResumes
         .filter((f) => f.contactId?.toString() === contactIdStr)
@@ -249,7 +240,7 @@ const getAllContacts = async (req: Request, res: Response) => {
         experiences: formattedExperiences,
         educations: formattedEducation,
         projects: formattedProjects,
-        skills: formattedSkills,
+        skills: contactSkills,
         summary: contactSummary,
         finalize,
         planSubscriptions,

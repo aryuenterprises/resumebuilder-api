@@ -46,7 +46,7 @@ import { Skill } from '../models/skillResume';
 const updateSkill = async (req: Request, res: Response) => {
   try {
     const { id, contactId, templateId } = req.query;
-    const { skills } = req.body;
+    const { text } = req.body;
 
     let existingExperience;
 
@@ -60,7 +60,7 @@ const updateSkill = async (req: Request, res: Response) => {
       const newExperience = new Skill({
         contactId,
         templateId,
-        skills,
+        text,
       });
 
       const savedExperience = await newExperience.save();
@@ -72,7 +72,7 @@ const updateSkill = async (req: Request, res: Response) => {
         });
     }
 
-    existingExperience.skills = skills || existingExperience.skills;
+    existingExperience.text = text || existingExperience.text;
     const updatedExperience = await existingExperience.save();
 
     res.status(200).json({
@@ -96,15 +96,10 @@ const getSkillById = async (req: Request, res: Response) => {
     }
 
     const formattedSkills = skills.flatMap((doc) =>
-      (doc.skills || []).map((group) => ({
+      (doc.text || []).map((group) => ({
         contactId: doc.contactId,
         id: group._id,
-        title: group.title,
-        name: group.name,
-        skills: (group.skills || []).map((s) => ({
-          name: s.name,
-          id: s._id,
-        })),
+        text: group.text,
       }))
     );
 
