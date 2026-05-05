@@ -359,7 +359,7 @@ const dashboard = async (req: Request, res: Response) => {
       .lean();
 
     const formattedPayments = updatedPayments.map((payment) => {
-      if(planId && payment.planId?._id.toString() !== planId) {
+      if(!payment.planId) {
         return [];
       }
       let accessPeriod = null;
