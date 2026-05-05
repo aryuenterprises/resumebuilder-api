@@ -359,6 +359,9 @@ const dashboard = async (req: Request, res: Response) => {
       .lean();
 
     const formattedPayments = updatedPayments.map((payment) => {
+      if(planId && payment.planId?._id.toString() !== planId) {
+        return [];
+      }
       let accessPeriod = null;
 
       // Add accessPeriod ONLY if plan is "7-days access"

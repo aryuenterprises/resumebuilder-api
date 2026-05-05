@@ -73,6 +73,7 @@ import {PaymentRazor} from "../models/paymentRazorModel";
 
 // Cron job for "one month" plans - runs daily at midnight
 cron.schedule("0 0 * * *", async () => {
+// cron.schedule("* * * * *", async () => {
   console.log("Checking for expired 'one month' plans...");
 
   const oneMonthAgo = new Date();
