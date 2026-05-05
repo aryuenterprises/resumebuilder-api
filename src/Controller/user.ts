@@ -358,10 +358,8 @@ const dashboard = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    const formattedPayments = updatedPayments.map((payment) => {
-      if(!payment.planId) {
-        return [];
-      }
+    const formattedPayments = updatedPayments.filter(payment => payment.planId).map((payment) => {
+      
       let accessPeriod = null;
 
       // Add accessPeriod ONLY if plan is "7-days access"
