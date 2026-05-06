@@ -10,7 +10,8 @@ import { PaymentLog } from "../models/paymentLogModel";
 import bcrypt from "bcryptjs";
 import { setting } from "../models/setting";
 import {PaymentRazor} from "../models/paymentRazorModel";
-import paymentRazorLogModel from "@models/paymentRazorLogModel";
+import paymentRazorLogModel from "../models/paymentRazorLogModel";
+import { PlanSubscription } from "../models/planSubscription";
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
     const users = await User.find({ isDeleted: "0" }).sort({ createdAt: -1 });
@@ -115,6 +116,23 @@ const addUser = async (req: Request, res: Response) => {
       firstName,
       verificationLink,
       fromName,
+    });
+    const plan = await PlanSubscription.findOne({ plan: "free" });
+
+    //free plan
+    const payment = await PaymentRazor.create({
+      userId: user._id,
+      planId: plan?._id,
+      amount: 0,
+      status: "paid",
+      orderId: crypto.randomBytes(16).toString("hex"),
+    });
+    const paymentLog = await paymentRazorLogModel.create({
+      userId: user._id,
+      amount: 0,
+      planId: plan?._id,
+      status: "paid",
+      orderId: payment.orderId,
     });
 
     res.status(201).json({
